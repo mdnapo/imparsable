@@ -1,6 +1,6 @@
 namespace Imparsable.Parsing;
 
-public abstract partial class Lexer<TToken>
+public partial class Lexer<TToken>
 {
     public readonly struct Token(string file, TToken type, string lexeme, int line, int column) : ISourceMarker
     {

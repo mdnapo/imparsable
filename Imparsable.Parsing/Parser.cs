@@ -1,9 +1,20 @@
 namespace Imparsable.Parsing;
 
-public static partial class Parser<TToken> where TToken : Enum
+public class Parser<TToken, TSyntax>(
+    Lexer<TToken>.Context ctx,
+    List<TSyntax> syntax,
+    Parser<TToken, TSyntax>.IProduction entrypoint
+)
+    where TToken : Enum
+    where TSyntax : ISyntax<TToken>
 {
-    public interface IProduction<out TSyntax> where TSyntax : ISyntax<TToken>
+    public interface IProduction
     {
-        public static abstract TSyntax Parse(Context context);
+        public static abstract TSyntax Parse(Parser<TToken>.Context context);
+    }
+
+    public List<ISyntax<TToken>> Execute()
+    {
+        throw new NotImplementedException();
     }
 }

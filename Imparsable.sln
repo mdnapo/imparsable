@@ -2,13 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.API", "Imparsable.API\Imparsable.API.csproj", "{C2DA02D1-525B-4A1A-8414-861B8635B243}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Core", "Imparsable.Core\Imparsable.Core.csproj", "{8451CC4B-85E2-4FB6-8429-CEDDAAF53B0C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Parsing", "Imparsable.Parsing\Imparsable.Parsing.csproj", "{BB6066FD-85AA-40B8-B343-F46260481FFF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.CLI", "Imparsable.CLI\Imparsable.CLI.csproj", "{3C88BC24-86FD-41E2-A85A-A8AEF4776700}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Tool.Calculator", "Imparsable.Tool.Calculator\Imparsable.Tool.Calculator.csproj", "{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Playground", "Imparsable.Playground\Imparsable.Playground.csproj", "{2E15D49E-DFD1-4508-88DE-64975CAD7C06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,10 +20,6 @@ Global
 		{C2DA02D1-525B-4A1A-8414-861B8635B243}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2DA02D1-525B-4A1A-8414-861B8635B243}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2DA02D1-525B-4A1A-8414-861B8635B243}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8451CC4B-85E2-4FB6-8429-CEDDAAF53B0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8451CC4B-85E2-4FB6-8429-CEDDAAF53B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8451CC4B-85E2-4FB6-8429-CEDDAAF53B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8451CC4B-85E2-4FB6-8429-CEDDAAF53B0C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BB6066FD-85AA-40B8-B343-F46260481FFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BB6066FD-85AA-40B8-B343-F46260481FFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB6066FD-85AA-40B8-B343-F46260481FFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -36,5 +32,9 @@ Global
 		{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

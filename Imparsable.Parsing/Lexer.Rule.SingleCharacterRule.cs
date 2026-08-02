@@ -1,10 +1,10 @@
 namespace Imparsable.Parsing;
 
-public abstract partial class Lexer<TToken>
+public partial class Lexer<TToken>
 {
     public abstract partial class Rule
     {
-        public class CharacterRule(TToken type, char @char) : Rule
+        public class SingleCharacterRule(TToken type, char @char) : Rule
         {
             public override bool Match(Context ctx)
             {

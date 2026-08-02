@@ -7,56 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Imparsable.Core\Imparsable.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Lexer.Rule.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.DoubleQuoteString.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.Identifier.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.IgnoreWhitespace.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.NewLine.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.Number.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.SingleQuoteString.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Token.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Parser.Configuration.cs">
-        <DependentUpon>Parser.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.CharacterRule.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Rule.MultiCharacterRule.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Keyword.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Parser.Context.cs">
-        <DependentUpon>Parser.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Lexer.Context.cs">
-        <DependentUpon>Lexer.cs</DependentUpon>
-      </Compile>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
     </ItemGroup>
 
 </Project>

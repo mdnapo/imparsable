@@ -1,0 +1,51 @@
+using Imparsable.Parsing;
+
+namespace Imparsable.Tool.Calculator.Syntax;
+
+public class BinaryExpression : ISyntax, IProduction
+{
+    private static readonly Token[] AssignmentOperators = [Calculator.Token.EQUALS];
+    private static readonly Token[] AdditionSubtractionOperators = [Calculator.Token.PLUS, Calculator.Token.MINUS];
+    private static readonly Token[] MultiplicationDivisionOperators = [Calculator.Token.STAR, Calculator.Token.SLASH];
+
+    public required Lexer<Token>.Token Token { get; init; }
+    public required ISyntax LeftOperand { get; init; }
+    public required Lexer<Token>.Token Op { get; init; }
+    public required ISyntax RightOperand { get; init; }
+
+    public static ISyntax Parse(Parser<Token>.Context context) => Assignment(context);
+
+    private static ISyntax Assignment(Parser<Token>.Context context) =>
+        Parse(context, AssignmentOperators, AdditionSubtraction);
+
+    private static ISyntax AdditionSubtraction(Parser<Token>.Context context) =>
+        Parse(context, AdditionSubtractionOperators, MultiplicationDivision);
+
+    private static ISyntax MultiplicationDivision(Parser<Token>.Context context) =>
+        Parse(context, MultiplicationDivisionOperators, UnaryExpression.Parse);
+
+    private static ISyntax Parse(
+        Parser<Token>.Context context,
+        Token[] operators,
+        ISyntax.Func<ISyntax> parser
+    )
+    {
+        var expr = parser(context);
+
+        while (context.MatchAny(operators))
+        {
+            var @operator = context.Previous();
+            var right = parser(context);
+
+            expr = new BinaryExpression
+            {
+                Token = @operator,
+                LeftOperand = expr,
+                Op = @operator,
+                RightOperand = right
+            };
+        }
+
+        return expr;
+    }
+}

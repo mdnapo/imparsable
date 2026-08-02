@@ -2,7 +2,7 @@ using Imparsable.Parsing.Exceptions;
 
 namespace Imparsable.Parsing;
 
-public abstract partial class Lexer<TToken>
+public partial class Lexer<TToken>
 {
     public abstract partial class Rule
     {

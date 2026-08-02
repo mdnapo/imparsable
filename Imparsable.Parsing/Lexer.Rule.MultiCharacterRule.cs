@@ -1,6 +1,6 @@
 namespace Imparsable.Parsing;
 
-public abstract partial class Lexer<TToken>
+public partial class Lexer<TToken>
 {
     public abstract partial class Rule
     {
@@ -14,7 +14,7 @@ public abstract partial class Lexer<TToken>
                 var column = ctx.Source.Column;
                 var lexeme = ctx.Source.Extract();
                 ctx.Source.Column += @string.Length;
-                ctx.Tokens.Add(new Token(ctx.File, type, lexeme, line, column));
+                ctx.Tokens.Add(new Token(ctx.Source.File, type, lexeme, line, column));
 
                 return true;
             }

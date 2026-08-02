@@ -1,17 +1,17 @@
 namespace Imparsable.Parsing;
 
-public abstract partial class Lexer<TToken>
+public partial class Lexer<TToken>
 {
-    public class Context(Parser<TToken>.Configuration configuration, string file, Source source, List<Token> tokens)
+    public class Context(Parser<TToken>.Configuration configuration, SourceProvider sourceProvider, List<Token> tokens)
     {
-        public string File { get; } = file;
-        public Source Source { get; } = source;
+        public Parser<TToken>.Configuration Configuration { get; } = configuration;
+        public Source Source { get; } = sourceProvider.Source;
         public List<Token> Tokens { get; } = tokens;
 
         public void AddToken(TToken type, string lexeme, int line = -1, int column = -1)
         {
             Tokens.Add(new Token(
-                File,
+                Source.File,
                 type,
                 lexeme,
                 line == -1 ? Source.Line : line,
@@ -24,7 +24,7 @@ public abstract partial class Lexer<TToken>
             int line = Source.Line, column = Source.Column;
             Source.Advance();
             var lexeme = Source.Extract();
-            AddToken(configuration.Unexpected, lexeme, line, column);
+            AddToken(Configuration.Unexpected, lexeme, line, column);
         }
     }
 }

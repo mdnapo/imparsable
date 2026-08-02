@@ -1,6 +1,6 @@
 namespace Imparsable.Parsing;
 
-public abstract partial class Lexer<TToken>
+public partial class Lexer<TToken>
 {
     public class Keyword
     {
