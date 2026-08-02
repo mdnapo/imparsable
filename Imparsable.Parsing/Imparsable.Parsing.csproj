@@ -42,9 +42,6 @@
       <Compile Update="Parser.Configuration.cs">
         <DependentUpon>Parser.cs</DependentUpon>
       </Compile>
-      <Compile Update="Parser.Mode.cs">
-        <DependentUpon>Parser.cs</DependentUpon>
-      </Compile>
       <Compile Update="Lexer.Rule.CharacterRule.cs">
         <DependentUpon>Lexer.cs</DependentUpon>
       </Compile>
@@ -52,6 +49,12 @@
         <DependentUpon>Lexer.cs</DependentUpon>
       </Compile>
       <Compile Update="Lexer.Keyword.cs">
+        <DependentUpon>Lexer.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Parser.Context.cs">
+        <DependentUpon>Parser.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Lexer.Context.cs">
         <DependentUpon>Lexer.cs</DependentUpon>
       </Compile>
     </ItemGroup>

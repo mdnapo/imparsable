@@ -1,10 +1,9 @@
 namespace Imparsable.Parsing;
 
-public abstract partial class Parser<TToken>
+public static partial class Parser<TToken>
 {
     public class Configuration
     {
-        public Mode Mode { get; set; } = Mode.Strict;
         public int SpaceSize { get; set; } = 1;
         public int TabSize { get; set; } = 4;
         

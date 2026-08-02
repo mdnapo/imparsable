@@ -2,7 +2,7 @@ using Imparsable.Parsing.Exceptions;
 
 namespace Imparsable.Parsing;
 
-public abstract partial class Parser<TToken>
+public static partial class Parser<TToken>
 {
     public class Context(Configuration configuration, List<Lexer<TToken>.Token> tokens)
         : Stream<Lexer<TToken>.Token>(tokens.ToArray())
