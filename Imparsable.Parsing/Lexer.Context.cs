@@ -4,7 +4,13 @@ namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>
 {
-    public class Context(Parser<TToken>.Configuration configuration, Source source, List<Token> tokens)
+    public class Context(
+        Parser<TToken>.Configuration configuration,
+        IEnumerable<Keyword> keywords,
+        Source source,
+        List<Token> tokens,
+        DiagnosticsCollector diagnostics
+    )
     {
         public Parser<TToken>.Configuration Configuration { get; } = configuration;
         public Source Source { get; } = source;
@@ -12,6 +18,11 @@ public partial class Lexer<TToken>
 
         public void AddToken(TToken type, string lexeme, int line = -1, int column = -1)
         {
+            if (type.Equals(Configuration.Identifier))
+            {
+                type = keywords.FirstOrDefault(k => k.Name.Equals(lexeme)) is { } keyword ? keyword.Type : type;
+            }
+
             Tokens.Add(new Token(
                 Source.File,
                 type,
@@ -28,7 +39,10 @@ public partial class Lexer<TToken>
             int line = Source.Line, column = Source.Column;
             Source.Advance();
             var lexeme = Source.Extract();
-            AddToken(Configuration.Unexpected, lexeme, line, column);
+            var token = new Token(Source.File, Configuration.Unexpected, lexeme, line, column);
+            diagnostics.Error(token, $"Unexpected token '{token.Lexeme}'.");
         }
+
+        public void Complete() => AddToken(Configuration.End, "<END>", Source.Line, Source.Column);
     }
 }
