@@ -2,10 +2,10 @@ namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>
 {
-    public class Context(Parser<TToken>.Configuration configuration, SourceProvider sourceProvider, List<Token> tokens)
+    public class Context(Parser<TToken>.Configuration configuration, Source source, List<Token> tokens)
     {
         public Parser<TToken>.Configuration Configuration { get; } = configuration;
-        public Source Source { get; } = sourceProvider.Source;
+        public Source Source { get; } = source;
         public List<Token> Tokens { get; } = tokens;
 
         public void AddToken(TToken type, string lexeme, int line = -1, int column = -1)

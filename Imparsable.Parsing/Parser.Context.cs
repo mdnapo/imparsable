@@ -4,11 +4,6 @@ namespace Imparsable.Parsing;
 
 public partial class Parser<TToken> where TToken : Enum
 {
-    public class ContextProvider(Configuration configuration, List<Lexer<TToken>.Token> tokens)
-    {
-        public Context GetContext() => new(configuration, tokens);
-    }
-
     public class Context(Configuration configuration, List<Lexer<TToken>.Token> tokens)
         : Stream<Lexer<TToken>.Token>(tokens.ToArray())
     {

@@ -9,11 +9,11 @@ var services = new ServiceCollection()
     .BuildServiceProvider();
 
 await using var scope = services.CreateAsyncScope();
-var file = "test/program.clc";
+const string file = "test/program.clc";
 var source = await File.ReadAllTextAsync(file);
 
 scope.ServiceProvider
-    .GetRequiredService<SourceProvider>()
+    .GetRequiredService<Lexer<Token>.ContextProvider>()
     .Initialize(file, source);
 
 var syntax = scope.ServiceProvider

@@ -9,11 +9,15 @@ public static class ServiceCollectionExtensions
         where TSyntax : ISyntax<TToken>
     {
         services
+            // Add configuration
             .AddSingleton<Parser<TToken>.Configuration>()
-            .AddScoped<SourceProvider>()
+            // Add Lexer
+            .AddScoped<Lexer<TToken>.ContextProvider>()
+            .AddScoped<Source>(sp => sp.GetRequiredService<Lexer<TToken>.ContextProvider>().Source)
+            .AddScoped<Lexer<TToken>.Context>(sp => sp.GetRequiredService<Lexer<TToken>.ContextProvider>().GetContext())
             .AddScoped<List<Lexer<TToken>.Token>>()
-            .AddScoped<Lexer<TToken>.Context>()
             .AddScoped<Lexer<TToken>>()
+            // Add Parser
             .AddScoped<Parser<TToken>.ContextProvider>()
             .AddScoped<List<TSyntax>>()
             .AddScoped<Parser<TToken, TSyntax>>()
