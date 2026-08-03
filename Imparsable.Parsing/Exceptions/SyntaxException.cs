@@ -1,3 +1,3 @@
 namespace Imparsable.Parsing.Exceptions;
 
-public class SyntaxException : MarkedException<SyntaxException>;
+public class SyntaxException(string message) : MarkedException<SyntaxException>(message);

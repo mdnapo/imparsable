@@ -10,23 +10,16 @@ public partial class Lexer<TToken>
             {
                 var src = context.Source;
 
-                if (src.Match('\r'))
+                if (src.Match('\r') || src.Match(' '))
                 {
                     src.Ignore();
-                    return true;
-                }
-
-                if (src.Match(' '))
-                {
-                    src.Ignore();
-                    src.Column += configuration.SpaceSize;
                     return true;
                 }
 
                 if (src.Match('\t'))
                 {
                     src.Ignore();
-                    src.Column += configuration.TabSize;
+                    src.Column += configuration.TabSize - 1;
                     return true;
                 }
 

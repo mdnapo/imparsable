@@ -8,14 +8,12 @@ public partial class Lexer<TToken>
         {
             public override bool Match(Context ctx)
             {
-                if (!ctx.Source.Match(@char)) return false;
-
-                var line = ctx.Source.Line;
-                var column = ctx.Source.Column;
-                var lexeme = ctx.Source.Extract();
-
-                ctx.Source.Column += 1;
-
+                var src = ctx.Source;
+                int line = src.Line, column = src.Column;
+                
+                if (!src.Match(@char)) return false;
+                
+                var lexeme = src.Extract();
                 ctx.AddToken(type, lexeme, line, column);
 
                 return true;

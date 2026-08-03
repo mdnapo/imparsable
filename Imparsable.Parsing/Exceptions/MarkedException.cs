@@ -1,6 +1,6 @@
 namespace Imparsable.Parsing.Exceptions;
 
-public abstract class MarkedException<T> : Exception where T : Exception, new()
+public abstract class MarkedException<T>(string? message) : Exception(message) where T : Exception
 {
     public static T Create(ISourceMarker marker, string? message)
     {

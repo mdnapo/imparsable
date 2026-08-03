@@ -7,7 +7,6 @@ public static partial class Parser<TToken> where TToken : Enum
 {
     public class Configuration
     {
-        public int SpaceSize { get; set; } = 1;
         public int TabSize { get; set; } = 4;
 
         public TToken Identifier { get; } = GetValue<IdentifierAttribute>();

@@ -10,6 +10,8 @@ public partial class Lexer<TToken>(
 
     public List<Token> Execute()
     {
+        if (ctx.Source.Ended()) return ctx.Tokens;
+
         while (!ctx.Source.Ended())
             if (!_rules.Any(rule => rule.Match(ctx)))
                 ctx.MarkUnexpected();

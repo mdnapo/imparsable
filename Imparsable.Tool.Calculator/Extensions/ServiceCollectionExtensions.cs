@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCalculatorParser(this IServiceCollection services) =>
         services
-            .AddParserServices<Token>()
+            .AddParserServices<Token, ISyntax>()
             .AddIgnoreWhitespaceRule<Token>()
             .AddNewLineRule<Token>()
             .AddDoubleQuoteStringRule(Token.STRING)

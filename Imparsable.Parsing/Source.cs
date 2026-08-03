@@ -3,10 +3,10 @@ namespace Imparsable.Parsing;
 public class Source(string file, string source) : Stream<char>(source.AsMemory()), ISourceMarker
 {
     public string File { get; } = file;
-    public int Start { get; set; }
     public int Line { get; set; } = 1;
     public int Column { get; set; } = 1;
     public char Last => Tokens[^1];
+    private int Start { get; set; }
 
     public override char Advance()
     {
@@ -32,6 +32,7 @@ public class Source(string file, string source) : Stream<char>(source.AsMemory()
     {
         if (Tokens[Position] != expected) return false;
         Position += 1;
+        Column += 1;
         return true;
     }
 
@@ -48,6 +49,7 @@ public class Source(string file, string source) : Stream<char>(source.AsMemory()
         }
 
         Position += expected.Length;
+        Column += expected.Length; 
 
         return true;
     }

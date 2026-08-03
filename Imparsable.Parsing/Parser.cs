@@ -1,9 +1,9 @@
 namespace Imparsable.Parsing;
 
 public class Parser<TToken, TSyntax>(
-    Lexer<TToken>.Context ctx,
-    List<TSyntax> syntax,
-    Parser<TToken, TSyntax>.IProduction entrypoint
+    Lexer<TToken> lexer,
+    Parser<TToken>.ContextProvider contextProvider, 
+    List<TSyntax> syntax
 )
     where TToken : Enum
     where TSyntax : ISyntax<TToken>
@@ -13,8 +13,15 @@ public class Parser<TToken, TSyntax>(
         public static abstract TSyntax Parse(Parser<TToken>.Context context);
     }
 
-    public List<ISyntax<TToken>> Execute()
+    public List<TSyntax> Execute<TProduction>() where TProduction : IProduction
     {
-        throw new NotImplementedException();
+        lexer.Execute();
+        
+        var context = contextProvider.GetContext();
+        
+        while (!context.Ended())
+            syntax.Add(TProduction.Parse(context));
+
+        return syntax;
     }
 }

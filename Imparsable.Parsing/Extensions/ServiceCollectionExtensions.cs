@@ -4,7 +4,9 @@ namespace Imparsable.Parsing.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddParserServices<TToken>(this IServiceCollection services) where TToken : Enum
+    public static IServiceCollection AddParserServices<TToken, TSyntax>(this IServiceCollection services)
+        where TToken : Enum
+        where TSyntax : ISyntax<TToken>
     {
         services
             .AddSingleton<Parser<TToken>.Configuration>()
@@ -12,6 +14,9 @@ public static class ServiceCollectionExtensions
             .AddScoped<List<Lexer<TToken>.Token>>()
             .AddScoped<Lexer<TToken>.Context>()
             .AddScoped<Lexer<TToken>>()
+            .AddScoped<Parser<TToken>.ContextProvider>()
+            .AddScoped<List<TSyntax>>()
+            .AddScoped<Parser<TToken, TSyntax>>()
             ;
 
         return services;
