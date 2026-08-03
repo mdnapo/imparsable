@@ -1,26 +1,54 @@
+using Imparsable.Parsing.Exceptions;
+
 namespace Imparsable.Parsing;
 
-public class Parser<TToken, TSyntax>(
+public partial class Parser<TToken, TSyntax>(
     Lexer<TToken> lexer,
-    Parser<TToken>.ContextProvider contextProvider, 
-    List<TSyntax> syntax
+    List<TSyntax> syntax,
+    DiagnosticsCollector diagnostics
 )
     where TToken : Enum
     where TSyntax : ISyntax<TToken>
 {
-    public interface IProduction
-    {
-        public static abstract TSyntax Parse(Parser<TToken>.Context context);
-    }
-
     public List<TSyntax> Execute<TProduction>() where TProduction : IProduction
     {
-        lexer.Execute();
-        
-        var context = contextProvider.GetContext();
-        
+        var context = lexer.Execute();
+
         while (!context.Ended())
-            syntax.Add(TProduction.Parse(context));
+        {
+            try
+            {
+                syntax.Add(TProduction.Parse(context));
+            }
+            catch (SyntaxException e)
+            {
+                diagnostics.Error(e.Marker, e.Message);
+                break;
+            }
+        }
+
+        return syntax;
+    }
+
+    public List<TSyntax> Execute<TProduction, TSynchronizer>()
+        where TProduction : IProduction
+        where TSynchronizer : ISynchronizer
+    {
+        var context = lexer.Execute();
+
+        while (!context.Ended())
+        {
+            try
+            {
+                syntax.Add(TProduction.Parse(context));
+            }
+            catch (SyntaxException e)
+            {
+                diagnostics.Error(e.Marker, e.Message);
+                if (!TSynchronizer.Synchronize(context))
+                    break;
+            }
+        }
 
         return syntax;
     }

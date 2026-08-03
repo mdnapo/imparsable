@@ -1,3 +1,5 @@
+using Imparsable.Parsing.Exceptions;
+
 namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>
@@ -18,6 +20,8 @@ public partial class Lexer<TToken>
                 column == -1 ? Source.Column : column
             ));
         }
+
+        public void Halt(string message) => throw new SyntaxException(Source, message);
 
         public void MarkUnexpected()
         {

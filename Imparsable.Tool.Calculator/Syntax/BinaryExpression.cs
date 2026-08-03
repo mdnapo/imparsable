@@ -4,9 +4,9 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public class BinaryExpression : ISyntax, IProduction
 {
-    private static readonly Token[] AssignmentOperators = [Calculator.Token.EQUALS];
-    private static readonly Token[] AdditionSubtractionOperators = [Calculator.Token.PLUS, Calculator.Token.MINUS];
-    private static readonly Token[] MultiplicationDivisionOperators = [Calculator.Token.STAR, Calculator.Token.SLASH];
+    private static readonly Token[] AssignmentOperators = [Syntax.Token.EQUALS];
+    private static readonly Token[] AdditionSubtractionOperators = [Syntax.Token.PLUS, Syntax.Token.MINUS];
+    private static readonly Token[] MultiplicationDivisionOperators = [Syntax.Token.STAR, Syntax.Token.SLASH];
 
     public required Lexer<Token>.Token Token { get; init; }
     public required ISyntax LeftOperand { get; init; }

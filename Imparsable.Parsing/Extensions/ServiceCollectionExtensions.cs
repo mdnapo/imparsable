@@ -11,6 +11,8 @@ public static class ServiceCollectionExtensions
         services
             // Add configuration
             .AddSingleton<Parser<TToken>.Configuration>()
+            // Add DiagnosticsCollector
+            .AddScoped<DiagnosticsCollector>()
             // Add Lexer
             .AddScoped<Lexer<TToken>.ContextProvider>()
             .AddScoped<Source>(sp => sp.GetRequiredService<Lexer<TToken>.ContextProvider>().Source)
@@ -18,7 +20,6 @@ public static class ServiceCollectionExtensions
             .AddScoped<List<Lexer<TToken>.Token>>()
             .AddScoped<Lexer<TToken>>()
             // Add Parser
-            .AddScoped<Parser<TToken>.ContextProvider>()
             .AddScoped<List<TSyntax>>()
             .AddScoped<Parser<TToken, TSyntax>>()
             ;

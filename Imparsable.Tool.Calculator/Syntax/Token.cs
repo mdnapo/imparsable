@@ -1,6 +1,6 @@
 using Imparsable.Parsing.Attributes;
 
-namespace Imparsable.Tool.Calculator;
+namespace Imparsable.Tool.Calculator.Syntax;
 
 public enum Token
 {

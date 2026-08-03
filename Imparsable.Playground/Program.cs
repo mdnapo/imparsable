@@ -1,5 +1,4 @@
 ﻿using Imparsable.Parsing;
-using Imparsable.Tool.Calculator;
 using Imparsable.Tool.Calculator.Extensions;
 using Imparsable.Tool.Calculator.Syntax;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,9 +17,16 @@ scope.ServiceProvider
 
 var syntax = scope.ServiceProvider
     .GetRequiredService<Parser<Token, ISyntax>>()
-    .Execute<StatementProduction>();
+    .Execute<Statement.Production, Statement.Synchronizer>();
 
 var tokens = scope.ServiceProvider
     .GetRequiredService<List<Lexer<Token>.Token>>();
+
+var diagnostics = scope.ServiceProvider
+    .GetRequiredService<DiagnosticsCollector>()
+    .Diagnostics;
+
+foreach (var diagnostic in diagnostics)
+    Console.WriteLine(diagnostic.Report);
 
 Console.WriteLine();

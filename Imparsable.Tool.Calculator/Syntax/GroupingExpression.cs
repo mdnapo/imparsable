@@ -13,7 +13,7 @@ public class GroupingExpression : ISyntax, IProduction
     {
         var leftParenthesis = context.Previous();
         var expression = ExpressionProduction.Parse(context);
-        var rightParenthesis = context.Consume(Calculator.Token.RIGHT_PARENTHESIS, "Expected ')'.");
+        var rightParenthesis = context.Consume(Syntax.Token.RIGHT_PARENTHESIS, "Expected ')'.");
 
         return new GroupingExpression
         {

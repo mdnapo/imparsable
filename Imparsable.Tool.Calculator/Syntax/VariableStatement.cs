@@ -13,9 +13,9 @@ public class VariableStatement : ISyntax, IProduction
     public static ISyntax Parse(Parser<Token>.Context context)
     {
         var token = context.Previous();
-        var identifier = context.Consume(Calculator.Token.IDENTIFIER, "Expected an identifier.");
+        var identifier = context.Consume(Syntax.Token.IDENTIFIER, "Expected an identifier.");
 
-        if (context.Match(Calculator.Token.SEMICOLON))
+        if (context.Match(Syntax.Token.SEMICOLON))
         {
             return new VariableStatement
             {
@@ -25,9 +25,9 @@ public class VariableStatement : ISyntax, IProduction
             };
         }
 
-        var assignment = context.Consume(Calculator.Token.EQUALS, "Expected '='.");
+        var assignment = context.Consume(Syntax.Token.EQUALS, "Expected '='.");
         var initializer = ExpressionProduction.Parse(context);
-        var semiColon = context.Consume(Calculator.Token.SEMICOLON, "Expected ';'.");
+        var semiColon = context.Consume(Syntax.Token.SEMICOLON, "Expected ';'.");
 
         return new VariableStatement
         {

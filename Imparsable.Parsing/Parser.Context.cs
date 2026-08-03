@@ -106,15 +106,15 @@ public partial class Parser<TToken> where TToken : Enum
                 }
             }
 
-            throw Error(message);
+            throw Halt(message);
         }
 
         public Lexer<TToken>.Token Consume(TToken type, string message)
         {
             if (Check(type)) return Advance();
-            throw Error(message);
+            throw Halt(message);
         }
 
-        public SyntaxException Error(string message) => SyntaxException.Create(Current, message);
+        public SyntaxException Halt(string message) => throw new SyntaxException(Current, message);
     }
 }

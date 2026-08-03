@@ -13,10 +13,10 @@ public class ConstStatement : ISyntax, IProduction
     public static ISyntax Parse(Parser<Token>.Context context)
     {
         var token = context.Previous();
-        var identifier = context.Consume(Calculator.Token.IDENTIFIER, "Expected an identifier.");
-        var assignment = context.Consume(Calculator.Token.EQUALS, "Expected '='.");
+        var identifier = context.Consume(Syntax.Token.IDENTIFIER, "Expected an identifier.");
+        var assignment = context.Consume(Syntax.Token.EQUALS, "Expected '='.");
         var initializer = ExpressionProduction.Parse(context);
-        var semiColon = context.Consume(Calculator.Token.SEMICOLON, "Expected ';'.");
+        var semiColon = context.Consume(Syntax.Token.SEMICOLON, "Expected ';'.");
 
         return new ConstStatement
         {

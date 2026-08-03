@@ -1,5 +1,3 @@
-using Imparsable.Parsing.Exceptions;
-
 namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>
@@ -29,7 +27,7 @@ public partial class Lexer<TToken>
 
                 if (src.Ended())
                 {
-                    SyntaxException.Throw(src, $"Unterminated string near '{src.Last}'.");
+                    context.Halt($"Unterminated string near '{src.Last}'.");
                 }
 
                 // Include the closing quotation mark.

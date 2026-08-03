@@ -11,7 +11,7 @@ public class ExpressionStatement : ISyntax, IProduction
     public static ISyntax Parse(Parser<Token>.Context context)
     {
         var expr = ExpressionProduction.Parse(context);
-        var semiColon = context.Consume(Calculator.Token.SEMICOLON, "Expected ';'.");
+        var semiColon = context.Consume(Syntax.Token.SEMICOLON, "Expected ';'.");
         return new ExpressionStatement
         {
             Token = expr.Token,

@@ -12,7 +12,7 @@ public class PrintStatement : ISyntax, IProduction
     {
         var token = context.Previous();
         var expression = ExpressionProduction.Parse(context);
-        var semiColon = context.Consume(Calculator.Token.SEMICOLON, "Expected ';'.");
+        var semiColon = context.Consume(Syntax.Token.SEMICOLON, "Expected ';'.");
 
         return new PrintStatement
         {

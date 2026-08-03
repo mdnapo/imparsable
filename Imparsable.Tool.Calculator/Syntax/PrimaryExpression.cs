@@ -18,6 +18,6 @@ public abstract class PrimaryExpression : IProduction
         if (context.Match(Token.NUMBER))
             return NumericLiteralExpression.Parse(context);
 
-        throw context.Error("Expected an expression.");
+        throw context.Halt("Expected an expression.");
     }
 }

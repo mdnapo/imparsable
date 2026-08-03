@@ -4,7 +4,7 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public class UnaryExpression : ISyntax, IProduction
 {
-    private static readonly Token[] Operators = [Calculator.Token.MINUS];
+    private static readonly Token[] Operators = [Syntax.Token.MINUS];
     public required Lexer<Token>.Token Token { get; init; }
     public required ISyntax Operand { get; init; }
     public required Lexer<Token>.Token Op { get; init; }

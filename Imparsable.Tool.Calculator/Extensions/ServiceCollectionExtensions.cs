@@ -1,4 +1,5 @@
 using Imparsable.Parsing.Extensions;
+using Imparsable.Tool.Calculator.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Imparsable.Tool.Calculator.Extensions;
