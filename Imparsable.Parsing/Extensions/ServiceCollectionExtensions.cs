@@ -4,13 +4,16 @@ namespace Imparsable.Parsing.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddParserServices<TToken, TSyntax>(this IServiceCollection services)
+    public static IServiceCollection AddParser<TToken, TSyntax>(
+        this IServiceCollection services,
+        IEnumerable<TToken> keywords
+    )
         where TToken : Enum
         where TSyntax : ISyntax<TToken>
     {
         services
             // Add configuration
-            .AddSingleton<Parser<TToken>.Configuration>()
+            .AddSingleton(new Parser<TToken>.Configuration(keywords))
             // Add DiagnosticsCollector
             .AddScoped<DiagnosticsCollector>()
             // Add Lexer
@@ -64,8 +67,4 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSingleQuoteStringRule<TToken>(this IServiceCollection services, TToken type)
         where TToken : Enum =>
         services.AddScoped<Lexer<TToken>.Rule>(_ => new Lexer<TToken>.Rule.SingleQuoteString(type));
-
-    public static IServiceCollection AddKeyword<TToken>(this IServiceCollection services, TToken type)
-        where TToken : Enum =>
-        services.AddScoped(_ => new Lexer<TToken>.Keyword { Name = type.ToString().ToLower(), Type = type });
 }

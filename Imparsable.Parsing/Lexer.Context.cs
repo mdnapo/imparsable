@@ -6,7 +6,6 @@ public partial class Lexer<TToken>
 {
     public class Context(
         Parser<TToken>.Configuration configuration,
-        IEnumerable<Keyword> keywords,
         Source source,
         List<Token> tokens,
         DiagnosticsCollector diagnostics
@@ -20,7 +19,9 @@ public partial class Lexer<TToken>
         {
             if (type.Equals(Configuration.Identifier))
             {
-                type = keywords.FirstOrDefault(k => k.Name.Equals(lexeme)) is { } keyword ? keyword.Type : type;
+                type = Configuration.Keywords.FirstOrDefault(IsKeyword()) is { } keyword
+                    ? keyword.Type
+                    : type;
             }
 
             Tokens.Add(new Token(
@@ -30,6 +31,10 @@ public partial class Lexer<TToken>
                 line == -1 ? Source.Line : line,
                 column == -1 ? Source.Column : column
             ));
+
+            return;
+
+            Func<Keyword, bool> IsKeyword() => kw => kw.Name.Equals(lexeme, StringComparison.OrdinalIgnoreCase);
         }
 
         public void Halt(string message) => throw new SyntaxException(Source, message);

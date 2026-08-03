@@ -4,7 +4,6 @@ public partial class Lexer<TToken>
 {
     public class ContextProvider(
         Parser<TToken>.Configuration configuration,
-        IEnumerable<Keyword> keywords,
         List<Token> tokens,
         DiagnosticsCollector diagnostics
     )
@@ -13,6 +12,6 @@ public partial class Lexer<TToken>
         public Source Source => _source ?? throw new InvalidOperationException("Source was not initialized.");
 
         public void Initialize(string file, string source) => _source = new Source(file, source);
-        public Context GetContext() => new(configuration, keywords, Source, tokens, diagnostics);
+        public Context GetContext() => new(configuration, Source, tokens, diagnostics);
     }
 }

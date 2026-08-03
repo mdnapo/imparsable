@@ -8,7 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCalculatorParser(this IServiceCollection services) =>
         services
-            .AddParserServices<Token, ISyntax>()
+            .AddParser<Token, ISyntax>(keywords: [Token.CONST, Token.VAR, Token.PRINT])
             .AddIgnoreWhitespaceRule<Token>()
             .AddNewLineRule<Token>()
             .AddDoubleQuoteStringRule(Token.STRING)
@@ -22,8 +22,5 @@ public static class ServiceCollectionExtensions
             .AddSingleCharacterRule(Token.SEMICOLON, ';')
             .AddSingleCharacterRule(Token.EQUALS, '=')
             .AddSingleCharacterRule(Token.LEFT_PARENTHESIS, '(')
-            .AddSingleCharacterRule(Token.RIGHT_PARENTHESIS, ')')
-            .AddKeyword(Token.CONST)
-            .AddKeyword(Token.VAR)
-            .AddKeyword(Token.PRINT);
+            .AddSingleCharacterRule(Token.RIGHT_PARENTHESIS, ')');
 }
