@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
             .AddSingleQuoteStringRule(Token.STRING)
             .AddIdentifierRule(Token.IDENTIFIER)
             .AddNumberRule(Token.NUMBER)
+            .AddSingleCharacterRule(Token.DOT, '.')
             .AddSingleCharacterRule(Token.PLUS, '+')
             .AddSingleCharacterRule(Token.MINUS, '-')
             .AddSingleCharacterRule(Token.STAR, '*')

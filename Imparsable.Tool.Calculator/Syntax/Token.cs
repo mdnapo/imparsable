@@ -20,4 +20,5 @@ public enum Token
     LEFT_PARENTHESIS = 13,
     RIGHT_PARENTHESIS = 14,
     PRINT = 15,
+    DOT = 16,
 }

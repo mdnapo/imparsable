@@ -5,6 +5,7 @@ namespace Imparsable.Tool.Calculator.Syntax;
 public partial class BinaryExpression : ISyntax, IProduction
 {
     private static readonly Token[] AssignmentOperators = [Syntax.Token.EQUALS];
+    private static readonly Token[] ConcatenationOperators = [Syntax.Token.DOT];
     private static readonly Token[] AdditionSubtractionOperators = [Syntax.Token.PLUS, Syntax.Token.MINUS];
     private static readonly Token[] MultiplicationDivisionOperators = [Syntax.Token.STAR, Syntax.Token.SLASH];
 
@@ -16,7 +17,10 @@ public partial class BinaryExpression : ISyntax, IProduction
     public static ISyntax Parse(Parser<Token>.Context context) => Assignment(context);
 
     private static ISyntax Assignment(Parser<Token>.Context context) =>
-        Parse(context, AssignmentOperators, AdditionSubtraction);
+        Parse(context, AssignmentOperators, Concatenation);
+
+    private static ISyntax Concatenation(Parser<Token>.Context context) =>
+        Parse(context, ConcatenationOperators, AdditionSubtraction);
 
     private static ISyntax AdditionSubtraction(Parser<Token>.Context context) =>
         Parse(context, AdditionSubtractionOperators, MultiplicationDivision);

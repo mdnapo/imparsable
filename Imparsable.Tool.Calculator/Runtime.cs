@@ -7,7 +7,6 @@ namespace Imparsable.Tool.Calculator;
 public class Runtime(IServiceProvider services) : ISyntaxVisitor
 {
     private readonly Stack<object> _stack = [];
-    private bool IsPrinting { get; set; }
     private Stack<Scope> Scope { get; } = new([new Scope()]);
 
     public event Action<string> StdOut = delegate { };
@@ -42,7 +41,7 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
 
         switch (node.Op.Type)
         {
-            case Token.PLUS when IsPrinting:
+            case Token.DOT:
                 _stack.Push(string.Empty + left + right);
                 break;
 
@@ -92,10 +91,8 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
 
     public void Visit(PrintStatement node)
     {
-        IsPrinting = true;
         node.Expression.Accept(this);
         StdOut(_stack.Pop().ToString()!);
-        IsPrinting = false;
     }
 
     public void Visit(StringLiteralExpression node) => _stack.Push(node.Value);
