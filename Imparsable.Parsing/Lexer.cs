@@ -5,10 +5,9 @@ namespace Imparsable.Parsing;
 public partial class Lexer<TToken>(
     Lexer<TToken>.Context ctx,
     IEnumerable<Lexer<TToken>.Rule> rules,
-    DiagnosticsCollector diagnostics
+    DiagnosticsProvider diagnostics
 ) where TToken : Enum
 {
-
     private Parser<TToken>.Context ParserContext => new(ctx.Configuration, ctx.Tokens);
 
     public Parser<TToken>.Context Execute()
@@ -25,7 +24,8 @@ public partial class Lexer<TToken>(
             catch (SyntaxException e)
             {
                 diagnostics.Error(e.Marker, e.Message);
-                throw;
+                ctx.Tokens.Clear();
+                break;
             }
         }
         

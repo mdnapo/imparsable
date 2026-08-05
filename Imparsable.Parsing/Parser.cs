@@ -5,7 +5,7 @@ namespace Imparsable.Parsing;
 public partial class Parser<TToken, TSyntax>(
     Lexer<TToken> lexer,
     List<TSyntax> syntax,
-    DiagnosticsCollector diagnostics
+    DiagnosticsProvider diagnostics
 )
     where TToken : Enum
     where TSyntax : ISyntax<TToken>

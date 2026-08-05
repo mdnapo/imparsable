@@ -5,7 +5,7 @@ public partial class Lexer<TToken>
     public class ContextProvider(
         Parser<TToken>.Configuration configuration,
         List<Token> tokens,
-        DiagnosticsCollector diagnostics
+        DiagnosticsProvider diagnostics
     )
     {
         private Source? _source;

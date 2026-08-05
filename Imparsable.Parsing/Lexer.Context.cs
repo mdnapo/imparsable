@@ -8,7 +8,7 @@ public partial class Lexer<TToken>
         Parser<TToken>.Configuration configuration,
         Source source,
         List<Token> tokens,
-        DiagnosticsCollector diagnostics
+        DiagnosticsProvider diagnostics
     )
     {
         public Parser<TToken>.Configuration Configuration { get; } = configuration;

@@ -47,10 +47,7 @@ public partial class Parser<TToken> where TToken : Enum
             return false;
         }
 
-        public override bool Ended()
-        {
-            return base.Ended() || Equals(Current.Type, configuration.End);
-        }
+        public override bool Ended() => base.Ended() || Equals(Current.Type, configuration.End);
 
         public bool Match(TToken type)
         {

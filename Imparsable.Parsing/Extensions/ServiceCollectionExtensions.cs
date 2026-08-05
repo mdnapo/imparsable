@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
             // Add configuration
             .AddSingleton(new Parser<TToken>.Configuration(keywords))
             // Add DiagnosticsCollector
-            .AddScoped<DiagnosticsCollector>()
+            .AddScoped<DiagnosticsProvider>()
             // Add Lexer
             .AddScoped<Lexer<TToken>.ContextProvider>()
             .AddScoped<Source>(sp => sp.GetRequiredService<Lexer<TToken>.ContextProvider>().Source)

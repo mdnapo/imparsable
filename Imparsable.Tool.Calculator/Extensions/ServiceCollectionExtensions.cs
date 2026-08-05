@@ -6,7 +6,7 @@ namespace Imparsable.Tool.Calculator.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCalculatorParser(this IServiceCollection services) =>
+    public static IServiceCollection AddCalculator(this IServiceCollection services) =>
         services
             .AddParser<Token, ISyntax>(keywords: [Token.CONST, Token.VAR, Token.PRINT])
             .AddIgnoreWhitespaceRule<Token>()
@@ -22,5 +22,6 @@ public static class ServiceCollectionExtensions
             .AddSingleCharacterRule(Token.SEMICOLON, ';')
             .AddSingleCharacterRule(Token.EQUALS, '=')
             .AddSingleCharacterRule(Token.LEFT_PARENTHESIS, '(')
-            .AddSingleCharacterRule(Token.RIGHT_PARENTHESIS, ')');
+            .AddSingleCharacterRule(Token.RIGHT_PARENTHESIS, ')')
+            .AddScoped<Runtime>();
 }

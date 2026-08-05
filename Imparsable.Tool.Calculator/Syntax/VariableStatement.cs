@@ -7,7 +7,7 @@ public partial class VariableStatement : ISyntax, IProduction
     public required Lexer<Token>.Token Token { get; init; }
     public required Lexer<Token>.Token Identifier { get; init; }
     public Lexer<Token>.Token? Assignment { get; init; }
-    public ISyntax? Initializer { get; set; }
+    public ISyntax? Initializer { get; init; }
     public required Lexer<Token>.Token SemiColon { get; init; }
 
     public static ISyntax Parse(Parser<Token>.Context context)

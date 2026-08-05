@@ -1,7 +1,9 @@
 namespace Imparsable.Parsing;
 
-public class DiagnosticsCollector 
+public class DiagnosticsProvider
 {
+    public bool IsHealthy => Diagnostics.All(d => d.Severity != DiagnosticSeverity.Error);
+    
     public List<Diagnostic> Diagnostics { get; set; } = [];
 
     public void Warning(ISourceMarker marker, string message) =>
