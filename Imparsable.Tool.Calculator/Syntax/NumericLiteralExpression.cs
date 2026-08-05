@@ -2,7 +2,7 @@ using Imparsable.Parsing;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public class NumericLiteralExpression : LiteralExpr<double>, IProduction
+public partial class NumericLiteralExpression : LiteralExpr<double>, ISyntax, IProduction
 {
     public static ISyntax Parse(Parser<Token>.Context context)
     {

@@ -2,7 +2,7 @@ using Imparsable.Parsing;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public class ExpressionStatement : ISyntax, IProduction
+public partial class ExpressionStatement : ISyntax, IProduction
 {
     public required Lexer<Token>.Token Token { get; init; }
     public required ISyntax Expr { get; init; }

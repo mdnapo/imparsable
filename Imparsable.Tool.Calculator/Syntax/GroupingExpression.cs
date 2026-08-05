@@ -2,7 +2,7 @@ using Imparsable.Parsing;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public class GroupingExpression : ISyntax, IProduction
+public partial class GroupingExpression : ISyntax, IProduction
 {
     public required Lexer<Token>.Token Token { get; init; }
     public required Lexer<Token>.Token LeftParenthesis { get; init; }

@@ -2,7 +2,7 @@ using Imparsable.Parsing;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public class UnaryExpression : ISyntax, IProduction
+public partial class UnaryExpression : ISyntax, IProduction
 {
     private static readonly Token[] Operators = [Syntax.Token.MINUS];
     public required Lexer<Token>.Token Token { get; init; }

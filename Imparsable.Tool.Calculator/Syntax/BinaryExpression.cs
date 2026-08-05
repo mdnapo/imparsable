@@ -2,7 +2,7 @@ using Imparsable.Parsing;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public class BinaryExpression : ISyntax, IProduction
+public partial class BinaryExpression : ISyntax, IProduction
 {
     private static readonly Token[] AssignmentOperators = [Syntax.Token.EQUALS];
     private static readonly Token[] AdditionSubtractionOperators = [Syntax.Token.PLUS, Syntax.Token.MINUS];
