@@ -4,14 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Imparsable.Tool.Calculator;
 
-public class Runtime(IServiceProvider services) : ISyntaxVisitor
+public partial class Runtime(IServiceProvider services) : ISyntaxVisitor
 {
     private readonly Stack<object> _stack = [];
-    private Stack<Scope> Scope { get; } = new([new Scope()]);
+    private Stack<Scope> Scopes { get; } = new([new Scope()]);
 
     public event Action<string> StdOut = delegate { };
 
-    public void ExecuteAsync(string file, string source)
+    public void Execute(string file, string source)
     {
         using var scope = services.CreateScope();
         scope.ServiceProvider
@@ -20,11 +20,13 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
 
         var parser = scope.ServiceProvider.GetRequiredService<Parser<Token, ISyntax>>();
         var syntax = parser.Execute<Statement.Production, Statement.Synchronizer>();
+        scope.ServiceProvider.GetRequiredService<SymbolResolver>().Execute(syntax);
+
         var diagnostics = scope.ServiceProvider.GetRequiredService<DiagnosticsProvider>();
-        
-        foreach (var diagnostic in diagnostics.Diagnostics)
+
+        foreach (var diagnostic in diagnostics)
             StdOut(diagnostic.Report);
-        
+
         if (!diagnostics.IsHealthy) return;
 
         foreach (var node in syntax)
@@ -63,7 +65,7 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
 
             case Token.EQUALS:
                 var identifier = left as IdentifierExpression;
-                Scope.Peek()[identifier!.Token.Lexeme] = right;
+                Scopes.Peek()[identifier!.Token.Lexeme] = right;
                 break;
 
             default:
@@ -74,7 +76,7 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
     public void Visit(ConstStatement node)
     {
         node.Initializer.Accept(this);
-        Scope.Peek().Declare(node.Identifier.Lexeme, _stack.Pop());
+        Scopes.Peek().Declare(node.Identifier.Lexeme, _stack.Pop());
     }
 
     public void Visit(ExpressionStatement node) => node.Expr.Accept(this);
@@ -83,7 +85,7 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
 
     public void Visit(IdentifierExpression node)
     {
-        var value = Scope.Peek()[node.Token.Lexeme];
+        var value = Scopes.Peek()[node.Token.Lexeme];
         _stack.Push(value);
     }
 
@@ -113,7 +115,7 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
         }
     }
 
-    public void Visit(VariableStatement node)
+    public void Visit(VarStatement node)
     {
         object? value = null;
 
@@ -123,6 +125,6 @@ public class Runtime(IServiceProvider services) : ISyntaxVisitor
             value = _stack.Pop();
         }
 
-        Scope.Peek().Declare(node.Identifier.Lexeme, value!);
+        Scopes.Peek().Declare(node.Identifier.Lexeme, value!);
     }
 }

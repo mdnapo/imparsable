@@ -12,7 +12,7 @@ public static class Statement
                 return ConstStatement.Parse(context);
 
             if (context.Match(Token.VAR))
-                return VariableStatement.Parse(context);
+                return VarStatement.Parse(context);
 
             if (context.Match(Token.PRINT))
                 return PrintStatement.Parse(context);

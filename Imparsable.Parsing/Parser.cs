@@ -2,17 +2,14 @@ using Imparsable.Parsing.Exceptions;
 
 namespace Imparsable.Parsing;
 
-public partial class Parser<TToken, TSyntax>(
-    Lexer<TToken> lexer,
-    List<TSyntax> syntax,
-    DiagnosticsProvider diagnostics
-)
+public partial class Parser<TToken, TSyntax>(Lexer<TToken> lexer, DiagnosticsProvider diagnostics)
     where TToken : Enum
     where TSyntax : ISyntax<TToken>
 {
     public List<TSyntax> Execute<TProduction>() where TProduction : IProduction
     {
         var context = lexer.Execute();
+        var syntax = new List<TSyntax>();
 
         while (!context.Ended())
         {
@@ -35,6 +32,7 @@ public partial class Parser<TToken, TSyntax>(
         where TSynchronizer : ISynchronizer
     {
         var context = lexer.Execute();
+        var syntax = new List<TSyntax>();
 
         while (!context.Ended())
         {

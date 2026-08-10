@@ -6,15 +6,12 @@ var services = new ServiceCollection()
     .AddCalculator()
     .BuildServiceProvider();
 
-await using var scope = services.CreateAsyncScope();
+using var scope = services.CreateScope();
 const string file = "test/program.clc";
 var source = await File.ReadAllTextAsync(file);
 
-var runtime = scope.ServiceProvider
-    .GetRequiredService<Runtime>();
-
+var runtime = scope.ServiceProvider.GetRequiredService<Runtime>();
 runtime.StdOut += Console.WriteLine;
-
-runtime.ExecuteAsync(file, source);
+runtime.Execute(file, source);
 
 Console.WriteLine();

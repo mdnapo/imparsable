@@ -2,13 +2,14 @@ using Imparsable.Parsing;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public partial class ConstStatement : ISyntax, IProduction
+public partial class ConstStatement : ISyntax, ISymbol, IProduction
 {
     public required Lexer<Token>.Token Token { get; init; }
     public required Lexer<Token>.Token Identifier { get; init; }
     public required Lexer<Token>.Token Assignment { get; init; }
     public required ISyntax Initializer { get; init; }
     public required Lexer<Token>.Token SemiColon { get; init; }
+    public string Symbol => Identifier.Lexeme;
 
     public static ISyntax Parse(Parser<Token>.Context context)
     {

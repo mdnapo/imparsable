@@ -2,12 +2,12 @@ namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>
 {
-    public readonly struct Token(string file, TToken type, string lexeme, int line, int column) : ISourceMarker
+    public readonly record struct Token(string File, TToken Type, string Lexeme, int Line, int Column) : ISourceMarker
     {
-        public string File { get; } = file;
-        public TToken Type { get; } = type;
-        public string Lexeme { get; } = lexeme;
-        public int Line { get; } = line;
-        public int Column { get; } = column;
+        public string File { get; } = File;
+        public TToken Type { get; } = Type;
+        public string Lexeme { get; } = Lexeme;
+        public int Line { get; } = Line;
+        public int Column { get; } = Column;
     }
 }

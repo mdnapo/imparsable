@@ -1,3 +1,4 @@
+using Imparsable.Parsing;
 using Imparsable.Parsing.Extensions;
 using Imparsable.Tool.Calculator.Syntax;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,5 +25,7 @@ public static class ServiceCollectionExtensions
             .AddSingleCharacterRule(Token.EQUALS, '=')
             .AddSingleCharacterRule(Token.LEFT_PARENTHESIS, '(')
             .AddSingleCharacterRule(Token.RIGHT_PARENTHESIS, ')')
+            .AddScoped<SymbolTable>()
+            .AddScoped<SymbolResolver>()
             .AddScoped<Runtime>();
 }
