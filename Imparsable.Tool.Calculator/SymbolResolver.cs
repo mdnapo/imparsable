@@ -48,7 +48,6 @@ public class SymbolResolver(DiagnosticsProvider diagnostics, SymbolTable symbols
 
     public void Visit(GroupingExpression node) => node.Expression.Accept(this);
 
-
     public void Visit(IdentifierExpression node)
     {
         if (_initializer == node.Token.Lexeme)

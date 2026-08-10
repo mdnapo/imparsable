@@ -27,5 +27,6 @@ public static class ServiceCollectionExtensions
             .AddSingleCharacterRule(Token.RIGHT_PARENTHESIS, ')')
             .AddScoped<SymbolTable>()
             .AddScoped<SymbolResolver>()
+            .AddScoped<TypeResolver>()
             .AddScoped<Runtime>();
 }

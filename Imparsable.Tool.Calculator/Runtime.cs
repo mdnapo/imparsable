@@ -21,6 +21,7 @@ public partial class Runtime(IServiceProvider services) : ISyntaxVisitor
         var parser = scope.ServiceProvider.GetRequiredService<Parser<Token, ISyntax>>();
         var syntax = parser.Execute<Statement.Production, Statement.Synchronizer>();
         scope.ServiceProvider.GetRequiredService<SymbolResolver>().Execute(syntax);
+        scope.ServiceProvider.GetRequiredService<TypeResolver>().Execute(syntax);
 
         var diagnostics = scope.ServiceProvider.GetRequiredService<DiagnosticsProvider>();
 
