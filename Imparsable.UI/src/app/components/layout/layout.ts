@@ -1,10 +1,10 @@
-import {Component, inject} from '@angular/core';
-import {Router, RouterLink, RouterOutlet} from '@angular/router';
-import {MatSidenav, MatSidenavContainer, MatSidenavContent} from '@angular/material/sidenav';
-import {MatToolbar} from '@angular/material/toolbar';
-import {MatListItem, MatListItemMeta, MatNavList} from '@angular/material/list';
-import {MatIcon} from '@angular/material/icon';
-import {MatIconButton} from '@angular/material/button';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatListItem, MatListItemMeta, MatNavList } from '@angular/material/list';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-layout',
@@ -19,9 +19,10 @@ import {MatIconButton} from '@angular/material/button';
     MatSidenav,
     MatNavList,
     MatListItem,
-    RouterLink
+    RouterLink,
   ],
   templateUrl: './layout.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './layout.scss',
 })
 export class Layout {
@@ -37,9 +38,7 @@ export class Layout {
   urlMatches(url: string): boolean {
     const queryParamsIndex = this.router.url.indexOf('?');
     const baseUrl =
-      queryParamsIndex === -1
-        ? this.router.url
-        : this.router.url.slice(0, queryParamsIndex);
+      queryParamsIndex === -1 ? this.router.url : this.router.url.slice(0, queryParamsIndex);
     return baseUrl === url;
   }
 }
