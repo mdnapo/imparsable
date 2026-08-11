@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Imparsable.API\Imparsable.API.csproj" />
+    <ProjectReference Include="..\Imparsable.LSP.Calculator\Imparsable.LSP.Calculator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
