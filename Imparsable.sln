@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Playground", "Im
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Parsing.SourceGenerators", "Imparsable.Parsing.SourceGenerators\Imparsable.Parsing.SourceGenerators.csproj", "{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Aspire", "Imparsable.Aspire\Imparsable.Aspire.csproj", "{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
