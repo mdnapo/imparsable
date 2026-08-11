@@ -1,0 +1,36 @@
+<mat-sidenav-container class="">
+    <mat-sidenav mode="side"
+                 class="side-nav"
+                 animate.enter="side-nav-enter"
+                 animate.leave="side-nav-leave"
+                 [(opened)]="openSideNav">
+      <mat-toolbar>
+        <span>Menu</span>
+      </mat-toolbar>
+      <mat-nav-list role="list">
+        <mat-list-item [class.active-link]="urlMatches('/calculator')"
+                       role="listitem"
+                       routerLink="/calculator">
+          Calculator
+          <span matListItemMeta>
+            <mat-icon aria-hidden="false">style</mat-icon>
+          </span>
+        </mat-list-item>
+      </mat-nav-list>
+    </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="main-toolbar" color="primary">
+        <button mat-icon-button (click)="toggleNav()">
+          <mat-icon aria-hidden="false"
+                    [class.menu-icon-close]="!openSideNav"
+                    [class.menu-icon-open]="openSideNav">
+            menu_opens
+          </mat-icon>
+        </button>
+      <span style="padding-left: 10px;">Imparsable</span>
+      <span class="toolbar-spacer"></span>
+    </mat-toolbar>
+    <router-outlet style=""></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
