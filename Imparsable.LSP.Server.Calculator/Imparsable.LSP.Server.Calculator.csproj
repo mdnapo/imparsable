@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Imparsable.LSP.Protocol\Imparsable.LSP.Protocol.csproj" />
+        <ProjectReference Include="..\Imparsable.LSP.Protocol\Imparsable.LSP.Protocol.csproj"/>
     </ItemGroup>
 
 </Project>

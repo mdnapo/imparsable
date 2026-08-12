@@ -10,7 +10,7 @@ public abstract class LanguageServer(ISourceTextBuffer buffer)
 
     public void Attach(JsonRpc rpc) => Rpc = rpc;
 
-    [JsonRpcMethod("initialize")]
+    [LspMethod("initialize")]
     public InitializeResult Initialize(InitializeParams parameters) => new()
     {
         Capabilities = new ServerCapabilities
@@ -20,24 +20,25 @@ public abstract class LanguageServer(ISourceTextBuffer buffer)
             // {
             //     ResolveProvider = false
             // }
-        }
+        },
+        ServerInfo = new ServerInfo()
     };
 
-    [JsonRpcMethod("initialized")]
+    [LspMethod("initialized")]
     public Task Initialized() => Task.CompletedTask;
 
-    [JsonRpcMethod("textDocument/didOpen")]
+    [LspMethod("textDocument/didOpen")]
     public async Task DidOpen(DidOpenTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await buffer.OpenAsync(parameters.TextDocument.Uri.ToString(), parameters.TextDocument.Text, cancellationToken);
 
-    [JsonRpcMethod("textDocument/didChange")]
+    [LspMethod("textDocument/didChange")]
     public async Task DidChange(DidChangeTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await buffer.UpdateAsync(
             parameters.TextDocument.Uri.ToString(),
             parameters.ContentChanges.First().Text,
             cancellationToken);
 
-    [JsonRpcMethod("textDocument/didClose")]
+    [LspMethod("textDocument/didClose")]
     public async Task DidClose(DidCloseTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await buffer.CloseAsync(parameters.TextDocument.Uri.ToString(), cancellationToken);
 }

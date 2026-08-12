@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         services.TryAddScoped<ISourceTextBuffer, SourceTextBuffer>();
 
         services
+            .AddHttpContextAccessor()
             .AddScoped<CalculatorLanguageServer>()
             .AddScoped<CalculatorLanguageServerConnection>();
 

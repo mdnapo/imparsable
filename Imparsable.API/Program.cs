@@ -1,9 +1,13 @@
+using Imparsable.LSP.Server.Calculator.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddCalculatorLsp();
 
 var app = builder.Build();
 
@@ -14,8 +18,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
 }
 
-app.UseHttpsRedirection();
-app.UseWebSockets();
+// app.UseHttpsRedirection();
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromMinutes(2)
+};
+
+app.UseWebSockets(webSocketOptions);
 app.MapControllers();
 
 await app.RunAsync();
