@@ -16,10 +16,7 @@ public static class DistributedApplicationBuilderExtensions
                     url.Url += "/swagger";
                 });
 
-            var lsp = builder
-                .AddProject<Imparsable_LSP_Calculator>("imparsable-lsp-calculator");
-
-            return new AppResources(api, lsp);
+            return new AppResources(api);
         }
 
         internal void AddRunResources(AppResources resources)
@@ -28,7 +25,6 @@ public static class DistributedApplicationBuilderExtensions
                 .AddJavaScriptApp("imparsable-ui", "../Imparsable.UI", "start")
                 .WithUrl("http://localhost:4200", "UI")
                 .WaitFor(resources.Api)
-                .WaitFor(resources.CalculatorLsp)
                 ;
         }
     }

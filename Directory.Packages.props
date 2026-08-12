@@ -10,8 +10,10 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.7.5" />
-    <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
+    <PackageVersion Include="OmniSharp.Extensions.LanguageServer.Shared" Version="0.19.9" />
+    <PackageVersion Include="StreamJsonRpc" Version="2.25.29" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
     <PackageVersion Include="System.CommandLine" Version="2.0.10" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.10" />
   </ItemGroup>
 </Project>

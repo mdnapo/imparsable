@@ -14,7 +14,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Parsing.SourceGe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Aspire", "Imparsable.Aspire\Imparsable.Aspire.csproj", "{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.LSP.Calculator", "Imparsable.LSP.Calculator\Imparsable.LSP.Calculator.csproj", "{9BDF6FDD-AD8B-41DE-BC73-4ACF30C512F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.LSP.Protocol", "Imparsable.LSP.Protocol\Imparsable.LSP.Protocol.csproj", "{6623A234-2941-428D-B4D3-7032DDF77640}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.LSP.Server.Calculator", "Imparsable.LSP.Server.Calculator\Imparsable.LSP.Server.Calculator.csproj", "{B776A403-9203-4282-AC5C-773DA3DB8466}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,9 +52,13 @@ Global
 		{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9BDF6FDD-AD8B-41DE-BC73-4ACF30C512F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9BDF6FDD-AD8B-41DE-BC73-4ACF30C512F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9BDF6FDD-AD8B-41DE-BC73-4ACF30C512F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9BDF6FDD-AD8B-41DE-BC73-4ACF30C512F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6623A234-2941-428D-B4D3-7032DDF77640}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6623A234-2941-428D-B4D3-7032DDF77640}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6623A234-2941-428D-B4D3-7032DDF77640}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6623A234-2941-428D-B4D3-7032DDF77640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B776A403-9203-4282-AC5C-773DA3DB8466}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B776A403-9203-4282-AC5C-773DA3DB8466}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B776A403-9203-4282-AC5C-773DA3DB8466}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B776A403-9203-4282-AC5C-773DA3DB8466}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

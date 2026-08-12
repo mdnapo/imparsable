@@ -7,9 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-        <PackageReference Include="Microsoft.OpenApi" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+        <PackageReference Include="Microsoft.OpenApi"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Imparsable.LSP.Server.Calculator\Imparsable.LSP.Server.Calculator.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,8 +1,15 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import {EditorComponent} from 'ngx-monaco-editor-v2';
-import {editor} from 'monaco-editor';
+import {Component, ChangeDetectionStrategy, model} from '@angular/core';
+import {EditorComponent, NgxEditorModel} from 'ngx-monaco-editor-v2';
+import {editor, Uri} from 'monaco-editor';
 import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructionOptions;
 import {FormsModule} from '@angular/forms';
+
+const code: string =  `const pi = 3.14;
+const radius = 4 / 2;
+var area = 2 * pi * radius;
+print "Area" . ': ' . area;
+print 1 + "2";
+`;
 
 @Component({
   selector: 'app-calculator-editor',
@@ -15,15 +22,13 @@ import {FormsModule} from '@angular/forms';
   styleUrl: './calculator-editor.scss',
 })
 export class CalculatorEditor {
-  code = `const pi = 3.14;
-const radius = 4 / 2;
-var area = 2 * pi * radius;
-print "Area" . ': ' . area;
-print 1 + "2";
-`
-
   protected options: IStandaloneEditorConstructionOptions = {
-    language: 'clc',
     automaticLayout: true,
+  };
+
+  protected model: NgxEditorModel = {
+    value: code,
+    language: 'clc',
+    uri: Uri.parse("file:///workspace/test.clc")
   };
 }
