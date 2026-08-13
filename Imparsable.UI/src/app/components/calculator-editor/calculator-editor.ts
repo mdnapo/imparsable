@@ -23,7 +23,6 @@ print 1 + "2";
   styleUrl: './calculator-editor.scss',
 })
 export class CalculatorEditor {
-  private readonly languageServer: LspService = inject(LspService);
   protected options: IStandaloneEditorConstructionOptions = {
     automaticLayout: true,
   };
@@ -36,6 +35,10 @@ export class CalculatorEditor {
   public async onEditorInit(
     editor: editor.IStandaloneCodeEditor,
   ): Promise<void> {
-    await this.languageServer.initialize();
+    const model = editor.getModel();
+
+    console.log('model:', model);
+    console.log('uri:', model?.uri.toString());
+    console.log('language:', model?.getLanguageId())
   }
 }

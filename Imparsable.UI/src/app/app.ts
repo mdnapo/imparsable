@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import {Component, ChangeDetectionStrategy, inject, OnInit} from '@angular/core';
 import { Layout } from './components/layout/layout';
 import { RouterOutlet } from '@angular/router';
+import {LspService} from './services/lsp-service';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +10,10 @@ import { RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss',
 })
-export class App {}
+export class App implements OnInit {
+  private readonly languageServer: LspService = inject(LspService);
+
+  ngOnInit(): void {
+    this.languageServer.initialize();
+  }
+}

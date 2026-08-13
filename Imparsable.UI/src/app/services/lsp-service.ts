@@ -23,21 +23,18 @@ export class LspService implements OnDestroy {
 
     await this.initializeVscodeApi();
     await this.initializeLanguageClient();
-
     this.initialized = true;
   }
 
   private async initializeVscodeApi(): Promise<void> {
     const config: MonacoVscodeApiConfig = {
       $type: 'classic',
-
       viewsConfig: {
         $type: 'EditorService'
       }
     };
 
-    this.apiWrapper =
-      new MonacoVscodeApiWrapper(config);
+    this.apiWrapper = new MonacoVscodeApiWrapper(config);
 
     await this.apiWrapper.start();
   }
@@ -47,7 +44,6 @@ export class LspService implements OnDestroy {
 
     const config: LanguageClientConfig = {
       languageId,
-
       connection: {
         options: {
           $type: 'WebSocketUrl',

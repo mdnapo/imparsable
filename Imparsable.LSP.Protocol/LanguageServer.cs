@@ -15,11 +15,14 @@ public abstract class LanguageServer(ISourceTextBuffer buffer)
     {
         Capabilities = new ServerCapabilities
         {
-            TextDocumentSync = new TextDocumentSync(TextDocumentSyncKind.Full),
-            // CompletionProvider = new CompletionRegistrationOptions.StaticOptions
-            // {
-            //     ResolveProvider = false
-            // }
+            TextDocumentSync = new TextDocumentSync(TextDocumentSyncKind.Full)
+            {
+                Options = new()
+                {
+                    Change =  TextDocumentSyncKind.Full,
+                    OpenClose = true,
+                }
+            },
         },
         ServerInfo = new ServerInfo()
     };
