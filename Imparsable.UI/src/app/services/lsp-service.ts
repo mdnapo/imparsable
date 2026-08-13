@@ -1,16 +1,11 @@
 import {OnDestroy, Service} from '@angular/core';
-import {MonacoVscodeApiWrapper} from 'monaco-languageclient/vscodeApiWrapper';
 import {LogLevel} from '@codingame/monaco-vscode-api';
-import {configureDefaultWorkerFactory} from 'monaco-languageclient/workerFactory';
-import * as monaco from '@codingame/monaco-vscode-editor-api';
-import {
-  RegisteredFileSystemProvider,
-  registerFileSystemOverlay
-} from '@codingame/monaco-vscode-files-service-override';
-import {LanguageClientWrapper,} from 'monaco-languageclient/lcwrapper';
-import * as vscode from 'vscode';
-
+import {RegisteredFileSystemProvider, registerFileSystemOverlay} from '@codingame/monaco-vscode-files-service-override';
+import {LanguageClientWrapper} from 'monaco-languageclient/lcwrapper';
+import {MonacoVscodeApiWrapper} from 'monaco-languageclient/vscodeApiWrapper';
 import EditorWorker from '@codingame/monaco-vscode-editor-api/esm/vs/editor/editor.worker?worker';
+import * as monaco from '@codingame/monaco-vscode-editor-api';
+import * as vscode from 'vscode';
 
 window.MonacoEnvironment = {
   getWorker(_moduleId, _label) {
@@ -18,46 +13,40 @@ window.MonacoEnvironment = {
   }
 };
 
+monaco.languages.register({id: 'clc', extensions: ['.clc']});
+
 @Service()
 export class LspService implements OnDestroy {
-  private vscodeApi?: MonacoVscodeApiWrapper;
-  private clcClient?: LanguageClientWrapper;
-  private vscodeApiInit?: Promise<void>;
-  private clcClientInit?: Promise<void>;
+  private vscode?: MonacoVscodeApiWrapper;
+  private calculator?: LanguageClientWrapper;
+  private initialization?: Promise<void>;
 
-  public initialize(): void {
-    monaco.languages.register({
-      id: 'clc',
-      extensions: ['.clc'],
-      aliases: ['CLC']
-    });
-    const fileSystemProvider = new RegisteredFileSystemProvider(false);
-    // fileSystemProvider.registerFile(new RegisteredMemoryFile(helloUri, helloCode));
-    registerFileSystemOverlay(1, fileSystemProvider);
-    // this.vscodeApiInit ??= this.initializeCore();
-    // return this.vscodeApiInit;
+  public async initialize(): Promise<void> {
+    return this.initialization ??= this.runInitializers();
   }
 
-  // private async initializeCore(): Promise<void> {
-  //   await this.initializeVsCodeWrapper();
-  //   await this.initializeClcClient();
-  // }
+  private async runInitializers(): Promise<void> {
+    this.initializeFileSystem();
+    await this.initializeVsCodeWrapper();
+    await this.initializeClcClient();
+  }
 
-  public async initializeVsCodeWrapper(): Promise<void> {
-    this.vscodeApi = new MonacoVscodeApiWrapper({
+  private initializeFileSystem(): void {
+    registerFileSystemOverlay(1, new RegisteredFileSystemProvider(false));
+  }
+
+  private async initializeVsCodeWrapper(): Promise<void> {
+    this.vscode = new MonacoVscodeApiWrapper({
       $type: 'extended',
       viewsConfig: {$type: 'EditorService'},
-      logLevel: LogLevel.Debug,
-      // monacoWorkerFactory: configureDefaultWorkerFactory
+      logLevel: LogLevel.Debug
     });
 
-    this.vscodeApiInit ??= this.vscodeApi.start();
-
-    return this.vscodeApiInit;
+    await this.vscode.start();
   }
 
-  public async initializeClcClient(): Promise<void> {
-    this.clcClient = new LanguageClientWrapper({
+  private async initializeClcClient(): Promise<void> {
+    this.calculator = new LanguageClientWrapper({
       languageId: 'clc',
       connection: {
         options: {
@@ -66,7 +55,7 @@ export class LspService implements OnDestroy {
         }
       },
       clientOptions: {
-        documentSelector: [{ language: 'clc' }],
+        documentSelector: [{language: 'clc'}],
         workspaceFolder: {
           index: 0,
           name: 'workspace',
@@ -75,13 +64,11 @@ export class LspService implements OnDestroy {
       }
     });
 
-    this.clcClientInit ??= this.clcClient.start();
-
-    return this.clcClientInit;
+    await this.calculator.start();
   }
 
   ngOnDestroy(): void {
-    this.clcClient?.dispose();
-    this.vscodeApi?.dispose();
+    this.calculator?.dispose();
+    this.vscode?.dispose();
   }
 }
