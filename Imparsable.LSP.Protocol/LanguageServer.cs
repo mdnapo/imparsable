@@ -1,14 +1,39 @@
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using StreamJsonRpc;
 
 namespace Imparsable.LSP.Protocol;
 
-public abstract class LanguageServer(ISourceTextBuffer buffer)
+public abstract class LanguageServer(IHttpContextAccessor httpContextAccessor, ISourceTextBuffer buffer) : IDisposable
 {
-    protected JsonRpc? Rpc { get; set; }
+    private IJsonRpcMessageFormatter Formatter => new JsonMessageFormatter
+    {
+        JsonSerializer = { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+    };
 
-    public void Attach(JsonRpc rpc) => Rpc = rpc;
+    private JsonRpc? Rpc { get; set; }
+
+    public async Task ConnectAsync()
+    {
+        var httpContext = httpContextAccessor.HttpContext;
+
+        if (!httpContext.WebSockets.IsWebSocketRequest)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return;
+        }
+
+        using var socket = await httpContext.WebSockets.AcceptWebSocketAsync();
+        await using var handler = new WebSocketMessageHandler(socket, Formatter);
+
+        Rpc = new JsonRpc(handler);
+        Rpc.AddLocalRpcTarget(this);
+        Rpc.StartListening();
+
+        await Rpc.Completion.WaitAsync(httpContext.RequestAborted);
+    }
 
     [LspMethod("initialize")]
     public InitializeResult Initialize(InitializeParams parameters) => new()
@@ -19,7 +44,7 @@ public abstract class LanguageServer(ISourceTextBuffer buffer)
             {
                 Options = new()
                 {
-                    Change =  TextDocumentSyncKind.Full,
+                    Change = TextDocumentSyncKind.Full,
                     OpenClose = true,
                 }
             },
@@ -44,4 +69,6 @@ public abstract class LanguageServer(ISourceTextBuffer buffer)
     [LspMethod("textDocument/didClose")]
     public async Task DidClose(DidCloseTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await buffer.CloseAsync(parameters.TextDocument.Uri.ToString(), cancellationToken);
+
+    public void Dispose() => Rpc?.Dispose();
 }

@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
         services
             .AddHttpContextAccessor()
             .AddScoped<CalculatorLanguageServer>()
-            .AddScoped<CalculatorLanguageServerConnection>();
+            ;
 
         return services;
     }
