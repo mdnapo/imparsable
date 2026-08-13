@@ -8,11 +8,6 @@ namespace Imparsable.LSP.Protocol;
 
 public abstract class LanguageServer(IHttpContextAccessor httpContextAccessor, ISourceTextBuffer buffer) : IDisposable
 {
-    private IJsonRpcMessageFormatter Formatter => new JsonMessageFormatter
-    {
-        JsonSerializer = { ContractResolver = new CamelCasePropertyNamesContractResolver() }
-    };
-
     private JsonRpc? Rpc { get; set; }
 
     public async Task ConnectAsync()
@@ -26,7 +21,7 @@ public abstract class LanguageServer(IHttpContextAccessor httpContextAccessor, I
         }
 
         using var socket = await httpContext.WebSockets.AcceptWebSocketAsync();
-        await using var handler = new WebSocketMessageHandler(socket, Formatter);
+        await using var handler = new WebSocketMessageHandler(socket, GetFormatter());
 
         Rpc = new JsonRpc(handler);
         Rpc.AddLocalRpcTarget(this);
@@ -34,6 +29,11 @@ public abstract class LanguageServer(IHttpContextAccessor httpContextAccessor, I
 
         await Rpc.Completion.WaitAsync(httpContext.RequestAborted);
     }
+
+    private static JsonMessageFormatter GetFormatter() => new()
+    {
+        JsonSerializer = { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+    };
 
     [LspMethod("initialize")]
     public InitializeResult Initialize(InitializeParams parameters) => new()

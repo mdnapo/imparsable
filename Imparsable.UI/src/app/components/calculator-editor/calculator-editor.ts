@@ -1,9 +1,6 @@
-import {Component, ChangeDetectionStrategy, inject} from '@angular/core';
-import {EditorComponent, NgxEditorModel} from 'ngx-monaco-editor-v2';
-import {editor, Uri} from 'monaco-editor';
-import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructionOptions;
+import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {LspService} from '../../services/lsp-service';
+import {CodeEditor} from '../code-editor/code-editor';
 
 const code: string = `const pi = 3.14;
 const radius = 4 / 2;
@@ -15,30 +12,13 @@ print 1 + "2";
 @Component({
   selector: 'app-calculator-editor',
   imports: [
-    EditorComponent,
-    FormsModule
+    FormsModule,
+    CodeEditor
   ],
   templateUrl: './calculator-editor.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './calculator-editor.scss',
 })
-export class CalculatorEditor {
-  protected options: IStandaloneEditorConstructionOptions = {
-    automaticLayout: true,
-  };
-  protected model: NgxEditorModel = {
-    value: code,
-    language: 'clc',
-    uri: Uri.parse("file:///workspace/test.clc")
-  };
-
-  public async onEditorInit(
-    editor: editor.IStandaloneCodeEditor,
-  ): Promise<void> {
-    const model = editor.getModel();
-
-    console.log('model:', model);
-    console.log('uri:', model?.uri.toString());
-    console.log('language:', model?.getLanguageId())
-  }
+export class CalculatorEditor implements OnInit {
+    ngOnInit(): void {
+    }
 }

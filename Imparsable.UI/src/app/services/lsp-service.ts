@@ -1,68 +1,87 @@
 import {OnDestroy, Service} from '@angular/core';
-
+import {MonacoVscodeApiWrapper} from 'monaco-languageclient/vscodeApiWrapper';
+import {LogLevel} from '@codingame/monaco-vscode-api';
+import {configureDefaultWorkerFactory} from 'monaco-languageclient/workerFactory';
+import * as monaco from '@codingame/monaco-vscode-editor-api';
 import {
-  MonacoVscodeApiWrapper,
-  type MonacoVscodeApiConfig
-} from 'monaco-languageclient/vscodeApiWrapper';
+  RegisteredFileSystemProvider,
+  registerFileSystemOverlay
+} from '@codingame/monaco-vscode-files-service-override';
+import {LanguageClientWrapper,} from 'monaco-languageclient/lcwrapper';
+import * as vscode from 'vscode';
 
-import {
-  LanguageClientWrapper,
-  type LanguageClientConfig
-} from 'monaco-languageclient/lcwrapper';
+import EditorWorker from '@codingame/monaco-vscode-editor-api/esm/vs/editor/editor.worker?worker';
+
+window.MonacoEnvironment = {
+  getWorker(_moduleId, _label) {
+    return new EditorWorker();
+  }
+};
 
 @Service()
 export class LspService implements OnDestroy {
-  private apiWrapper?: MonacoVscodeApiWrapper;
-  private languageClient?: LanguageClientWrapper;
-  private initialized = false;
+  private vscodeApi?: MonacoVscodeApiWrapper;
+  private clcClient?: LanguageClientWrapper;
+  private vscodeApiInit?: Promise<void>;
+  private clcClientInit?: Promise<void>;
 
-  public async initialize(): Promise<void> {
-    if (this.initialized) {
-      return;
-    }
-
-    await this.initializeVscodeApi();
-    await this.initializeLanguageClient();
-    this.initialized = true;
+  public initialize(): void {
+    monaco.languages.register({
+      id: 'clc',
+      extensions: ['.clc'],
+      aliases: ['CLC']
+    });
+    const fileSystemProvider = new RegisteredFileSystemProvider(false);
+    // fileSystemProvider.registerFile(new RegisteredMemoryFile(helloUri, helloCode));
+    registerFileSystemOverlay(1, fileSystemProvider);
+    // this.vscodeApiInit ??= this.initializeCore();
+    // return this.vscodeApiInit;
   }
 
-  private async initializeVscodeApi(): Promise<void> {
-    const config: MonacoVscodeApiConfig = {
-      $type: 'classic',
-      viewsConfig: {
-        $type: 'EditorService'
-      }
-    };
+  // private async initializeCore(): Promise<void> {
+  //   await this.initializeVsCodeWrapper();
+  //   await this.initializeClcClient();
+  // }
 
-    this.apiWrapper = new MonacoVscodeApiWrapper(config);
+  public async initializeVsCodeWrapper(): Promise<void> {
+    this.vscodeApi = new MonacoVscodeApiWrapper({
+      $type: 'extended',
+      viewsConfig: {$type: 'EditorService'},
+      logLevel: LogLevel.Debug,
+      // monacoWorkerFactory: configureDefaultWorkerFactory
+    });
 
-    await this.apiWrapper.start();
+    this.vscodeApiInit ??= this.vscodeApi.start();
+
+    return this.vscodeApiInit;
   }
 
-  private async initializeLanguageClient(): Promise<void> {
-    const languageId = 'clc';
-
-    const config: LanguageClientConfig = {
-      languageId,
+  public async initializeClcClient(): Promise<void> {
+    this.clcClient = new LanguageClientWrapper({
+      languageId: 'clc',
       connection: {
         options: {
           $type: 'WebSocketUrl',
-          url: 'wss://localhost:5001/lsp/clc'
+          url: 'wss://localhost:5001/lsp/clc',
         }
       },
-
       clientOptions: {
-        documentSelector: [languageId]
+        documentSelector: [{ language: 'clc' }],
+        workspaceFolder: {
+          index: 0,
+          name: 'workspace',
+          uri: vscode.Uri.parse(`file:///workspace`)
+        }
       }
-    };
+    });
 
-    this.languageClient = new LanguageClientWrapper(config);
+    this.clcClientInit ??= this.clcClient.start();
 
-    await this.languageClient.start();
+    return this.clcClientInit;
   }
 
   ngOnDestroy(): void {
-    console.log('Disposing languageClient...');
-    this.languageClient?.dispose();
+    this.clcClient?.dispose();
+    this.vscodeApi?.dispose();
   }
 }

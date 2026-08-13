@@ -1,7 +1,8 @@
-import {Component, ChangeDetectionStrategy, inject, OnInit} from '@angular/core';
-import { Layout } from './components/layout/layout';
-import { RouterOutlet } from '@angular/router';
-import {LspService} from './services/lsp-service';
+import {Component, ChangeDetectionStrategy, OnInit, AfterViewInit} from '@angular/core';
+import {Layout} from './components/layout/layout';
+import {RouterOutlet} from '@angular/router';
+
+// import {LspService} from './services/lsp-service';
 
 @Component({
   selector: 'app-root',
@@ -10,10 +11,15 @@ import {LspService} from './services/lsp-service';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss',
 })
-export class App implements OnInit {
-  private readonly languageServer: LspService = inject(LspService);
+export class App implements OnInit, AfterViewInit {
+  // private readonly languageServer: LspService = inject(LspService);
 
-  ngOnInit(): void {
-    this.languageServer.initialize();
+  async ngOnInit(): Promise<void> {
+    // await this.languageServer.initialize();
+    // this.languageServer.initialize().then().catch(console.error);
+  }
+
+  ngAfterViewInit(): void {
+    // this.languageServer.initialize().then().catch(console.error);
   }
 }
