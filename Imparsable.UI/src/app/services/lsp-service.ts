@@ -4,7 +4,7 @@ import {RegisteredFileSystemProvider, registerFileSystemOverlay} from '@codingam
 import {LanguageClientWrapper} from 'monaco-languageclient/lcwrapper';
 import {MonacoVscodeApiWrapper} from 'monaco-languageclient/vscodeApiWrapper';
 import EditorWorker from '@codingame/monaco-vscode-editor-api/esm/vs/editor/editor.worker?worker';
-import * as monaco from '@codingame/monaco-vscode-editor-api';
+import {LanguageId, registerCalculatorLanguage} from '../app.config.monaco';
 import * as vscode from 'vscode';
 
 window.MonacoEnvironment = {
@@ -12,8 +12,6 @@ window.MonacoEnvironment = {
     return new EditorWorker();
   }
 };
-
-monaco.languages.register({id: 'clc', extensions: ['.clc']});
 
 @Service()
 export class LspService implements OnDestroy {
@@ -37,17 +35,19 @@ export class LspService implements OnDestroy {
 
   private async initializeVsCodeWrapper(): Promise<void> {
     this.vscode = new MonacoVscodeApiWrapper({
-      $type: 'extended',
+      $type: 'classic',
       viewsConfig: {$type: 'EditorService'},
-      logLevel: LogLevel.Debug
+      logLevel: LogLevel.Debug,
     });
 
     await this.vscode.start();
   }
 
   private async initializeClcClient(): Promise<void> {
+    registerCalculatorLanguage();
+
     this.calculator = new LanguageClientWrapper({
-      languageId: 'clc',
+      languageId: LanguageId.Calculator,
       connection: {
         options: {
           $type: 'WebSocketUrl',
@@ -55,12 +55,12 @@ export class LspService implements OnDestroy {
         }
       },
       clientOptions: {
-        documentSelector: [{language: 'clc'}],
+        documentSelector: [{language: LanguageId.Calculator}],
         workspaceFolder: {
           index: 0,
           name: 'workspace',
           uri: vscode.Uri.parse(`file:///workspace`)
-        }
+        },
       }
     });
 

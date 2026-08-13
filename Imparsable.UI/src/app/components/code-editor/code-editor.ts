@@ -3,6 +3,7 @@ import {EditorApp} from 'monaco-languageclient/editorApp';
 import * as monaco from '@codingame/monaco-vscode-editor-api';
 import {LspService} from '../../services/lsp-service';
 import * as vscode from 'vscode';
+import {LanguageId} from '../../app.config.monaco';
 
 const code: string = `const pi = 3.14;
 const radius = 4 / 2;
@@ -29,15 +30,15 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
     const editorApp = new EditorApp({
       editorOptions: {
         automaticLayout: true,
-        theme: 'vs'
-      }
+        theme: 'vs',
+      },
     });
     await editorApp.start(this.editorContainer.nativeElement);
     this.editor = editorApp.getEditor();
 
     const uri = monaco.Uri.parse('file:///workspace/test.clc');
-    const model = monaco.editor.createModel(code, 'clc', uri);
-    monaco.editor.setModelLanguage(model, 'clc');
+    const model = monaco.editor.createModel(code, LanguageId.Calculator, uri);
+    monaco.editor.setModelLanguage(model, LanguageId.Calculator);
     this.editor?.setModel(model);
 
     const document = await vscode.workspace.openTextDocument(uri);
