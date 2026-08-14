@@ -1,3 +1,5 @@
+using System.Reflection;
+using Imparsable.Parsing.Attributes;
 using Imparsable.Parsing.Exceptions;
 
 namespace Imparsable.Parsing;
@@ -28,9 +30,19 @@ public partial class Lexer<TToken>(
                 break;
             }
         }
-        
+
         ctx.Complete();
 
         return ParserContext;
     }
+
+    public static IReadOnlyList<LexerRuleAttribute<TToken>> GetRules() =>
+    [
+        .. typeof(TToken)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .SelectMany(field => field
+                .GetCustomAttributes(inherit: false)
+                .OfType<LexerRuleAttribute<TToken>>()
+                .Select(rule => rule.SetType((TToken)field.GetValue(null)!)))
+    ];
 }

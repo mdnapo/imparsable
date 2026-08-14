@@ -10,11 +10,11 @@ public partial class Lexer<TToken>
             {
                 var src = ctx.Source;
                 int line = src.Line, column = src.Column;
-                
+
                 if (!src.Match(@string)) return false;
 
                 var lexeme = src.Extract();
-                ctx.Tokens.Add(new Token(src.File, type, lexeme, line, column));
+                ctx.Tokens.Add(new Token(type, lexeme, line, column));
 
                 return true;
             }

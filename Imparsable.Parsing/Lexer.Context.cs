@@ -20,7 +20,6 @@ public partial class Lexer<TToken>
             }
 
             Tokens.Add(new Token(
-                Source.File,
                 type,
                 lexeme,
                 line == -1 ? Source.Line : line,
@@ -39,7 +38,7 @@ public partial class Lexer<TToken>
             int line = Source.Line, column = Source.Column;
             Source.Advance();
             var lexeme = Source.Extract();
-            var token = new Token(Source.File, Configuration.Unexpected, lexeme, line, column);
+            var token = new Token(Configuration.Unexpected, lexeme, line, column);
             diagnostics.Error(token, $"Unexpected token '{token.Lexeme}'.");
         }
 

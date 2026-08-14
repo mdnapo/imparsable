@@ -1,8 +1,7 @@
 namespace Imparsable.Parsing;
 
-public class Source(string file, string source) : Stream<char>(source.AsMemory()), ISourceMarker
+public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMarker
 {
-    public string File { get; } = file;
     public int Line { get; set; } = 1;
     public int Column { get; set; } = 1;
     public char Last => Tokens[^1];
@@ -28,12 +27,32 @@ public class Source(string file, string source) : Stream<char>(source.AsMemory()
         Start = Position;
     }
 
+    public bool Check(char expected) => Peek() == expected;
+
+    public bool CheckAny(char[] expected)
+    {
+        for (var index = 0; index < expected.Length; index++)
+            if (Peek() == expected[index])
+                return true;
+
+        return false;
+    }
+
     public bool Match(char expected)
     {
         if (Tokens[Position] != expected) return false;
         Position += 1;
         Column += 1;
         return true;
+    }
+
+    public bool MatchAny(char[] expected)
+    {
+        for (var index = 0; index < expected.Length; index++)
+            if (Match(expected[index]))
+                return true;
+
+        return false;
     }
 
     public bool Match(ReadOnlySpan<char> expected)
@@ -49,7 +68,7 @@ public class Source(string file, string source) : Stream<char>(source.AsMemory()
         }
 
         Position += expected.Length;
-        Column += expected.Length; 
+        Column += expected.Length;
 
         return true;
     }
