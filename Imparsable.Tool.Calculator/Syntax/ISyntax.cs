@@ -1,4 +1,3 @@
-using Imparsable.Parsing;
 using Imparsable.Parsing.Interfaces;
 using Imparsable.Parsing.SourceGenerators.Attributes;
 

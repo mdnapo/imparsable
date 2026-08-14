@@ -4,6 +4,15 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public enum Token
 {
+    [SingleCharacter<Token>('.')]
+    DOT = 16,
+
+    [Whitespace<Token>]
+    WHITESPACE = 17,
+
+    [NewLine<Token>]
+    NEWLINE = 18,
+
     [Number<Token>]
     NUMBER = 0,
 
@@ -35,12 +44,6 @@ public enum Token
     [SingleCharacter<Token>('/')]
     SLASH = 9,
 
-    [Unexpected]
-    UNEXPECTED = 10,
-
-    [End]
-    END = 11,
-
     [SingleCharacter<Token>('=')]
     EQUALS = 12,
 
@@ -53,12 +56,9 @@ public enum Token
     [Keyword]
     PRINT = 15,
 
-    [SingleCharacter<Token>('.')]
-    DOT = 16,
+    [Unexpected]
+    UNEXPECTED = 10,
 
-    [Whitespace<Token>]
-    WHITESPACE = 17,
-
-    [NewLine<Token>]
-    NEWLINE = 18,
+    [End]
+    END = 11,
 }
