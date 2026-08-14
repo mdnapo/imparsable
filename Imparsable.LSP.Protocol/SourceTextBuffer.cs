@@ -1,3 +1,5 @@
+using Imparsable.LSP.Protocol.Interfaces;
+
 namespace Imparsable.LSP.Protocol;
 
 public class SourceTextBuffer : ISourceTextBuffer

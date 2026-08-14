@@ -1,4 +1,4 @@
-namespace Imparsable.LSP.Protocol;
+namespace Imparsable.LSP.Protocol.Interfaces;
 
 public interface ISourceTextBuffer
 {

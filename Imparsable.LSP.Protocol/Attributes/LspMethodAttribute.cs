@@ -1,6 +1,6 @@
 using StreamJsonRpc;
 
-namespace Imparsable.LSP.Protocol;
+namespace Imparsable.LSP.Protocol.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class LspMethodAttribute : JsonRpcMethodAttribute

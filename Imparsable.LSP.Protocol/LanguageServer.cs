@@ -1,39 +1,19 @@
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Serialization;
+using Imparsable.LSP.Protocol.Attributes;
+using Imparsable.LSP.Protocol.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using StreamJsonRpc;
 
 namespace Imparsable.LSP.Protocol;
 
-public abstract class LanguageServer(IHttpContextAccessor httpContextAccessor, ISourceTextBuffer buffer) : IDisposable
+public abstract class LanguageServer(
+    JsonRpcProvider rpc,
+    ISourceTextBuffer buffer,
+    IEnumerable<ILspMethodHandler> handlers
+) 
 {
-    private JsonRpc? Rpc { get; set; }
+    private readonly ICompletionHandler? _completion = handlers.OfType<ICompletionHandler>().FirstOrDefault();
 
-    public async Task ConnectAsync()
-    {
-        var httpContext = httpContextAccessor.HttpContext;
-
-        if (!httpContext.WebSockets.IsWebSocketRequest)
-        {
-            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            return;
-        }
-
-        using var socket = await httpContext.WebSockets.AcceptWebSocketAsync();
-        await using var handler = new WebSocketMessageHandler(socket, GetFormatter());
-
-        Rpc = new JsonRpc(handler);
-        Rpc.AddLocalRpcTarget(this);
-        Rpc.StartListening();
-
-        await Rpc.Completion.WaitAsync(httpContext.RequestAborted);
-    }
-
-    private static JsonMessageFormatter GetFormatter() => new()
-    {
-        JsonSerializer = { ContractResolver = new CamelCasePropertyNamesContractResolver() }
-    };
+    public async Task ConnectAsync() => await rpc.ConnectAsync(this);
 
     [LspMethod("initialize")]
     public InitializeResult Initialize(InitializeParams parameters) => new()
@@ -60,15 +40,19 @@ public abstract class LanguageServer(IHttpContextAccessor httpContextAccessor, I
         await buffer.OpenAsync(parameters.TextDocument.Uri.ToString(), parameters.TextDocument.Text, cancellationToken);
 
     [LspMethod("textDocument/didChange")]
-    public async Task DidChange(DidChangeTextDocumentParams parameters, CancellationToken cancellationToken) =>
+    public async Task DidChange(DidChangeTextDocumentParams parameters, CancellationToken cancellationToken)
+    {
         await buffer.UpdateAsync(
             parameters.TextDocument.Uri.ToString(),
             parameters.ContentChanges.First().Text,
             cancellationToken);
+    }
 
     [LspMethod("textDocument/didClose")]
     public async Task DidClose(DidCloseTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await buffer.CloseAsync(parameters.TextDocument.Uri.ToString(), cancellationToken);
 
-    public void Dispose() => Rpc?.Dispose();
+    [LspMethod("textDocument/completion")]
+    public async Task Completion(CompletionParams parameters, CancellationToken cancellationToken) =>
+        await (_completion?.CompleteAsync(parameters, cancellationToken) ?? Task.CompletedTask);
 }

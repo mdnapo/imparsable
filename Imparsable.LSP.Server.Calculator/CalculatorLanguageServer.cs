@@ -1,7 +1,12 @@
 ﻿using Imparsable.LSP.Protocol;
-using Microsoft.AspNetCore.Http;
+using Imparsable.LSP.Protocol.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Imparsable.LSP.Server.Calculator;
 
-public class CalculatorLanguageServer(IHttpContextAccessor httpContextAccessor, ISourceTextBuffer buffer)
-    : LanguageServer(httpContextAccessor, buffer);
+public class CalculatorLanguageServer(
+    JsonRpcProvider rpc,
+    ISourceTextBuffer buffer,
+    [FromKeyedServices(nameof(CalculatorLanguageServer))]
+    IEnumerable<ILspMethodHandler> handlers
+) : LanguageServer(rpc, buffer, handlers);
