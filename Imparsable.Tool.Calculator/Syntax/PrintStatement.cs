@@ -8,7 +8,7 @@ public partial class PrintStatement : ISyntax, IProduction
     public required ISyntax Expression { get; init; }
     public required Lexer<Token>.Token SemiColon { get; init; }
 
-    public static ISyntax Parse(Parser<Token>.Context context)
+    public static ISyntax Parse(ParserContext<Token> context)
     {
         var token = context.Previous();
         var expression = ExpressionProduction.Parse(context);

@@ -6,7 +6,7 @@ public static class Statement
 {
     public abstract class Production : IProduction
     {
-        public static ISyntax Parse(Parser<Token>.Context context)
+        public static ISyntax Parse(ParserContext<Token> context)
         {
             if (context.Match(Token.CONST))
                 return ConstStatement.Parse(context);
@@ -23,7 +23,7 @@ public static class Statement
     
     public abstract class Synchronizer : ISynchronizer
     {
-        public static bool Synchronize(Parser<Token>.Context context)
+        public static bool Synchronize(ParserContext<Token> context)
         {
             context.Advance();
 

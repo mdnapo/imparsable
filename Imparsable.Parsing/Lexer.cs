@@ -1,31 +1,27 @@
 using System.Reflection;
 using Imparsable.Parsing.Attributes;
 using Imparsable.Parsing.Exceptions;
+using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Parsing;
 
-public partial class Lexer<TToken>(
-    Lexer<TToken>.Context ctx,
-    IEnumerable<Lexer<TToken>.Rule> rules,
-    DiagnosticsProvider diagnostics
-) where TToken : Enum
+public partial class Lexer<TToken>where TToken : Enum
 {
-    private Parser<TToken>.Context ParserContext => new(ctx.Configuration, ctx.Tokens);
+    private static readonly IReadOnlyList<ILexerRule<TToken>> Rules = GetRules();
+    public static Lexer<TToken> Default { get; } = new();
 
-    public Parser<TToken>.Context Execute()
+    public List<Token> Execute(Context ctx)
     {
-        if (ctx.Source.Ended()) return ParserContext;
-
         while (!ctx.Source.Ended())
         {
             try
             {
-                if (!rules.Any(rule => rule.Match(ctx)))
+                if (!Rules.Any(rule => rule.Match(ctx)))
                     ctx.MarkUnexpected();
             }
             catch (SyntaxException e)
             {
-                diagnostics.Error(e.Marker, e.Message);
+                ctx.Diagnostics.Error(e.Marker, e.Message);
                 ctx.Tokens.Clear();
                 break;
             }
@@ -33,7 +29,7 @@ public partial class Lexer<TToken>(
 
         ctx.Complete();
 
-        return ParserContext;
+        return ctx.Tokens;
     }
 
     public static IReadOnlyList<LexerRuleAttribute<TToken>> GetRules() =>

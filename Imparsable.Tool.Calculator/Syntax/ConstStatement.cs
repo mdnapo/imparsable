@@ -1,4 +1,5 @@
 using Imparsable.Parsing;
+using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
@@ -11,7 +12,7 @@ public partial class ConstStatement : ISyntax, ISymbol, IProduction
     public required Lexer<Token>.Token SemiColon { get; init; }
     public string Symbol => Identifier.Lexeme;
 
-    public static ISyntax Parse(Parser<Token>.Context context)
+    public static ISyntax Parse(ParserContext<Token> context)
     {
         var token = context.Previous();
         var identifier = context.Consume(Syntax.Token.IDENTIFIER, "Expected an identifier.");

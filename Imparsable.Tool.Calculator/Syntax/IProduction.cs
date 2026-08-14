@@ -1,5 +1,6 @@
 using Imparsable.Parsing;
+using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public partial interface IProduction : Parser<Token, ISyntax>.IProduction;
+public interface IProduction : IProduction<Token, ISyntax>;

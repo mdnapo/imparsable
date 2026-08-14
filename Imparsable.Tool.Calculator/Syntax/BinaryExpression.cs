@@ -14,22 +14,22 @@ public partial class BinaryExpression : ISyntax, IProduction
     public required Lexer<Token>.Token Op { get; init; }
     public required ISyntax RightOperand { get; init; }
 
-    public static ISyntax Parse(Parser<Token>.Context context) => Assignment(context);
+    public static ISyntax Parse(ParserContext<Token> context) => Assignment(context);
 
-    private static ISyntax Assignment(Parser<Token>.Context context) =>
+    private static ISyntax Assignment(ParserContext<Token> context) =>
         Parse(context, AssignmentOperators, Concatenation);
 
-    private static ISyntax Concatenation(Parser<Token>.Context context) =>
+    private static ISyntax Concatenation(ParserContext<Token> context) =>
         Parse(context, ConcatenationOperators, AdditionSubtraction);
 
-    private static ISyntax AdditionSubtraction(Parser<Token>.Context context) =>
+    private static ISyntax AdditionSubtraction(ParserContext<Token> context) =>
         Parse(context, AdditionSubtractionOperators, MultiplicationDivision);
 
-    private static ISyntax MultiplicationDivision(Parser<Token>.Context context) =>
+    private static ISyntax MultiplicationDivision(ParserContext<Token> context) =>
         Parse(context, MultiplicationDivisionOperators, UnaryExpression.Parse);
 
     private static ISyntax Parse(
-        Parser<Token>.Context context,
+        ParserContext<Token> context,
         Token[] operators,
         ISyntax.Func<ISyntax> parser
     )

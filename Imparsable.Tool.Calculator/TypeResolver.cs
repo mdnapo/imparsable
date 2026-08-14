@@ -1,4 +1,5 @@
 using Imparsable.Parsing;
+using Imparsable.Parsing.Interfaces;
 using Imparsable.Tool.Calculator.Syntax;
 
 namespace Imparsable.Tool.Calculator;
@@ -8,8 +9,14 @@ public class TypeResolver(DiagnosticsProvider diagnostics, SymbolTable symbols) 
     private const string None = "none";
     private const string Number = "number";
     private const string String = "string";
+    
+    public SymbolTable Symbols { get; } = symbols;
+    public DiagnosticsProvider Diagnostics { get; } = diagnostics;
 
     private readonly Dictionary<ISymbol, string> _symbols = new();
+    
+    public static void Execute(SyntaxTree tree) =>
+        new TypeResolver(tree.Diagnostics, tree.SymbolTable).Execute(tree.Roots);
 
     public void Execute(List<ISyntax> nodes)
     {
@@ -29,7 +36,7 @@ public class TypeResolver(DiagnosticsProvider diagnostics, SymbolTable symbols) 
             case Token.STAR:
             case Token.SLASH:
                 if (left is not Number || right is not Number)
-                    diagnostics.Error(node.Op, $"Operator '{node.Op.Lexeme}' can only operate on numbers.");
+                    Diagnostics.Error(node.Op, $"Operator '{node.Op.Lexeme}' can only operate on numbers.");
                 return Number;
 
             case Token.DOT:
@@ -55,7 +62,7 @@ public class TypeResolver(DiagnosticsProvider diagnostics, SymbolTable symbols) 
 
     public string Visit(GroupingExpression node) => node.Expression.Accept(this);
 
-    public string Visit(IdentifierExpression node) => _symbols[symbols.RequireRecursiveLookup(node.Token.Lexeme)];
+    public string Visit(IdentifierExpression node) => _symbols[Symbols.RequireRecursiveLookup(node.Token.Lexeme)];
 
     public string Visit(NumericLiteralExpression node) => Number;
 

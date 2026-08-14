@@ -2,6 +2,6 @@ namespace Imparsable.Parsing;
 
 public enum DiagnosticSeverity
 {
-    Warning = 1,
-    Error = 2,
+    WARNING = 1,
+    ERROR = 2,
 }

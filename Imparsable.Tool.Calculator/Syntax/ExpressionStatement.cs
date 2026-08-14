@@ -8,7 +8,7 @@ public partial class ExpressionStatement : ISyntax, IProduction
     public required ISyntax Expr { get; init; }
     public required Lexer<Token>.Token SemiColon { get; set; }
 
-    public static ISyntax Parse(Parser<Token>.Context context)
+    public static ISyntax Parse(ParserContext<Token> context)
     {
         var expr = ExpressionProduction.Parse(context);
         var semiColon = context.Consume(Syntax.Token.SEMICOLON, "Expected ';'.");

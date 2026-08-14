@@ -11,11 +11,12 @@ public enum Token
     [DoubleQuoteString<Token>]
     STRING = 1,
 
+    [Keyword]
     VAR = 2,
 
+    [Keyword]
     CONST = 3,
 
-    [Identifier]
     [Identifier<Token>]
     IDENTIFIER = 4,
 
@@ -49,8 +50,15 @@ public enum Token
     [SingleCharacter<Token>(')')]
     RIGHT_PARENTHESIS = 14,
 
+    [Keyword]
     PRINT = 15,
 
     [SingleCharacter<Token>('.')]
     DOT = 16,
+
+    [Whitespace<Token>]
+    WHITESPACE = 17,
+
+    [NewLine<Token>]
+    NEWLINE = 18,
 }

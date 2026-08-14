@@ -1,5 +1,6 @@
 using Imparsable.Parsing;
+using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public interface ISynchronizer : Parser<Token, ISyntax>.ISynchronizer;
+public interface ISynchronizer : ISynchronizer<Token>;

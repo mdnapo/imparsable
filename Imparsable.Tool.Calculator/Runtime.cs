@@ -1,36 +1,24 @@
-using Imparsable.Parsing;
 using Imparsable.Tool.Calculator.Syntax;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Imparsable.Tool.Calculator;
 
-public partial class Runtime(IServiceProvider services) : ISyntaxVisitor
+public partial class Runtime : ISyntaxVisitor
 {
     private readonly Stack<object> _stack = [];
     private Stack<Scope> Scopes { get; } = new([new Scope()]);
 
     public event Action<string> StdOut = delegate { };
 
-    public void Execute(string file, string source)
+    public void Execute(string source)
     {
-        using var scope = services.CreateScope();
-        scope.ServiceProvider
-            .GetRequiredService<Lexer<Token>.ContextProvider>()
-            .Initialize(file, source);
+        var tree = SyntaxTree.Parse(source);
 
-        var parser = scope.ServiceProvider.GetRequiredService<Parser<Token, ISyntax>>();
-        var syntax = parser.Execute<Statement.Production, Statement.Synchronizer>();
-        scope.ServiceProvider.GetRequiredService<SymbolResolver>().Execute(syntax);
-        scope.ServiceProvider.GetRequiredService<TypeResolver>().Execute(syntax);
-
-        var diagnostics = scope.ServiceProvider.GetRequiredService<DiagnosticsProvider>();
-
-        foreach (var diagnostic in diagnostics)
+        foreach (var diagnostic in tree.Diagnostics)
             StdOut(diagnostic.Report);
 
-        if (!diagnostics.IsHealthy) return;
+        if (!tree.Diagnostics.IsHealthy) return;
 
-        foreach (var node in syntax)
+        foreach (var node in tree.Roots)
             node.Accept(this);
     }
 

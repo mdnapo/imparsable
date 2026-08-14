@@ -1,20 +1,22 @@
 using Imparsable.Parsing.Exceptions;
+using Imparsable.Parsing.Extensions;
 
 namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>
 {
-    public class Context(Parser<TToken>.Configuration configuration, Source source, DiagnosticsProvider diagnostics)
+    public class Context(ParserConfiguration<TToken> configuration, Source source, DiagnosticsProvider diagnostics)
     {
-        public Parser<TToken>.Configuration Configuration { get; } = configuration;
+        public ParserConfiguration<TToken> Configuration { get; } = configuration;
         public Source Source { get; } = source;
+        public DiagnosticsProvider Diagnostics { get; } = diagnostics;
         public List<Token> Tokens { get; } = [];
 
         public void AddToken(TToken type, string lexeme, int line = -1, int column = -1)
         {
-            if (type.Equals(Configuration.Identifier))
+            if (type.IsIdentifier<TToken>())
             {
-                type = Configuration.Keywords.FirstOrDefault(IsKeyword()) is { } keyword
+                type = ParserConfiguration<TToken>.IsKeyword(lexeme) is { } keyword
                     ? keyword.Type
                     : type;
             }
@@ -25,10 +27,6 @@ public partial class Lexer<TToken>
                 line == -1 ? Source.Line : line,
                 column == -1 ? Source.Column : column
             ));
-
-            return;
-
-            Func<Keyword, bool> IsKeyword() => kw => kw.Name.Equals(lexeme, StringComparison.OrdinalIgnoreCase);
         }
 
         public void Halt(string message) => throw new SyntaxException(Source, message);
@@ -39,7 +37,7 @@ public partial class Lexer<TToken>
             Source.Advance();
             var lexeme = Source.Extract();
             var token = new Token(Configuration.Unexpected, lexeme, line, column);
-            diagnostics.Error(token, $"Unexpected token '{token.Lexeme}'.");
+            Diagnostics.Error(token, $"Unexpected token '{token.Lexeme}'.");
         }
 
         public void Complete() => AddToken(Configuration.End, "<END>", Source.Line, Source.Column);

@@ -1,3 +1,5 @@
+using Imparsable.Parsing.Interfaces;
+
 namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>

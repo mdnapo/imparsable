@@ -1,4 +1,4 @@
-namespace Imparsable.Parsing;
+namespace Imparsable.Parsing.Interfaces;
 
 public interface ISourceMarker
 {

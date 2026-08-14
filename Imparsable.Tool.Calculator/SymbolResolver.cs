@@ -1,4 +1,5 @@
 using Imparsable.Parsing;
+using Imparsable.Parsing.Interfaces;
 using Imparsable.Tool.Calculator.Syntax;
 
 namespace Imparsable.Tool.Calculator;
@@ -6,6 +7,11 @@ namespace Imparsable.Tool.Calculator;
 public class SymbolResolver(DiagnosticsProvider diagnostics, SymbolTable symbols) : ISyntaxVisitor
 {
     private string? _initializer;
+    public SymbolTable Symbols { get; } = symbols;
+    public DiagnosticsProvider Diagnostics { get; } = diagnostics;
+
+    public static void Execute(SyntaxTree tree) =>
+        new SymbolResolver(tree.Diagnostics, tree.SymbolTable).Execute(tree.Roots);
 
     public void Execute(List<ISyntax> syntax)
     {
@@ -18,16 +24,16 @@ public class SymbolResolver(DiagnosticsProvider diagnostics, SymbolTable symbols
         if (symbol is not ISyntax syntax)
             throw new InvalidCastException($"Cannot cast {symbol.GetType().Name} to {typeof(ISyntax)}");
 
-        if (symbols.Lookup(symbol.Symbol) is not null)
+        if (Symbols.Lookup(symbol.Symbol) is not null)
         {
-            diagnostics.Error(syntax.Token, $"Redeclaration of symbol '{symbol.Symbol}' is not allowed.");
+            Diagnostics.Error(syntax.Token, $"Redeclaration of symbol '{symbol.Symbol}' is not allowed.");
         }
-        else if (symbols.RecursiveLookup(symbol.Symbol) is not null)
+        else if (Symbols.RecursiveLookup(symbol.Symbol) is not null)
         {
-            diagnostics.Warning(syntax.Token, $"Symbol '{symbol.Symbol}' hides outer declaration.");
+            Diagnostics.Warning(syntax.Token, $"Symbol '{symbol.Symbol}' hides outer declaration.");
         }
 
-        symbols.Symbols.Add(symbol);
+        Symbols.Symbols.Add(symbol);
     }
 
     public void Visit(BinaryExpression node)
@@ -51,10 +57,10 @@ public class SymbolResolver(DiagnosticsProvider diagnostics, SymbolTable symbols
     public void Visit(IdentifierExpression node)
     {
         if (_initializer == node.Token.Lexeme)
-            diagnostics.Error(node.Token, $"Cannot use '{node.Token.Lexeme}' in it's own initializer.");
+            Diagnostics.Error(node.Token, $"Cannot use '{node.Token.Lexeme}' in it's own initializer.");
 
-        if (symbols.RecursiveLookup(node.Token.Lexeme) is null)
-            diagnostics.Error(node.Token, $"Variable '{node.Token.Lexeme}' has not been declared.");
+        if (Symbols.RecursiveLookup(node.Token.Lexeme) is null)
+            Diagnostics.Error(node.Token, $"Variable '{node.Token.Lexeme}' has not been declared.");
     }
 
     public void Visit(NumericLiteralExpression node) { }

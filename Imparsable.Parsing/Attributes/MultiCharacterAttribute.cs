@@ -1,19 +1,15 @@
 namespace Imparsable.Parsing.Attributes;
 
-public sealed class IdentifierAttribute<TToken> : LexerRuleAttribute<TToken> where TToken : Enum
+public sealed class MultiCharacterAttribute<TToken>(string @string) : LexerRuleAttribute<TToken> where TToken : Enum
 {
     public override bool Match(Lexer<TToken>.Context context)
     {
         var src = context.Source;
-
-        if (!IsAlpha(src.Peek())) return false;
-
         int line = src.Line, column = src.Column;
 
-        while (IsAlphaNumeric(src.Peek())) src.Advance();
+        if (!src.Match(@string)) return false;
 
         var lexeme = src.Extract();
-
         context.AddToken(Type, lexeme, line, column);
 
         return true;

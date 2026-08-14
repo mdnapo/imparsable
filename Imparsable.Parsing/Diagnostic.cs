@@ -1,3 +1,5 @@
+using Imparsable.Parsing.Interfaces;
+
 namespace Imparsable.Parsing;
 
 public record Diagnostic(DiagnosticSeverity Severity, ISourceMarker Marker, string Message)

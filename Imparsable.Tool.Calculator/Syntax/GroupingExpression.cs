@@ -9,7 +9,7 @@ public partial class GroupingExpression : ISyntax, IProduction
     public required ISyntax Expression { get; init; }
     public required Lexer<Token>.Token RightParenthesis { get; init; }
 
-    public static ISyntax Parse(Parser<Token>.Context context)
+    public static ISyntax Parse(ParserContext<Token> context)
     {
         var leftParenthesis = context.Previous();
         var expression = ExpressionProduction.Parse(context);

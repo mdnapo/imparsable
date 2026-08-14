@@ -4,7 +4,7 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public abstract class PrimaryExpression : IProduction
 {
-    public static ISyntax Parse(Parser<Token>.Context context)
+    public static ISyntax Parse(ParserContext<Token> context)
     {
         if (context.Match(Token.IDENTIFIER))
             return IdentifierExpression.Parse(context);

@@ -1,3 +1,5 @@
+using Imparsable.Parsing.Interfaces;
+
 namespace Imparsable.Parsing;
 
 public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMarker
