@@ -7,6 +7,7 @@ namespace Imparsable.Tool.Calculator;
 public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<string>
 {
     private const string None = "none";
+    private const string Unknown = "unknown";
     private const string Number = "number";
     private const string String = "string";
 
@@ -15,8 +16,7 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<string>
 
     private readonly Dictionary<ISymbol, string> _symbols = new();
 
-    public static void Execute(SyntaxTree tree) =>
-        new TypeResolver(tree).Execute();
+    public static void Execute(SyntaxTree tree) => new TypeResolver(tree).Execute();
 
     public void Execute()
     {
@@ -36,7 +36,12 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<string>
             case Token.STAR:
             case Token.SLASH:
                 if (left is not Number || right is not Number)
-                    Diagnostics.Error(node.Op, $"Operator '{node.Op.Lexeme}' can only operate on numbers.");
+                {
+                    var text = tree.Source.GetText(node.Op.Offset, node.Op.Length);
+                    Diagnostics.Error(node.Op, $"Operation '{left} {text} {right}' is invalid.");
+                    return Unknown;
+                }
+
                 return Number;
 
             case Token.DOT:
@@ -62,7 +67,10 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<string>
 
     public string Visit(GroupingExpression node) => node.Expression.Accept(this);
 
-    public string Visit(IdentifierExpression node) => _symbols[Symbols.RequireRecursiveLookup(node.Token.Lexeme)];
+    public string Visit(IdentifierExpression node) =>
+        Symbols.RecursiveLookup(node.Symbol) is { } symbol && _symbols.TryGetValue(symbol, out var value)
+            ? value
+            : Unknown;
 
     public string Visit(NumericLiteralExpression node) => Number;
 

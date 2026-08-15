@@ -33,8 +33,8 @@ public class ParserConfiguration<TToken> where TToken : Enum
         };
     }
 
-    public static Keyword<TToken>? IsKeyword(string lexeme) =>
-        Keywords.FirstOrDefault(kw => kw.Name.Equals(lexeme, StringComparison.OrdinalIgnoreCase));
+    public static Keyword<TToken>? IsKeyword(string text) =>
+        Keywords.FirstOrDefault(keyword => keyword.Name.Equals(text, StringComparison.OrdinalIgnoreCase));
 
     public static IReadOnlyList<Keyword<TToken>> GetKeywords() =>
     [

@@ -4,6 +4,8 @@ namespace Imparsable.Parsing;
 
 public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMarker
 {
+    public record struct Range(int Offset, int Length);
+
     public int Line { get; set; } = 1;
     public int Column { get; set; } = 1;
     public char Last => Tokens[^1];
@@ -17,12 +19,14 @@ public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMar
 
     public override bool Ended() => Current == '\0' || base.Ended();
 
-    public string Extract()
+    public Range Extract()
     {
-        var position = (Start, Length: Position - Start);
+        var range = new Range(Offset: Start, Length: Position - Start);
         Start = Position;
-        return source.Substring(position.Start, position.Length);
+        return range;
     }
+    
+    public string GetText(int offset, int length) => source.Substring(offset, length);
 
     public void Ignore()
     {

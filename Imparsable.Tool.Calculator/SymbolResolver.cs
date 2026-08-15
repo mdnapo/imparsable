@@ -55,11 +55,11 @@ public class SymbolResolver(SyntaxTree tree) : ISyntaxVisitor
 
     public void Visit(IdentifierExpression node)
     {
-        if (_initializer == node.Token.Lexeme)
-            Diagnostics.Error(node.Token, $"Cannot use '{node.Token.Lexeme}' in it's own initializer.");
+        if (_initializer == node.Symbol)
+            Diagnostics.Error(node.Token, $"Cannot use '{node.Symbol}' in it's own initializer.");
 
-        if (Symbols.RecursiveLookup(node.Token.Lexeme) is null)
-            Diagnostics.Error(node.Token, $"Variable '{node.Token.Lexeme}' has not been declared.");
+        if (Symbols.RecursiveLookup(node.Symbol) is null)
+            Diagnostics.Error(node.Token, $"Variable '{node.Symbol}' has not been declared.");
     }
 
     public void Visit(NumericLiteralExpression node) { }

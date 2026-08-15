@@ -29,8 +29,9 @@ public sealed class DoubleQuoteStringAttribute<TToken> : LexerRuleAttribute<TTok
         // Include the closing quotation mark.
         src.Advance();
 
-        var lexeme = src.Extract();
-        context.AddToken(Type, lexeme.Trim('"'), line, column);
+        var range = src.Extract();
+        
+        context.AddToken(Type, range.Offset, range.Length, line, column);
 
         return true;
     }

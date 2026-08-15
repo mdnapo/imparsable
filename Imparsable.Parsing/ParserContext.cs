@@ -2,9 +2,14 @@ using Imparsable.Parsing.Exceptions;
 
 namespace Imparsable.Parsing;
 
-public class ParserContext<TToken>(ParserConfiguration<TToken> configuration, List<Lexer<TToken>.Token> tokens)
-    : Stream<Lexer<TToken>.Token>(tokens.ToArray()) where TToken : Enum
+public class ParserContext<TToken>(
+    ParserConfiguration<TToken> configuration,
+    Source source,
+    List<Lexer<TToken>.Token> tokens
+) : Stream<Lexer<TToken>.Token>(tokens.ToArray()) where TToken : Enum
 {
+    public Source Source { get; } = source;
+
     public bool CheckOffset(int offset, TToken type)
     {
         if (Ended()) return false;

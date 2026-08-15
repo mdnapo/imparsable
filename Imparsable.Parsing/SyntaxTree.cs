@@ -25,7 +25,7 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : ISyntaxTree<TTo
 
         tree.Tokens = Lexer<TToken>.Default.Execute(lexerContext);
 
-        var parserContext = new ParserContext<TToken>(configuration, tree.Tokens);
+        var parserContext = new ParserContext<TToken>(configuration, tree.Source, tree.Tokens);
 
         while (!parserContext.Ended())
         {
@@ -53,7 +53,7 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : ISyntaxTree<TTo
 
         tree.Tokens = Lexer<TToken>.Default.Execute(lexerContext);
 
-        var parserContext = new ParserContext<TToken>(configuration, tree.Tokens);
+        var parserContext = new ParserContext<TToken>(configuration, tree.Source, tree.Tokens);
 
         while (!parserContext.Ended())
         {

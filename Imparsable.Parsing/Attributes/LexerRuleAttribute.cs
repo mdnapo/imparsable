@@ -41,8 +41,8 @@ public abstract class LexerRuleAttribute<TToken> : Attribute, ILexerRule<TToken>
         }
         else
         {
-            var lexeme = src.Extract();
-            context.AddToken(type, lexeme, line, column);
+            var range = src.Extract();
+            context.AddToken(type, range.Offset, range.Length, line, column);
         }
     }
 }

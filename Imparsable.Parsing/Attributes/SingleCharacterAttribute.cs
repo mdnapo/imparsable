@@ -9,8 +9,9 @@ public sealed class SingleCharacterAttribute<TToken>(char @char) : LexerRuleAttr
 
         if (!src.Match(@char)) return false;
 
-        var lexeme = src.Extract();
-        context.AddToken(Type, lexeme, line, column);
+        var range = src.Extract();
+        
+        context.AddToken(Type, range.Offset, range.Length, line, column);
 
         return true;
     }

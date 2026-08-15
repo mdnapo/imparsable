@@ -52,7 +52,7 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
 
             case Token.EQUALS:
                 var identifier = left as IdentifierExpression;
-                Scopes.Peek()[identifier!.Token.Lexeme] = right;
+                Scopes.Peek()[identifier!.Symbol] = right;
                 break;
 
             default:
@@ -63,7 +63,7 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
     public void Visit(ConstStatement node)
     {
         node.Initializer.Accept(this);
-        Scopes.Peek().Declare(node.Identifier.Lexeme, _stack.Pop());
+        Scopes.Peek().Declare(node.Symbol, _stack.Pop());
     }
 
     public void Visit(ExpressionStatement node) => node.Expr.Accept(this);
@@ -72,7 +72,7 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
 
     public void Visit(IdentifierExpression node)
     {
-        var value = Scopes.Peek()[node.Token.Lexeme];
+        var value = Scopes.Peek()[node.Symbol];
         _stack.Push(value);
     }
 
@@ -112,7 +112,7 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
             value = _stack.Pop();
         }
 
-        Scopes.Peek().Declare(node.Identifier.Lexeme, value!);
+        Scopes.Peek().Declare(node.Symbol, value!);
     }
 
     public void Dispose()

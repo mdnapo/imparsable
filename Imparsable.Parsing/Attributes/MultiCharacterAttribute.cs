@@ -9,8 +9,9 @@ public sealed class MultiCharacterAttribute<TToken>(string @string) : LexerRuleA
 
         if (!src.Match(@string)) return false;
 
-        var lexeme = src.Extract();
-        context.AddToken(Type, lexeme, line, column);
+        var range = src.Extract();
+        
+        context.AddToken(Type, range.Offset, range.Length, line, column);
 
         return true;
     }

@@ -5,12 +5,13 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public partial class VarStatement : ISyntax, ISymbol, IProduction
 {
+    public required Source Source { get; init; }
     public required Lexer<Token>.Token Token { get; init; }
     public required Lexer<Token>.Token Identifier { get; init; }
     public Lexer<Token>.Token? Assignment { get; init; }
     public ISyntax? Initializer { get; init; }
     public required Lexer<Token>.Token SemiColon { get; init; }
-    public string Symbol => Identifier.Lexeme;
+    public string Symbol => Source.GetText(Identifier.Offset, Identifier.Length);
 
     public static ISyntax Parse(ParserContext<Token> context)
     {
@@ -21,6 +22,7 @@ public partial class VarStatement : ISyntax, ISymbol, IProduction
         {
             return new VarStatement
             {
+                Source = context.Source,
                 Token = token,
                 Identifier = identifier,
                 SemiColon = context.Previous()
@@ -33,6 +35,7 @@ public partial class VarStatement : ISyntax, ISymbol, IProduction
 
         return new VarStatement
         {
+            Source = context.Source,
             Token = token,
             Identifier = identifier,
             Assignment = assignment,

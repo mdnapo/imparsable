@@ -12,9 +12,9 @@ public sealed class IdentifierAttribute<TToken> : LexerRuleAttribute<TToken> whe
 
         while (IsAlphaNumeric(src.Peek())) src.Advance();
 
-        var lexeme = src.Extract();
+        var range = src.Extract();
 
-        context.AddToken(Type, lexeme, line, column);
+        context.AddToken(Type, range.Offset, range.Length, line, column);
 
         return true;
     }
