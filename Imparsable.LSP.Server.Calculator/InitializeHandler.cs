@@ -18,6 +18,11 @@ public class InitializeHandler : IInitializeHandler
                     OpenClose = true,
                 }
             },
+            CompletionProvider = new CompletionRegistrationOptions.StaticOptions
+            {
+                ResolveProvider = false,
+                TriggerCharacters = new Container<string>("+", "-", "*", "/")
+            }
         },
         ServerInfo = new ServerInfo()
     };

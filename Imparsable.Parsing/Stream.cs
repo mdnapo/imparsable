@@ -2,20 +2,20 @@
 
 public abstract class Stream<T>(ReadOnlyMemory<T> tokens)
 {
-    protected ReadOnlySpan<T> Tokens => tokens.Span;
+    protected ReadOnlySpan<T> Sequence => tokens.Span;
     protected int Position { get; set; }
 
-    public T Current => Position < Tokens.Length
-        ? Tokens[Position]
+    public T Current => Position < Sequence.Length
+        ? Sequence[Position]
         : default!;
 
-    public virtual T Advance() => Position + 1 <= Tokens.Length
-        ? Tokens[++Position - 1]
+    public virtual T Advance() => Position + 1 <= Sequence.Length
+        ? Sequence[++Position - 1]
         : default!;
 
-    public virtual T Peek(int offset = 0) => Position + offset < Tokens.Length
-        ? Tokens[Position + offset]
+    public virtual T Peek(int offset = 0) => Position + offset < Sequence.Length
+        ? Sequence[Position + offset]
         : default!;
 
-    public virtual bool Ended() => Position >= Tokens.Length;
+    public virtual bool Ended() => Position >= Sequence.Length;
 }

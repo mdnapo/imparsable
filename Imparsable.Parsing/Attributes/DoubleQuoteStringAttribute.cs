@@ -23,7 +23,7 @@ public sealed class DoubleQuoteStringAttribute<TToken> : LexerRuleAttribute<TTok
 
         if (src.Ended())
         {
-            context.Halt($"Unterminated string near '{src.Last}'.");
+            context.Halt("Unterminated string.");
         }
 
         // Include the closing quotation mark.

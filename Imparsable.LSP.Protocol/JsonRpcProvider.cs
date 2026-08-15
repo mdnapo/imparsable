@@ -5,7 +5,7 @@ using StreamJsonRpc;
 
 namespace Imparsable.LSP.Protocol;
 
-public class JsonRpcProvider(IHttpContextAccessor httpContextAccessor) : IAsyncDisposable
+public sealed class JsonRpcProvider(IHttpContextAccessor httpContextAccessor) : IAsyncDisposable
 {
     private WebSocket? _socket;
     private WebSocketMessageHandler? _handler;
@@ -24,7 +24,6 @@ public class JsonRpcProvider(IHttpContextAccessor httpContextAccessor) : IAsyncD
 
         _socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
         _handler = new WebSocketMessageHandler(_socket, GetFormatter());
-
         _connection = new JsonRpc(_handler);
         _connection.AddLocalRpcTarget(target);
         _connection.StartListening();

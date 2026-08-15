@@ -1,20 +1,28 @@
-import {AfterViewInit, Component, ElementRef, inject, OnDestroy, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  Input,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import {EditorApp} from 'monaco-languageclient/editorApp';
 import * as monaco from '@codingame/monaco-vscode-editor-api';
 import {LspService} from '../../services/lsp-service';
 import * as vscode from 'vscode';
-import {LanguageId} from '../../app.config.monaco';
 
-const code: string = `const pi = 3.14;
-const radius = 4 / 2;
-var area = 2 * pi * radius;
-print "Area" . ': ' . area;
-print 1 + "2";
-`;
+export interface SourceFile {
+  name: string;
+  content: string;
+  languageId: string;
+}
 
 @Component({
   selector: 'app-code-editor',
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './code-editor.html',
   styleUrl: './code-editor.scss',
 })
@@ -23,6 +31,7 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
   @ViewChild('editor', {static: true})
   private editorContainer!: ElementRef<HTMLDivElement>;
   private editor?: monaco.editor.IStandaloneCodeEditor;
+  @Input() file!: SourceFile;
 
   public async ngAfterViewInit(): Promise<void> {
     await this.languageServer.initialize();
@@ -36,9 +45,9 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
     await editorApp.start(this.editorContainer.nativeElement);
     this.editor = editorApp.getEditor();
 
-    const uri = monaco.Uri.parse('file:///workspace/test.clc');
-    const model = monaco.editor.createModel(code, LanguageId.Calculator, uri);
-    monaco.editor.setModelLanguage(model, LanguageId.Calculator);
+    const uri = monaco.Uri.parse(`file:///workspace/${this.file.name}`);
+    const model = monaco.editor.createModel(this.file.content, this.file.languageId, uri);
+    monaco.editor.setModelLanguage(model, this.file.languageId);
     this.editor?.setModel(model);
 
     const document = await vscode.workspace.openTextDocument(uri);

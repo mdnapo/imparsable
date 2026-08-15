@@ -12,27 +12,27 @@ public abstract class LanguageServer(JsonRpcProvider rpc, IEnumerable<ILspMethod
         handlers.OfType<T>().FirstOrDefault() ??
         throw new InvalidOperationException($"Handler of type {typeof(T)} not found");
 
-    [LspMethod("initialize")]
+    [LspMethod(LspMethodName.Initialize)]
     public InitializeResult Initialize(InitializeParams parameters) =>
         RequireHandler<IInitializeHandler>().Handle(parameters);
 
-    [LspMethod("initialized")]
+    [LspMethod(LspMethodName.Initialized)]
     public Task Initialized(CancellationToken cancellationToken) =>
         RequireHandler<IInitializedHandler>().HandleAsync(cancellationToken);
 
-    [LspMethod("textDocument/didOpen")]
+    [LspMethod(LspMethodName.TextDocumentDidOpen)]
     public async Task DidOpen(DidOpenTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await RequireHandler<ITextDocumentDidOpenHandler>().HandleAsync(parameters, cancellationToken);
 
-    [LspMethod("textDocument/didChange")]
+    [LspMethod(LspMethodName.TextDocumentDidChange)]
     public async Task DidChange(DidChangeTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await RequireHandler<ITextDocumentDidChangeHandler>().HandleAsync(parameters, cancellationToken);
 
-    [LspMethod("textDocument/didClose")]
+    [LspMethod(LspMethodName.TextDocumentDidClose)]
     public async Task DidClose(DidCloseTextDocumentParams parameters, CancellationToken cancellationToken) =>
         await RequireHandler<ITextDocumentDidCloseHandler>().HandleAsync(parameters, cancellationToken);
 
-    [LspMethod("textDocument/completion")]
-    public async Task Completion(CompletionParams parameters, CancellationToken cancellationToken) =>
+    [LspMethod(LspMethodName.TextDocumentCompletion)]
+    public async Task<CompletionList> Completion(CompletionParams parameters, CancellationToken cancellationToken) =>
         await RequireHandler<ICompletionHandler>().HandleAsync(parameters, cancellationToken);
 }

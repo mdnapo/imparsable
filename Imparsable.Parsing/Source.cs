@@ -6,9 +6,12 @@ public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMar
 {
     public record struct Range(int Offset, int Length);
 
+    public int Offset => Start;
+    public int Length => Position - Start;
+
     public int Line { get; set; } = 1;
     public int Column { get; set; } = 1;
-    public char Last => Tokens[^1];
+    public char Last => Sequence[^1];
     private int Start { get; set; }
 
     public override char Advance()
@@ -21,11 +24,11 @@ public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMar
 
     public Range Extract()
     {
-        var range = new Range(Offset: Start, Length: Position - Start);
+        var range = new Range(Offset, Length);
         Start = Position;
         return range;
     }
-    
+
     public string GetText(int offset, int length) => source.Substring(offset, length);
 
     public void Ignore()
@@ -46,7 +49,7 @@ public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMar
 
     public bool Match(char expected)
     {
-        if (Tokens[Position] != expected) return false;
+        if (Sequence[Position] != expected) return false;
         Position += 1;
         Column += 1;
         return true;
@@ -63,11 +66,11 @@ public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMar
 
     public bool Match(ReadOnlySpan<char> expected)
     {
-        if (Position + expected.Length > Tokens.Length) return false;
+        if (Position + expected.Length > Sequence.Length) return false;
 
         for (var index = 0; index < expected.Length; index++)
         {
-            if (Tokens[Position + index] != expected[index])
+            if (Sequence[Position + index] != expected[index])
             {
                 return false;
             }

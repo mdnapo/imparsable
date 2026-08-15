@@ -6,6 +6,7 @@ import {MonacoVscodeApiWrapper} from 'monaco-languageclient/vscodeApiWrapper';
 import EditorWorker from '@codingame/monaco-vscode-editor-api/esm/vs/editor/editor.worker?worker';
 import {LanguageId, registerCalculatorLanguage} from '../app.config.monaco';
 import * as vscode from 'vscode';
+import { IDisposable } from "@codingame/monaco-vscode-editor-api";
 
 window.MonacoEnvironment = {
   getWorker(_moduleId, _label) {
@@ -18,6 +19,8 @@ export class LspService implements OnDestroy {
   private vscode?: MonacoVscodeApiWrapper;
   private calculator?: LanguageClientWrapper;
   private initialization?: Promise<void>;
+  private fsProvider!: RegisteredFileSystemProvider;
+  private fsOverlay?: IDisposable;
 
   public async initialize(): Promise<void> {
     return this.initialization ??= this.runInitializers();
@@ -30,7 +33,8 @@ export class LspService implements OnDestroy {
   }
 
   private initializeFileSystem(): void {
-    registerFileSystemOverlay(1, new RegisteredFileSystemProvider(false));
+    this.fsProvider = new RegisteredFileSystemProvider(false);
+    this.fsOverlay = registerFileSystemOverlay(-1, this.fsProvider);
   }
 
   private async initializeVsCodeWrapper(): Promise<void> {
@@ -70,5 +74,6 @@ export class LspService implements OnDestroy {
   ngOnDestroy(): void {
     this.calculator?.dispose();
     this.vscode?.dispose();
+    this.fsOverlay?.dispose();
   }
 }

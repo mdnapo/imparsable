@@ -3,10 +3,10 @@ using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Parsing;
 
-public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : ISyntaxTree<TToken, TSyntax, TSyntaxTree>
+public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     where TToken : Enum
     where TSyntax : ISyntax<TToken>
-    where TSyntaxTree : SyntaxTree<TToken, TSyntax, TSyntaxTree>, ISyntaxTree<TToken, TSyntax, TSyntaxTree>, new()
+    where TSyntaxTree : SyntaxTree<TToken, TSyntax, TSyntaxTree>, new()
 {
     public Source Source { get; init; } = null!;
     public DiagnosticsProvider Diagnostics { get; } = new();

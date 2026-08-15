@@ -38,7 +38,7 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<string>
                 if (left is Number && right is Number) return Number;
                 
                 var text = tree.Source.GetText(node.Op.Offset, node.Op.Length);
-                Diagnostics.Error(node.Op, $"Operation '{left} {text} {right}' is invalid.");
+                Diagnostics.Error(node.Op, $"Operator '{text}' is not valid for types '{left}' and '{right}'.");
                 
                 return Unknown;
 

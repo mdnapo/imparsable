@@ -1,6 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {CodeEditor} from '../code-editor/code-editor';
+import {CodeEditor, SourceFile} from '../code-editor/code-editor';
+import {LanguageId} from '../../app.config.monaco';
 
 const code: string = `const pi = 3.14;
 const radius = 4 / 2;
@@ -18,7 +19,10 @@ print 1 + "2";
   templateUrl: './calculator-editor.html',
   styleUrl: './calculator-editor.scss',
 })
-export class CalculatorEditor implements OnInit {
-    ngOnInit(): void {
-    }
+export class CalculatorEditor {
+  protected readonly file: SourceFile = {
+    name: 'test.clc',
+    content: code,
+    languageId: LanguageId.Calculator,
+  }
 }
