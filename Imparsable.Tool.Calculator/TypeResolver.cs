@@ -4,23 +4,23 @@ using Imparsable.Tool.Calculator.Syntax;
 
 namespace Imparsable.Tool.Calculator;
 
-public class TypeResolver(DiagnosticsProvider diagnostics, SymbolTable symbols) : ISyntaxVisitor<string>
+public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<string>
 {
     private const string None = "none";
     private const string Number = "number";
     private const string String = "string";
-    
-    public SymbolTable Symbols { get; } = symbols;
-    public DiagnosticsProvider Diagnostics { get; } = diagnostics;
+
+    public SymbolTable Symbols { get; } = tree.SymbolTable;
+    public DiagnosticsProvider Diagnostics { get; } = tree.Diagnostics;
 
     private readonly Dictionary<ISymbol, string> _symbols = new();
-    
-    public static void Execute(SyntaxTree tree) =>
-        new TypeResolver(tree.Diagnostics, tree.SymbolTable).Execute(tree.Roots);
 
-    public void Execute(List<ISyntax> nodes)
+    public static void Execute(SyntaxTree tree) =>
+        new TypeResolver(tree).Execute();
+
+    public void Execute()
     {
-        foreach (var node in nodes)
+        foreach (var node in tree.Roots)
             node.Accept(this);
     }
 

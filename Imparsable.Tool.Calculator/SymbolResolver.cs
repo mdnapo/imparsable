@@ -4,18 +4,17 @@ using Imparsable.Tool.Calculator.Syntax;
 
 namespace Imparsable.Tool.Calculator;
 
-public class SymbolResolver(DiagnosticsProvider diagnostics, SymbolTable symbols) : ISyntaxVisitor
+public class SymbolResolver(SyntaxTree tree) : ISyntaxVisitor
 {
     private string? _initializer;
-    public SymbolTable Symbols { get; } = symbols;
-    public DiagnosticsProvider Diagnostics { get; } = diagnostics;
+    public SymbolTable Symbols { get; } = tree.SymbolTable;
+    public DiagnosticsProvider Diagnostics { get; } = tree.Diagnostics;
 
-    public static void Execute(SyntaxTree tree) =>
-        new SymbolResolver(tree.Diagnostics, tree.SymbolTable).Execute(tree.Roots);
+    public static void Execute(SyntaxTree tree) => new SymbolResolver(tree).Execute();
 
-    public void Execute(List<ISyntax> syntax)
+    public void Execute()
     {
-        foreach (var node in syntax)
+        foreach (var node in tree.Roots)
             node.Accept(this);
     }
 

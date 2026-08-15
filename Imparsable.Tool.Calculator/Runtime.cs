@@ -2,17 +2,15 @@ using Imparsable.Tool.Calculator.Syntax;
 
 namespace Imparsable.Tool.Calculator;
 
-public partial class Runtime : ISyntaxVisitor
+public partial class Runtime : ISyntaxVisitor, IDisposable
 {
     private readonly Stack<object> _stack = [];
     private Stack<Scope> Scopes { get; } = new([new Scope()]);
 
     public event Action<string> StdOut = delegate { };
 
-    public void Execute(string source)
+    public void Execute(SyntaxTree tree)
     {
-        var tree = SyntaxTree.Parse(source);
-
         foreach (var diagnostic in tree.Diagnostics)
             StdOut(diagnostic.Report);
 
@@ -115,5 +113,11 @@ public partial class Runtime : ISyntaxVisitor
         }
 
         Scopes.Peek().Declare(node.Identifier.Lexeme, value!);
+    }
+
+    public void Dispose()
+    {
+        foreach (var @delegate in StdOut.GetInvocationList())
+            StdOut -= @delegate as Action<string>;
     }
 }
