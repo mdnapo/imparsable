@@ -35,14 +35,12 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<string>
             case Token.MINUS:
             case Token.STAR:
             case Token.SLASH:
-                if (left is not Number || right is not Number)
-                {
-                    var text = tree.Source.GetText(node.Op.Offset, node.Op.Length);
-                    Diagnostics.Error(node.Op, $"Operation '{left} {text} {right}' is invalid.");
-                    return Unknown;
-                }
-
-                return Number;
+                if (left is Number && right is Number) return Number;
+                
+                var text = tree.Source.GetText(node.Op.Offset, node.Op.Length);
+                Diagnostics.Error(node.Op, $"Operation '{left} {text} {right}' is invalid.");
+                
+                return Unknown;
 
             case Token.DOT:
                 return String;

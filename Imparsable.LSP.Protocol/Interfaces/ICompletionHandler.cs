@@ -4,5 +4,5 @@ namespace Imparsable.LSP.Protocol.Interfaces;
 
 public interface ICompletionHandler : ILspMethodHandler
 {
-    public Task CompleteAsync(CompletionParams parameters, CancellationToken cancellationToken);
+    public Task HandleAsync(CompletionParams parameters, CancellationToken cancellationToken);
 }

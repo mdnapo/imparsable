@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Imparsable.LSP.Protocol\Imparsable.LSP.Protocol.csproj"/>
+        <ProjectReference Include="..\Imparsable.Tool.Calculator\Imparsable.Tool.Calculator.csproj" />
     </ItemGroup>
 
 </Project>

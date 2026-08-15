@@ -10,12 +10,17 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCalculatorLsp(this IServiceCollection services)
     {
         services.TryAddScoped<JsonRpcProvider>();
-        services.TryAddScoped<ISourceTextBuffer, SourceTextBuffer>();
+        services.TryAddScoped<SyntaxBuffer>();
 
         services
             .AddHttpContextAccessor()
             .AddScoped<CalculatorLanguageServer>()
-            .AddKeyedScoped<ILspMethodHandler, CalculatorCompletionHandler>(nameof(CalculatorLanguageServer))
+            .AddKeyedScoped<ILspMethodHandler, InitializeHandler>(nameof(CalculatorLanguageServer))
+            .AddKeyedScoped<ILspMethodHandler, InitializedHandler>(nameof(CalculatorLanguageServer))
+            .AddKeyedScoped<ILspMethodHandler, TextDocumentDidOpenHandler>(nameof(CalculatorLanguageServer))
+            .AddKeyedScoped<ILspMethodHandler, TextDocumentDidChangeHandler>(nameof(CalculatorLanguageServer))
+            .AddKeyedScoped<ILspMethodHandler, TextDocumentDidCloseHandler>(nameof(CalculatorLanguageServer))
+            .AddKeyedScoped<ILspMethodHandler, CompletionHandler>(nameof(CalculatorLanguageServer))
             ;
 
         return services;

@@ -4,12 +4,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Imparsable.LSP.Server.Calculator;
 
-public class CalculatorCompletionHandler(
-    ISourceTextBuffer buffer, 
+public class CompletionHandler(
+    SyntaxBuffer buffer,
     JsonRpcProvider rpc
 ) : ICompletionHandler
 {
-    public Task CompleteAsync(CompletionParams parameters, CancellationToken cancellationToken)
+    public Task HandleAsync(CompletionParams parameters, CancellationToken cancellationToken)
     {
         // var sour
         return Task.CompletedTask;
