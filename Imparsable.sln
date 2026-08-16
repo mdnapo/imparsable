@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.CLI", "Imparsabl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Tool.Calculator", "Imparsable.Tool.Calculator\Imparsable.Tool.Calculator.csproj", "{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Playground", "Imparsable.Playground\Imparsable.Playground.csproj", "{2E15D49E-DFD1-4508-88DE-64975CAD7C06}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Parsing.SourceGenerators", "Imparsable.Parsing.SourceGenerators\Imparsable.Parsing.SourceGenerators.csproj", "{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Aspire", "Imparsable.Aspire\Imparsable.Aspire.csproj", "{8A288C8E-9D70-4EDD-8B8E-58CCAB8A293B}"
@@ -40,10 +38,6 @@ Global
 		{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D71DF4AA-FD80-47F6-9C70-D9D1F6FF6AC9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E15D49E-DFD1-4508-88DE-64975CAD7C06}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9EB3042-037D-4CFD-8AED-7EFECBD6F01E}.Release|Any CPU.ActiveCfg = Release|Any CPU

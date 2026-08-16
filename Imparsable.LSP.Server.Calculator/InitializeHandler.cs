@@ -21,7 +21,7 @@ public class InitializeHandler : IInitializeHandler
             CompletionProvider = new CompletionRegistrationOptions.StaticOptions
             {
                 ResolveProvider = false,
-                TriggerCharacters = new Container<string>("+", "-", "*", "/")
+                TriggerCharacters = new Container<string>("+", "-", "*", "/", ".")
             }
         },
         ServerInfo = new ServerInfo()
