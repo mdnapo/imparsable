@@ -5,7 +5,7 @@ namespace Imparsable.Tool.Calculator.Syntax;
 public class SyntaxTree : SyntaxTree<Token, ISyntax, SyntaxTree>
 {
     public SymbolTable SymbolTable { get; } = new();
-    public Dictionary<ISyntax, string> TypeMap { get; set; } = [];
+    public Dictionary<ISyntax, SystemType> Types { get; } = [];
 
     public static SyntaxTree Parse(string source)
     {

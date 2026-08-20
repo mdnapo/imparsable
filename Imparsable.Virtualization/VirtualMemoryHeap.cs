@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace Imparsable.Virtualization;
 
-public sealed class Heap<TEntry>(Memory<byte> memory) where TEntry : unmanaged, IHeapEntry
+public sealed class VirtualMemoryHeap<TEntry>(Memory<byte> memory) where TEntry : unmanaged, IVirtualMemoryHeapEntry
 {
     private const int Alignment = sizeof(long);
     private readonly List<TEntry> _entries = new(256);

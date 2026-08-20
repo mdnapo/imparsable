@@ -12,7 +12,7 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
     private static readonly ReadOnlyMemory<byte> TrueBytes = BitConverter.GetBytes((double)1);
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
 
-    private readonly System.Collections.Generic.Stack<List<int>> _elseJumps = [];
+    private readonly Stack<List<int>> _elseJumps = [];
 
     public static Chunk Execute(SyntaxTree tree)
     {
@@ -75,15 +75,13 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 
     public void Visit(NumericLiteralExpression node)
     {
-        var buffer = AcquireBuffer(sizeof(double));
-        var span = buffer.AsSpan()[..sizeof(double)];
+        var buffer = ByteBuffer.Acquire(sizeof(double));
+        var span = buffer.Span;
 
         BinaryPrimitives.WriteDoubleLittleEndian(span, node.Value);
         var index = AddConstant(span);
         EmitOpCode(OpCode.NUM_CONST);
         EmitInt32(index);
-
-        ReleaseBuffer(buffer);
     }
 
     public void Visit(PrintStatement node)
@@ -98,16 +96,15 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         var @string = node.Value.Trim('\'', '"');
         var length = @string.Length;
         var size = Align(sizeof(int) + length);
-        var buffer = AcquireBuffer(size);
-        var span = buffer.AsSpan()[..size];
+        var buffer = ByteBuffer.Acquire(size);
+        var span = buffer.Span;
+        
         BinaryPrimitives.WriteInt32LittleEndian(span[..sizeof(int)], length);
         Encoding.UTF8.GetBytes(@string, span[sizeof(int)..]);
 
         var index = AddConstant(span);
         EmitOpCode(OpCode.STRING_CONST);
         EmitInt32(index);
-
-        ReleaseBuffer(buffer);
 
         return;
 

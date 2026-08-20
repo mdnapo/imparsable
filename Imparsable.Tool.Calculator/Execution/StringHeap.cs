@@ -4,7 +4,7 @@ using Imparsable.Virtualization;
 
 namespace Imparsable.Tool.Calculator.Execution;
 
-public sealed class StringHeap(Heap<HeapEntry> heap)
+public sealed class StringHeap(VirtualMemoryHeap<VirtualMemoryHeapEntry> heap)
 {
     public int Allocate(ReadOnlySpan<char> value)
     {
@@ -12,7 +12,7 @@ public sealed class StringHeap(Heap<HeapEntry> heap)
 
         var handle = heap.Allocate(
             sizeof(int) + byteCount,
-            new HeapEntry { Type = HeapObjectType.STRING }
+            new VirtualMemoryHeapEntry { Type = HeapObjectType.STRING }
         );
 
         var data = heap.GetBytes(handle);

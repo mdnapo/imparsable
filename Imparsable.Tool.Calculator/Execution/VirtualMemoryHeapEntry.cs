@@ -2,7 +2,7 @@ using Imparsable.Virtualization;
 
 namespace Imparsable.Tool.Calculator.Execution;
 
-public struct HeapEntry : IHeapEntry
+public struct VirtualMemoryHeapEntry : IVirtualMemoryHeapEntry
 {
     public int Offset { get; set; }
     public int Size { get; set; }

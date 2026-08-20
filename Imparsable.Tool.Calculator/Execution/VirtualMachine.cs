@@ -4,15 +4,15 @@ using Imparsable.Virtualization;
 
 namespace Imparsable.Tool.Calculator.Execution;
 
-public class VM : IDisposable
+public class VirtualMachine : IDisposable
 {
     public event Action<string> StdOut = delegate { };
-    public VirtualMemory<StackSlot, HeapEntry> Memory { get; }
+    public VirtualMemory<StackSlot, VirtualMemoryHeapEntry> Memory { get; }
     public StringHeap StringHeap { get; }
 
-    public VM()
+    public VirtualMachine()
     {
-        Memory = new VirtualMemory<StackSlot, HeapEntry>();
+        Memory = new VirtualMemory<StackSlot, VirtualMemoryHeapEntry>();
         StringHeap = new(Memory.Heap);
     }
 

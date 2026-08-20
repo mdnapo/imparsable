@@ -1,8 +1,8 @@
 using Imparsable.Tool.Calculator.Syntax;
 
-namespace Imparsable.Tool.Calculator;
+namespace Imparsable.Tool.Calculator.Execution;
 
-public partial class Runtime : ISyntaxVisitor, IDisposable
+public partial class Interpreter : ISyntaxVisitor, IDisposable
 {
     private readonly Stack<object> _stack = [];
     private Stack<Scope> Scopes { get; } = new([new Scope()]);

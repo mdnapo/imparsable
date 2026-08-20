@@ -1,6 +1,6 @@
-namespace Imparsable.Tool.Calculator;
+namespace Imparsable.Tool.Calculator.Execution;
 
-public partial class Runtime
+public partial class Interpreter
 {
     public class Scope
     {

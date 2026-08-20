@@ -30,12 +30,12 @@ internal sealed partial class Imp
 
                 var source = await File.ReadAllTextAsync(info.FullName);
                 var tree = SyntaxTree.Parse(source);
-                using var runtime = new Runtime();
+                using var runtime = new Interpreter();
                 runtime.StdOut += Console.WriteLine;
                 runtime.Execute(tree);
 
                 var chunk = Compiler.Execute(tree);
-                using var vm = new VM();
+                using var vm = new VirtualMachine();
                 vm.StdOut += Console.WriteLine;
                 vm.Execute(chunk);
             }

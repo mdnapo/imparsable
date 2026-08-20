@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace Imparsable.Virtualization;
 
-public sealed class Stack<TSlot>(Memory<byte> memory) where TSlot : unmanaged
+public sealed class VirtualMemoryStack<TSlot>(Memory<byte> memory) where TSlot : unmanaged
 {
     public Span<TSlot> Slots => MemoryMarshal.Cast<byte, TSlot>(memory.Span);
 

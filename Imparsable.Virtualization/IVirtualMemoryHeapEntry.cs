@@ -1,6 +1,6 @@
 namespace Imparsable.Virtualization;
 
-public interface IHeapEntry
+public interface IVirtualMemoryHeapEntry
 {
     int Offset { get; set; }
     int Size { get; set; }

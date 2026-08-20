@@ -1,4 +1,3 @@
-using System.Buffers;
 using System.Buffers.Binary;
 
 namespace Imparsable.Virtualization;
@@ -14,14 +13,7 @@ public abstract class Compiler<T> where T : unmanaged
     public List<byte> Code { get; } = [];
     public List<byte> Constants { get; } = [];
 
-    protected byte[] AcquireBuffer(int size) => ArrayPool<byte>.Shared.Rent(size);
-    protected void ReleaseBuffer(byte[] buffer) => ArrayPool<byte>.Shared.Return(buffer);
-
-    public Compiler<T> EmitOpCode(T op)
-    {
-        Code.Add((byte)(object)op);
-        return this;
-    }
+    public void EmitOpCode(T op) => Code.Add((byte)(object)op);
 
     public int AddConstant(ReadOnlySpan<byte> value)
     {
@@ -30,16 +22,12 @@ public abstract class Compiler<T> where T : unmanaged
         return offset;
     }
 
-    public Compiler<T> EmitInt32(int value)
+    public void EmitInt32(int value)
     {
-        var buffer = AcquireBuffer(sizeof(int));
-        var span = buffer.AsSpan()[..sizeof(int)];
-        
+        using var buffer = ByteBuffer.Acquire(sizeof(int));
+        var span = buffer.Span;
         BinaryPrimitives.WriteInt32LittleEndian(span, value);
         Code.AddRange(span);
-        ReleaseBuffer(buffer);
-        
-        return this;
     }
 
     public int EmitJump(T instruction)
@@ -61,15 +49,13 @@ public abstract class Compiler<T> where T : unmanaged
     public void PatchJump(int offset)
     {
         var jump = Code.Count - offset - sizeof(int);
-        var buffer = AcquireBuffer(sizeof(int));
-        var span = buffer.AsSpan()[..sizeof(int)];
-
+        using var buffer = ByteBuffer.Acquire(sizeof(int));
+        var span = buffer.Span;
         BinaryPrimitives.WriteInt32LittleEndian(span, jump);
-        Code[offset + 0] = span[0]; // + 0  is not necessary, but this just looks better in terms of consistency
+
+        Code[offset + 0] = span[0];
         Code[offset + 1] = span[1];
         Code[offset + 2] = span[2];
         Code[offset + 3] = span[3];
-
-        ReleaseBuffer(buffer);
     }
 }
