@@ -11,7 +11,7 @@ public partial class PrintStatement : ISyntax, IProduction
     public static ISyntax Parse(ParserContext<Token> context)
     {
         var token = context.Previous();
-        var expression = ExpressionProduction.Parse(context);
+        var expression = Syntax.Expression.Parse(context);
         var semiColon = context.Consume(Syntax.Token.SEMICOLON, "Expected ';'.");
 
         return new PrintStatement

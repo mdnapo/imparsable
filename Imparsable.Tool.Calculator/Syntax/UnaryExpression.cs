@@ -4,7 +4,7 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public partial class UnaryExpression : ISyntax, IProduction
 {
-    private static readonly Token[] Operators = [Syntax.Token.MINUS];
+    private static readonly Token[] Operators = [Syntax.Token.BANG, Syntax.Token.MINUS];
     public required Lexer<Token>.Token Token { get; init; }
     public required ISyntax Operand { get; init; }
     public required Lexer<Token>.Token Op { get; init; }
@@ -23,7 +23,7 @@ public partial class UnaryExpression : ISyntax, IProduction
                 Op = op
             };
         }
-        
+
         return PrimaryExpression.Parse(context);
     }
 }

@@ -5,7 +5,7 @@ namespace Imparsable.Parsing;
 
 public partial class Lexer<TToken>
 {
-    public class Context(ParserConfiguration<TToken> configuration, Source source, DiagnosticsProvider diagnostics)
+    public class Context(ParserConfiguration<TToken> configuration, DiagnosticsProvider diagnostics, Source source)
     {
         public ParserConfiguration<TToken> Configuration { get; } = configuration;
         public Source Source { get; } = source;

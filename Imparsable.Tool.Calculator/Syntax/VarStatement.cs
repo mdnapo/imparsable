@@ -1,5 +1,4 @@
 using Imparsable.Parsing;
-using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
@@ -29,8 +28,8 @@ public partial class VarStatement : ISyntax, ISymbol, IProduction
             };
         }
 
-        var assignment = context.Consume(Syntax.Token.EQUALS, "Expected '='.");
-        var initializer = ExpressionProduction.Parse(context);
+        var assignment = context.Consume(Syntax.Token.EQUAL, "Expected '='.");
+        var initializer = Expression.Parse(context);
         var semiColon = context.Consume(Syntax.Token.SEMICOLON, "Expected ';'.");
 
         return new VarStatement

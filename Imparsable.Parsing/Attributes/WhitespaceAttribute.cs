@@ -5,6 +5,8 @@ public sealed class WhitespaceAttribute<TToken>(bool ignore = true) : LexerRuleA
     // ReSharper disable once StaticMemberInGenericType
     private static readonly char[] WhitespaceOrCarriageReturn = [' ', '\r'];
 
+    public override int Priority => 10;
+
     public override bool Match(Lexer<TToken>.Context context)
     {
         var src = context.Source;

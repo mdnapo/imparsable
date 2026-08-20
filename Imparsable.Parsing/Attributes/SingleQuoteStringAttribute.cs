@@ -2,6 +2,8 @@ namespace Imparsable.Parsing.Attributes;
 
 public sealed class SingleQuoteStringAttribute<TToken> : LexerRuleAttribute<TToken> where TToken : Enum
 {
+    public override int Priority => 40;
+    
     public override bool Match(Lexer<TToken>.Context context)
     {
         if (!context.Source.Match('\'')) return false;
@@ -30,7 +32,8 @@ public sealed class SingleQuoteStringAttribute<TToken> : LexerRuleAttribute<TTok
         src.Advance();
 
         var range = src.Extract();
-
+        // range.Offset + 1 accounts for the leading quotation mark
+        // range.Length - 2 accounts for the trailing quotation mark
         context.AddToken(Type, range.Offset, range.Length, line, column);
 
         return true;

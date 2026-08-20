@@ -4,61 +4,118 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public enum Token
 {
-    [SingleCharacter<Token>('.')]
-    DOT = 16,
-
     [Whitespace<Token>]
-    WHITESPACE = 17,
+    WHITESPACE,
 
     [NewLine<Token>]
-    NEWLINE = 18,
+    NEWLINE,
+
+    [Keyword]
+    CONST,
+
+    [Keyword]
+    VAR,
+
+    [Keyword]
+    PRINT,
+
+    [Keyword]
+    IF,
+
+    [Keyword]
+    ELSE,
+
+    [Keyword]
+    TRUE,
+
+    [Keyword]
+    FALSE,
+
+    [Keyword]
+    FOR,
+
+    [Keyword]
+    WHILE,
 
     [Number<Token>]
-    NUMBER = 0,
+    NUMBER,
 
     [SingleQuoteString<Token>]
     [DoubleQuoteString<Token>]
-    STRING = 1,
-
-    [Keyword]
-    VAR = 2,
-
-    [Keyword]
-    CONST = 3,
+    STRING,
 
     [Identifier<Token>]
-    IDENTIFIER = 4,
+    IDENTIFIER,
 
-    [SingleCharacter<Token>(';')]
-    SEMICOLON = 5,
+    [Character<Token>(';')]
+    SEMICOLON,
 
-    [SingleCharacter<Token>('+')]
-    PLUS = 6,
+    [Character<Token>('.')]
+    DOT,
 
-    [SingleCharacter<Token>('-')]
-    MINUS = 7,
+    [Character<Token>('!')]
+    BANG,
 
-    [SingleCharacter<Token>('*')]
-    STAR = 8,
+    [Character<Token>('>')]
+    GREATER_THAN,
 
-    [SingleCharacter<Token>('/')]
-    SLASH = 9,
+    [Character<Token>('<')]
+    LOWER_THAN,
 
-    [SingleCharacter<Token>('=')]
-    EQUALS = 12,
+    [Sequence<Token>("!=")]
+    BANG_EQUAL,
 
-    [SingleCharacter<Token>('(')]
-    LEFT_PARENTHESIS = 13,
+    [Sequence<Token>("==")]
+    EQUAL_EQUAL,
 
-    [SingleCharacter<Token>(')')]
-    RIGHT_PARENTHESIS = 14,
+    [Sequence<Token>(">=")]
+    GREATER_EQUAL,
 
-    [Keyword]
-    PRINT = 15,
+    [Sequence<Token>("<=")]
+    LOWER_EQUAL,
+
+    [Character<Token>('+')]
+    PLUS,
+
+    [Sequence<Token>("+=")]
+    PLUS_EQUAL,
+
+    [Character<Token>('-')]
+    MINUS,
+
+    [Sequence<Token>("-=")]
+    MINUS_EQUAL,
+
+    [Character<Token>('*')]
+    STAR,
+
+    [Sequence<Token>("*=")]
+    STAR_EQUAL,
+
+    [Character<Token>('/')]
+    SLASH,
+
+    [Sequence<Token>("/=")]
+    SLASH_EQUAL,
+
+    [Character<Token>('=')]
+    EQUAL,
+
+    [Character<Token>('(')]
+    LEFT_PARENTHESIS,
+
+    [Character<Token>(')')]
+    RIGHT_PARENTHESIS,
+
+    [Character<Token>('{')]
+    LEFT_BRACE,
+
+    [Character<Token>('}')]
+    RIGHT_BRACE,
 
     [Unexpected]
-    UNEXPECTED = 10,
+    UNEXPECTED,
 
     [End]
-    END = 11,
+    END,
 }

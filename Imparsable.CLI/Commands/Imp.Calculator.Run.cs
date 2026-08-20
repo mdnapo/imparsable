@@ -1,6 +1,7 @@
 using System.CommandLine;
 using Imparsable.CLI.Interfaces;
 using Imparsable.Tool.Calculator;
+using Imparsable.Tool.Calculator.Execution;
 using Imparsable.Tool.Calculator.Syntax;
 
 namespace Imparsable.CLI.Commands;
@@ -32,6 +33,11 @@ internal sealed partial class Imp
                 using var runtime = new Runtime();
                 runtime.StdOut += Console.WriteLine;
                 runtime.Execute(tree);
+
+                var chunk = Compiler.Execute(tree);
+                using var vm = new VM();
+                vm.StdOut += Console.WriteLine;
+                vm.Execute(chunk);
             }
         }
     }

@@ -9,6 +9,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Imparsable.Parsing\Imparsable.Parsing.csproj"/>
         <ProjectReference Include="..\Imparsable.Parsing.SourceGenerators\Imparsable.Parsing.SourceGenerators.csproj" OutputItemType="Analyzer"/>
+        <ProjectReference Include="..\Imparsable.Virtualization\Imparsable.Virtualization.csproj" />
     </ItemGroup>
 
 </Project>

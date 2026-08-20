@@ -2,6 +2,8 @@ namespace Imparsable.Parsing.Attributes;
 
 public sealed class IdentifierAttribute<TToken> : LexerRuleAttribute<TToken> where TToken : Enum
 {
+    public override int Priority => 30;
+
     public override bool Match(Lexer<TToken>.Context context)
     {
         var src = context.Source;

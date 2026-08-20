@@ -5,7 +5,10 @@ namespace Imparsable.Parsing.Attributes;
 [AttributeUsage(validOn: AttributeTargets.Field)]
 public abstract class LexerRuleAttribute<TToken> : Attribute, ILexerRule<TToken> where TToken : Enum
 {
-    public TToken Type { get; private set; } = default!;
+    protected TToken Type { get; private set; } = default!;
+    
+    public abstract int Priority { get; }
+    
     public abstract bool Match(Lexer<TToken>.Context context);
 
     protected static bool IsAlpha(char c) => c is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or '_';

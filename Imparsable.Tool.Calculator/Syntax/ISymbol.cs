@@ -1,4 +1,4 @@
-namespace Imparsable.Parsing.Interfaces;
+namespace Imparsable.Tool.Calculator.Syntax;
 
 public interface ISymbol
 {

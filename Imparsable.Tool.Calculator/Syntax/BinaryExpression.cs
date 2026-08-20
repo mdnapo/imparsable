@@ -4,20 +4,29 @@ namespace Imparsable.Tool.Calculator.Syntax;
 
 public partial class BinaryExpression : ISyntax, IProduction
 {
-    private static readonly Token[] AssignmentOperators = [Syntax.Token.EQUALS];
+    private static readonly Token[] EqualityOperators =
+    [
+        Syntax.Token.BANG_EQUAL,
+        Syntax.Token.EQUAL_EQUAL,
+        Syntax.Token.LOWER_THAN,
+        Syntax.Token.LOWER_EQUAL,
+        Syntax.Token.GREATER_THAN,
+        Syntax.Token.GREATER_EQUAL,
+    ];
+
     private static readonly Token[] ConcatenationOperators = [Syntax.Token.DOT];
     private static readonly Token[] AdditionSubtractionOperators = [Syntax.Token.PLUS, Syntax.Token.MINUS];
     private static readonly Token[] MultiplicationDivisionOperators = [Syntax.Token.STAR, Syntax.Token.SLASH];
 
     public required Lexer<Token>.Token Token { get; init; }
     public required ISyntax LeftOperand { get; init; }
-    public required Lexer<Token>.Token Op { get; init; }
+    public required Lexer<Token>.Token Operator { get; init; }
     public required ISyntax RightOperand { get; init; }
 
-    public static ISyntax Parse(ParserContext<Token> context) => Assignment(context);
+    public static ISyntax Parse(ParserContext<Token> context) => Equality(context);
 
-    private static ISyntax Assignment(ParserContext<Token> context) =>
-        Parse(context, AssignmentOperators, Concatenation);
+    private static ISyntax Equality(ParserContext<Token> context) =>
+        Parse(context, EqualityOperators, Concatenation);
 
     private static ISyntax Concatenation(ParserContext<Token> context) =>
         Parse(context, ConcatenationOperators, AdditionSubtraction);
@@ -45,7 +54,7 @@ public partial class BinaryExpression : ISyntax, IProduction
             {
                 Token = @operator,
                 LeftOperand = expr,
-                Op = @operator,
+                Operator = @operator,
                 RightOperand = right
             };
         }

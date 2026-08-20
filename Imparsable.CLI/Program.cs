@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 try
 {
-    var cancelation = new CancellationTokenSource();
+    var cancellation = new CancellationTokenSource();
     Console.CancelKeyPress += (s, e) =>
     {
-        cancelation.Cancel();
+        cancellation.Cancel();
         e.Cancel = true;
     };
 
@@ -17,7 +17,7 @@ try
 
     await services
         .GetRequiredService<Imp>()
-        .ExecuteAsync(args, cancelation.Token);
+        .ExecuteAsync(args, cancellation.Token);
 }
 catch (Exception ex)
 {

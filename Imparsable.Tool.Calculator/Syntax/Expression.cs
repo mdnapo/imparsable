@@ -2,10 +2,10 @@ using Imparsable.Parsing;
 
 namespace Imparsable.Tool.Calculator.Syntax;
 
-public  abstract class ExpressionProduction : IProduction
+public abstract class Expression : IProduction
 {
     public static ISyntax Parse(ParserContext<Token> context)
     {
-        return BinaryExpression.Parse(context);
+        return AssignmentExpression.Parse(context);
     }
 }

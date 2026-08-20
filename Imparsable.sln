@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.LSP.Protocol", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.LSP.Server.Calculator", "Imparsable.LSP.Server.Calculator\Imparsable.LSP.Server.Calculator.csproj", "{B776A403-9203-4282-AC5C-773DA3DB8466}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imparsable.Virtualization", "Imparsable.Virtualization\Imparsable.Virtualization.csproj", "{9938EEC1-2559-475E-8258-DB612C37B757}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +56,9 @@ Global
 		{B776A403-9203-4282-AC5C-773DA3DB8466}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B776A403-9203-4282-AC5C-773DA3DB8466}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B776A403-9203-4282-AC5C-773DA3DB8466}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9938EEC1-2559-475E-8258-DB612C37B757}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9938EEC1-2559-475E-8258-DB612C37B757}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9938EEC1-2559-475E-8258-DB612C37B757}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9938EEC1-2559-475E-8258-DB612C37B757}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

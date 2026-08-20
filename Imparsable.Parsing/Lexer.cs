@@ -5,7 +5,7 @@ using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Parsing;
 
-public partial class Lexer<TToken>where TToken : Enum
+public partial class Lexer<TToken> where TToken : Enum
 {
     private static readonly IReadOnlyList<ILexerRule<TToken>> Rules = GetRules();
     public static Lexer<TToken> Default { get; } = new();
@@ -40,5 +40,6 @@ public partial class Lexer<TToken>where TToken : Enum
                 .GetCustomAttributes(inherit: false)
                 .OfType<LexerRuleAttribute<TToken>>()
                 .Select(rule => rule.SetType((TToken)field.GetValue(null)!)))
+            .OrderBy(rule => rule.Priority)
     ];
 }

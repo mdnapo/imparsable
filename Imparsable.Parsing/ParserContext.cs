@@ -4,10 +4,12 @@ namespace Imparsable.Parsing;
 
 public class ParserContext<TToken>(
     ParserConfiguration<TToken> configuration,
+    DiagnosticsProvider diagnostics,
     Source source,
     List<Lexer<TToken>.Token> tokens
 ) : Stream<Lexer<TToken>.Token>(tokens.ToArray()) where TToken : Enum
 {
+    public DiagnosticsProvider Diagnostics { get; } = diagnostics;
     public Source Source { get; } = source;
 
     public bool CheckOffset(int offset, TToken type)

@@ -12,7 +12,6 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     public DiagnosticsProvider Diagnostics { get; } = new();
     public List<Lexer<TToken>.Token> Tokens { get; private set; } = [];
     public List<TSyntax> Roots { get; } = [];
-    public SymbolTable SymbolTable { get; } = new();
 
     public static TSyntaxTree Create(string source) => new() { Source = new Source(source) };
 
@@ -21,17 +20,20 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     {
         var tree = Create(source);
         var configuration = ParserConfiguration<TToken>.Default;
-        var lexerContext = new Lexer<TToken>.Context(configuration, tree.Source, tree.Diagnostics);
+        var lexerContext = new Lexer<TToken>.Context(configuration, tree.Diagnostics, tree.Source);
 
         tree.Tokens = Lexer<TToken>.Default.Execute(lexerContext);
 
-        var parserContext = new ParserContext<TToken>(configuration, tree.Source, tree.Tokens);
+        var parserContext = new ParserContext<TToken>(configuration, tree.Diagnostics, tree.Source, tree.Tokens);
 
         while (!parserContext.Ended())
         {
             try
             {
-                tree.Roots.Add(TProduction.Parse(parserContext));
+                tree.Roots.Add(
+                    TProduction.Parse(parserContext) ??
+                    throw new Exception($"Production {typeof(TProduction).Name} produced a null value.")
+                );
             }
             catch (SyntaxException e)
             {
@@ -49,17 +51,20 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     {
         var tree = Create(source);
         var configuration = ParserConfiguration<TToken>.Default;
-        var lexerContext = new Lexer<TToken>.Context(configuration, tree.Source, tree.Diagnostics);
+        var lexerContext = new Lexer<TToken>.Context(configuration, tree.Diagnostics, tree.Source);
 
         tree.Tokens = Lexer<TToken>.Default.Execute(lexerContext);
 
-        var parserContext = new ParserContext<TToken>(configuration, tree.Source, tree.Tokens);
+        var parserContext = new ParserContext<TToken>(configuration, tree.Diagnostics, tree.Source, tree.Tokens);
 
         while (!parserContext.Ended())
         {
             try
             {
-                tree.Roots.Add(TProduction.Parse(parserContext));
+                tree.Roots.Add(
+                    TProduction.Parse(parserContext) ??
+                    throw new Exception($"Production {typeof(TProduction).Name} produced a null value.")
+                );
             }
             catch (SyntaxException e)
             {

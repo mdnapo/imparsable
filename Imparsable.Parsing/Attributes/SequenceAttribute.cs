@@ -1,7 +1,9 @@
 namespace Imparsable.Parsing.Attributes;
 
-public sealed class MultiCharacterAttribute<TToken>(string @string) : LexerRuleAttribute<TToken> where TToken : Enum
+public sealed class SequenceAttribute<TToken>(string @string) : LexerRuleAttribute<TToken> where TToken : Enum
 {
+    public override int Priority => 60;
+    
     public override bool Match(Lexer<TToken>.Context context)
     {
         var src = context.Source;

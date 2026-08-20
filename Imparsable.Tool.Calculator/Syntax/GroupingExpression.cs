@@ -12,7 +12,7 @@ public partial class GroupingExpression : ISyntax, IProduction
     public static ISyntax Parse(ParserContext<Token> context)
     {
         var leftParenthesis = context.Previous();
-        var expression = ExpressionProduction.Parse(context);
+        var expression = Syntax.Expression.Parse(context);
         var rightParenthesis = context.Consume(Syntax.Token.RIGHT_PARENTHESIS, "Expected ')'.");
 
         return new GroupingExpression

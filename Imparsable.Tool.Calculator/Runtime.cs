@@ -28,7 +28,7 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
         var right = _stack.Pop();
         var left = _stack.Pop();
 
-        switch (node.Op.Type)
+        switch (node.Operator.Type)
         {
             case Token.DOT:
                 _stack.Push(string.Empty + left + right);
@@ -50,13 +50,13 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
                 _stack.Push((double)left / (double)right);
                 break;
 
-            case Token.EQUALS:
+            case Token.EQUAL:
                 var identifier = left as IdentifierExpression;
                 Scopes.Peek()[identifier!.Symbol] = right;
                 break;
 
             default:
-                throw new InvalidOperationException($"Unknown binary operator '{node.Op.Type}'.");
+                throw new InvalidOperationException($"Unknown binary operator '{node.Operator.Type}'.");
         }
     }
 
@@ -66,7 +66,7 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
         Scopes.Peek().Declare(node.Symbol, _stack.Pop());
     }
 
-    public void Visit(ExpressionStatement node) => node.Expr.Accept(this);
+    public void Visit(ExpressionStatement node) => node.Expression.Accept(this);
 
     public void Visit(GroupingExpression node) => node.Expression.Accept(this);
 
@@ -84,7 +84,7 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
         StdOut(_stack.Pop().ToString()!);
     }
 
-    public void Visit(StringLiteralExpression node) => _stack.Push(node.Value);
+    public void Visit(StringLiteralExpression node) => _stack.Push(node.Value.Trim('"', '\''));
 
     public void Visit(UnaryExpression node)
     {
@@ -113,6 +113,41 @@ public partial class Runtime : ISyntaxVisitor, IDisposable
         }
 
         Scopes.Peek().Declare(node.Symbol, value!);
+    }
+
+    public void Visit(WhileStatement node)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(BoolLiteralExpression node)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(AssignmentExpression node)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(BlockStatement node)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(IfStatement node)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(ForStatement node)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(ElseIfStatement node)
+    {
+        throw new NotImplementedException();
     }
 
     public void Dispose()
