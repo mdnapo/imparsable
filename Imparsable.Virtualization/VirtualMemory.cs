@@ -2,7 +2,7 @@
 
 namespace Imparsable.Virtualization;
 
-public sealed class VirtualMemory<TStackSlot, THeapEntry>
+public class VirtualMemory<TStackSlot, THeapEntry>
     where TStackSlot : unmanaged
     where THeapEntry : unmanaged, IVirtualMemoryHeapEntry
 {
@@ -12,13 +12,13 @@ public sealed class VirtualMemory<TStackSlot, THeapEntry>
     public VirtualMemoryStack<TStackSlot> Stack { get; }
     public VirtualMemoryHeap<THeapEntry> Heap { get; }
 
-    public VirtualMemory(int stackSlots = 256, int heapMemoryInMbs = 8)
+    public VirtualMemory(int stack = 256, int heap = 8)
     {
-        var stackSize = stackSlots * Marshal.SizeOf<TStackSlot>();
-        var heapSize = heapMemoryInMbs * 1024 * 1024;
+        var stackSegment = stack * Marshal.SizeOf<TStackSlot>();
+        var heapSegment = heap * 1024 * 1024;
 
-        _memory = new byte[stackSize + heapSize];
-        Stack = new VirtualMemoryStack<TStackSlot>(_memory[..stackSize]);
-        Heap = new VirtualMemoryHeap<THeapEntry>(_memory.Slice(stackSize, heapSize));
+        _memory = new byte[stackSegment + heapSegment];
+        Stack = new VirtualMemoryStack<TStackSlot>(_memory[..stackSegment]);
+        Heap = new VirtualMemoryHeap<THeapEntry>(_memory.Slice(stackSegment, heapSegment));
     }
 }

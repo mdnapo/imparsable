@@ -11,12 +11,16 @@ public sealed class NewLineAttribute<TToken>(bool ignore = true) : LexerRuleAttr
 
         if (!src.Match('\n')) return false;
 
+        var lines = 1;
         while (src.Check('\n') && !src.Ended())
+        {
             src.Advance();
+            lines++;
+        }
 
         HandleIgnore(ignore, Type, context, src, line, column);
 
-        context.Source.Line++;
+        context.Source.Line += lines;
         context.Source.Column = 1;
 
         return true;

@@ -39,9 +39,9 @@ public abstract class Compiler<T> where T : unmanaged
 
     public void EmitLoop(T jump, int loopStart)
     {
-        // Since we're looping, we pass a negative offset to the JUMP instruction.
         EmitOpCode(jump);
         // Account for the parameter of the jump instruction by subtracting sizeof(int) from the offset.
+        // Since we're looping, we pass a negative offset to the JUMP instruction.
         var offset = -(Code.Count - loopStart + sizeof(int));
         EmitInt32(offset);
     }

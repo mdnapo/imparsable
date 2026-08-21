@@ -1,20 +1,12 @@
 using System.Buffers.Binary;
 using System.Text;
-using Imparsable.Virtualization;
 
 namespace Imparsable.Tool.Calculator.Execution;
 
 public class VirtualMachine : IDisposable
 {
     public event Action<string> StdOut = delegate { };
-    public VirtualMemory<StackSlot, VirtualMemoryHeapEntry> Memory { get; }
-    public StringHeap StringHeap { get; }
-
-    public VirtualMachine()
-    {
-        Memory = new VirtualMemory<StackSlot, VirtualMemoryHeapEntry>();
-        StringHeap = new(Memory.Heap);
-    }
+    public VirtualMemory Memory { get; } = new();
 
     public void Execute(Chunk chunk)
     {
@@ -23,20 +15,20 @@ public class VirtualMachine : IDisposable
         while (ip < chunk.Code.Length)
         {
             var op = (OpCode)chunk.Code[ip++];
-            Execute(ref ip, op, chunk);
+            Execute(ref ip, ref chunk, op);
         }
     }
 
-    private static int ReadInt32(ref int ip, Chunk chunk) =>
+    private static int ReadInt32(ref int ip, ref Chunk chunk) =>
         BinaryPrimitives.ReadInt32LittleEndian(chunk.Code[ip..(ip += sizeof(int))]);
 
-    private void Execute(ref int ip, OpCode op, Chunk chunk)
+    private void Execute(ref int ip, ref Chunk chunk, OpCode op)
     {
         switch (op)
         {
             case OpCode.GET_LOCAL:
             {
-                var index = ReadInt32(ref ip, chunk);
+                var index = ReadInt32(ref ip, ref chunk);
                 var value = Memory.Stack.Slots[index];
                 Memory.Stack.Push(value);
                 break;
@@ -44,7 +36,7 @@ public class VirtualMachine : IDisposable
 
             case OpCode.SET_LOCAL:
             {
-                var index = ReadInt32(ref ip, chunk);
+                var index = ReadInt32(ref ip, ref chunk);
                 Memory.Stack.Slots[index] = Memory.Stack.Peek();
                 break;
             }
@@ -96,7 +88,7 @@ public class VirtualMachine : IDisposable
                 var leftString = Encoding.UTF8.GetString(lhsBytes);
                 var rightString = Encoding.UTF8.GetString(rhsBytes);
                 var concatenatedString = leftString + rightString;
-                var handle = StringHeap.Allocate(concatenatedString);
+                var handle = Memory.StringHeap.Allocate(concatenatedString);
                 Memory.Stack.Push(new StackSlot { Type = StackType.STRING, String = handle });
                 break;
             }
@@ -161,7 +153,7 @@ public class VirtualMachine : IDisposable
 
             case OpCode.NUM_CONST:
             {
-                var constantIndex = ReadInt32(ref ip, chunk);
+                var constantIndex = ReadInt32(ref ip, ref chunk);
                 var constant = chunk.Constants[constantIndex..(constantIndex + sizeof(double))];
                 var value = BinaryPrimitives.ReadDoubleLittleEndian(constant);
                 Memory.Stack.Push(new StackSlot { Type = StackType.NUMBER, Number = value });
@@ -170,14 +162,14 @@ public class VirtualMachine : IDisposable
 
             case OpCode.STRING_CONST:
             {
-                var constantIndex = ReadInt32(ref ip, chunk);
+                var constantIndex = ReadInt32(ref ip, ref chunk);
                 var bytes = chunk.Constants[constantIndex..(constantIndex + sizeof(int))];
                 var stringLength = BinaryPrimitives.ReadInt32LittleEndian(bytes);
                 var stringStart = constantIndex + sizeof(int);
                 var stringEnd = constantIndex + sizeof(int) + stringLength;
                 var value = Encoding.UTF8.GetString(chunk.Constants[stringStart..stringEnd]);
 
-                var handle = StringHeap.Allocate(value);
+                var handle = Memory.StringHeap.Allocate(value);
                 Memory.Stack.Push(new StackSlot { Type = StackType.STRING, String = handle });
                 break;
             }
@@ -198,17 +190,18 @@ public class VirtualMachine : IDisposable
 
             case OpCode.JMP:
             {
-                ip += ReadInt32(ref ip, chunk);
+                var jmp = ReadInt32(ref ip, ref chunk);
+                ip += jmp;
                 break;
             }
 
             case OpCode.JMP_FALSE:
             {
+                var jmp = ReadInt32(ref ip, ref chunk);
                 if (!Memory.Stack.Peek().Bool)
                 {
-                    ip += ReadInt32(ref ip, chunk);
+                    ip += jmp;
                 }
-
                 break;
             }
 
@@ -228,16 +221,16 @@ public class VirtualMachine : IDisposable
     private StackSlot PopString()
     {
         var value = Memory.Stack.Pop();
-        
+
         if (value.Type == StackType.STRING) return value;
-        
+
         var @string = value.Type switch
         {
             StackType.BOOL or StackType.NUMBER => value.ToString(),
             _ => throw new InvalidOperationException("Cannot convert stack type to string: " + value.Type)
         };
 
-        var handle = StringHeap.Allocate(@string);
+        var handle = Memory.StringHeap.Allocate(@string);
 
         return new StackSlot { Type = StackType.STRING, String = handle };
     }

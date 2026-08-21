@@ -5,7 +5,10 @@ namespace Imparsable.Tool.Calculator;
 
 public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
 {
-    public SymbolTable Symbols { get; } = tree.SymbolTable;
+    private const string IncompatibleOperandsErrorMessage = "Invalid operation '{0}' for types '{1}' and '{2}'.";
+
+    private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
+    private SymbolTable Symbols => _symbolTables.Peek();
     public DiagnosticsProvider Diagnostics { get; } = tree.Diagnostics;
 
     public static void Execute(SyntaxTree tree) => new TypeResolver(tree).Execute();
@@ -16,69 +19,47 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
             node.Accept(this);
     }
 
+    private void BeginScope(SymbolTable symbolTable) => _symbolTables.Push(symbolTable);
+    private void EndScope() => _symbolTables.Pop();
+
     public SystemType Visit(BinaryExpression node)
     {
         var left = node.LeftOperand.Accept(this);
         var right = node.RightOperand.Accept(this);
+        var opText = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
         SystemType type;
-        string text;
 
         switch (node.Operator.Type)
         {
-            case Token.PLUS:
-            case Token.MINUS:
-            case Token.STAR:
-            case Token.SLASH:
-            case Token.LOWER_EQUAL:
-            case Token.GREATER_EQUAL:
-                if (left is not SystemType.NUMBER && right is not SystemType.NUMBER)
-                {
-                    text = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
-                    Diagnostics.Error(
-                        node.Operator,
-                        $"Operator '{text}' is not valid for types '{left}' and '{right}'."
-                    );
-                    type = SystemType.UNKNOWN;
-                }
-                else
-                {
-                    type = SystemType.NUMBER;
-                }
-
+            case Token.PLUS or Token.MINUS
+                or Token.STAR or Token.SLASH
+                when left is SystemType.NUMBER && right is SystemType.NUMBER:
+            {
+                type = SystemType.NUMBER;
                 break;
+            }
 
-            case Token.EQUAL_EQUAL:
-            case Token.BANG_EQUAL:
-                if (left is SystemType.STRING && right is SystemType.STRING)
-                {
-                    type = SystemType.STRING;
-                }
-                else if (left is SystemType.NUMBER && right is SystemType.NUMBER)
-                {
-                    type = SystemType.NUMBER;
-                }
-                else if (left is SystemType.BOOL && right is SystemType.BOOL)
-                {
-                    type = SystemType.BOOL;
-                }
-                else
-                {
-                    text = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
-                    Diagnostics.Error(
-                        node.Operator,
-                        $"Operator '{text}' is not valid for types '{left}' and '{right}'."
-                    );
-                    type = SystemType.UNKNOWN;
-                }
+            case Token.EQUAL_EQUAL or Token.BANG_EQUAL
+                or Token.LOWER_EQUAL or Token.LOWER_THAN
+                or Token.GREATER_EQUAL or Token.GREATER_THAN
+                when left is SystemType.NUMBER && right is SystemType.NUMBER:
 
+            case Token.EQUAL_EQUAL or Token.BANG_EQUAL
+                when (left is SystemType.STRING && right is SystemType.STRING) ||
+                     (left is SystemType.BOOL && right is SystemType.BOOL):
+            {
+                type = SystemType.BOOL;
                 break;
+            }
 
             case Token.DOT:
+            {
                 type = SystemType.STRING;
                 break;
+            }
 
             default:
-                Diagnostics.Error(node.Operator, $"SystemType.UNKNOWN binary operator '{node.Operator.Type}'.");
+                Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, opText, left, right));
                 type = SystemType.UNKNOWN;
                 break;
         }
@@ -91,7 +72,7 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
     {
         var type = node.Initializer.Accept(this);
         tree.Types[node] = type;
-        return SystemType.NONE;
+        return tree.Types[node];
     }
 
     public SystemType Visit(ExpressionStatement node)
@@ -148,12 +129,12 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
     {
         var type = node.Initializer?.Accept(this);
         tree.Types[node] = type ?? SystemType.UNKNOWN;
-        return SystemType.NONE;
+        return tree.Types[node];
     }
 
     public SystemType Visit(WhileStatement node)
     {
-        node.Condition.Accept(this);
+        tree.Types[node.Condition] = node.Condition.Accept(this);
         node.Body.Accept(this);
         return SystemType.NONE;
     }
@@ -168,32 +149,24 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
     {
         var target = node.Target.Accept(this);
         var value = node.Value.Accept(this);
+        var op = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
         SystemType type;
 
         switch (node.Operator.Type)
         {
+            case Token.EQUAL:
             case Token.PLUS_EQUAL:
             case Token.MINUS_EQUAL:
             case Token.STAR_EQUAL:
-            case Token.SLASH_EQUAL:
-                if (target is SystemType.NUMBER && value is SystemType.NUMBER)
-                {
-                    type = SystemType.NUMBER;
-                }
-                else
-                {
-                    var text = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
-                    Diagnostics.Error(
-                        node.Operator,
-                        $"Operator '{text}' is not valid for types '{target}' and '{value}'."
-                    );
-                    type = SystemType.UNKNOWN;
-                }
-
+            case Token.SLASH_EQUAL
+                when target is SystemType.NUMBER && value is SystemType.NUMBER:
+            {
+                type = SystemType.NUMBER;
                 break;
+            }
 
             default:
-                Diagnostics.Error(node.Operator, $"SystemType.UNKNOWN binary operator '{node.Operator.Type}'.");
+                Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, target, value));
                 type = SystemType.UNKNOWN;
                 break;
         }
@@ -205,8 +178,13 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
 
     public SystemType Visit(BlockStatement node)
     {
+        BeginScope(node.SymbolTable);
+
         foreach (var statement in node.Body)
             statement.Accept(this);
+
+        EndScope();
+
         return SystemType.NONE;
     }
 
@@ -225,14 +203,28 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
 
     public SystemType Visit(ForStatement node)
     {
-        node.Initializer?.Accept(this);
+        BeginScope(node.SymbolTable);
+
+        if (node.Initializer is not null)
+        {
+            var type = node.Initializer.Accept(this);
+            tree.Types[node.Initializer] = type;
+        }
 
         var conditionType = node.Condition.Accept(this);
         if (conditionType != SystemType.BOOL)
             Diagnostics.Error(node.Condition.Token, $"Condition expression must be of type '{SystemType.BOOL}'.");
 
-        node.Increment?.Accept(this);
+        if (node.Increment is not null)
+        {
+            var type = node.Increment.Accept(this);
+            tree.Types[node.Increment] = type;
+        }
+
         node.Body.Accept(this);
+
+        EndScope();
+
         return SystemType.NONE;
     }
 

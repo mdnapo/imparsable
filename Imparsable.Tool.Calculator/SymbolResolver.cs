@@ -18,13 +18,13 @@ public class SymbolResolver(SyntaxTree tree) : ISyntaxVisitor
             node.Accept(resolver);
     }
 
-    private void Push(SymbolTable symbolTable)
+    private void BeginScope(SymbolTable symbolTable)
     {
         symbolTable.Parent = CurrentSymbolTable;
         _symbolTables.Push(symbolTable);
     }
 
-    private void Pop() => _symbolTables.Pop();
+    private void EndScope() => _symbolTables.Pop();
 
     private void Declare(ISymbol symbol)
     {
@@ -100,12 +100,12 @@ public class SymbolResolver(SyntaxTree tree) : ISyntaxVisitor
 
     public void Visit(BlockStatement node)
     {
-        Push(node.SymbolTable);
+        BeginScope(node.SymbolTable);
 
         foreach (var statement in node.Body)
             statement.Accept(this);
 
-        Pop();
+        EndScope();
     }
 
     public void Visit(ElseIfStatement node)
@@ -117,24 +117,20 @@ public class SymbolResolver(SyntaxTree tree) : ISyntaxVisitor
 
     public void Visit(ForStatement node)
     {
-        Push(node.SymbolTable);
+        BeginScope(node.SymbolTable);
 
         node.Initializer?.Accept(this);
-        node.Condition?.Accept(this);
+        node.Condition.Accept(this);
         node.Increment?.Accept(this);
         node.Body.Accept(this);
 
-        Pop();
+        EndScope();
     }
 
     public void Visit(WhileStatement node)
     {
-        Push(node.SymbolTable);
-
         node.Condition.Accept(this);
         node.Body.Accept(this);
-
-        Pop();
     }
 
     public void Visit(BoolLiteralExpression node) { }

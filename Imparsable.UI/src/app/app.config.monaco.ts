@@ -7,12 +7,12 @@ export const LanguageId = {
 export function registerCalculatorLanguage(): void {
   monaco.languages.register({id: LanguageId.Calculator, extensions: [`.${LanguageId.Calculator}`]});
   monaco.languages.setMonarchTokensProvider(LanguageId.Calculator, {
-    keywords: ['const', 'var', 'print'],
-    operators: ['+', '-', '*', '/'],
+    keywords: ['const', 'var', 'print', 'for', 'while', 'true', 'false', 'if', 'else'],
+    operators: ['+', '+=', '-', '-=', '*', '*=', '/', '/=', '!', '<', '>', '!=', '==', '<=', '=>'],
     tokenizer: {
       root: [
         // Keywords
-        [/\b(?:const|var|print)\b/, 'keyword'],
+        [/\b(?:const|var|print|for|while|true|false|if|else)\b/, 'keyword'],
 
         // Identifiers (quoted strings)
         [/".*?"|'.*?'/, 'string'],

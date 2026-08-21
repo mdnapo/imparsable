@@ -12,7 +12,10 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
     private static readonly ReadOnlyMemory<byte> TrueBytes = BitConverter.GetBytes((double)1);
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
 
+    private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
     private readonly Stack<List<int>> _elseJumps = [];
+
+    private SymbolTable CurrentSymbolTable => _symbolTables.Peek();
 
     public static Chunk Execute(SyntaxTree tree)
     {
@@ -21,6 +24,16 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
             node.Accept(compiler);
 
         return new Chunk(compiler.Code.ToArray(), compiler.Constants.ToArray());
+    }
+
+    private void BeginScope(SymbolTable symbolTable) => _symbolTables.Push(symbolTable);
+
+    private void EndScope()
+    {
+        foreach (var _ in CurrentSymbolTable.Symbols)
+            EmitOpCode(OpCode.POP);
+
+        _symbolTables.Pop();
     }
 
     public void Visit(BinaryExpression node)
@@ -53,9 +66,8 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
     {
         node.Initializer.Accept(this);
         EmitOpCode(OpCode.SET_LOCAL);
-        var offset = tree.SymbolTable.Offset(node.Symbol);
+        var offset = CurrentSymbolTable.Offset(node.Symbol);
         EmitInt32(offset);
-        // EmitOpCode(OpCode.POP);
     }
 
     public void Visit(ExpressionStatement node)
@@ -69,7 +81,7 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
     public void Visit(IdentifierExpression node)
     {
         EmitOpCode(OpCode.GET_LOCAL);
-        var offset = tree.SymbolTable.Offset(node.Symbol);
+        var offset = CurrentSymbolTable.Offset(node.Symbol);
         EmitInt32(offset);
     }
 
@@ -79,8 +91,8 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         var span = buffer.Span;
 
         BinaryPrimitives.WriteDoubleLittleEndian(span, node.Value);
-        var index = AddConstant(span);
         EmitOpCode(OpCode.NUM_CONST);
+        var index = AddConstant(span);
         EmitInt32(index);
     }
 
@@ -92,23 +104,18 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 
     public void Visit(StringLiteralExpression node)
     {
-        // TODO: Does aligning make sense in the constant pool?
         var @string = node.Value.Trim('\'', '"');
         var length = @string.Length;
-        var size = Align(sizeof(int) + length);
+        var size = sizeof(int) + length;
         var buffer = ByteBuffer.Acquire(size);
         var span = buffer.Span;
-        
+
         BinaryPrimitives.WriteInt32LittleEndian(span[..sizeof(int)], length);
         Encoding.UTF8.GetBytes(@string, span[sizeof(int)..]);
 
-        var index = AddConstant(span);
         EmitOpCode(OpCode.STRING_CONST);
+        var index = AddConstant(span);
         EmitInt32(index);
-
-        return;
-
-        static int Align(int size) => (size + sizeof(double) - 1) & ~(sizeof(double) - 1);
     }
 
     public void Visit(UnaryExpression node)
@@ -138,9 +145,8 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         }
 
         EmitOpCode(OpCode.SET_LOCAL);
-        var offset = tree.SymbolTable.Offset(node.Symbol);
+        var offset = CurrentSymbolTable.Offset(node.Symbol);
         EmitInt32(offset);
-        // EmitOpCode(OpCode.POP);
     }
 
     public void Visit(IfStatement node)
@@ -168,8 +174,10 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 
     public void Visit(BlockStatement node)
     {
+        BeginScope(node.SymbolTable);
         foreach (var statement in node.Body)
             statement.Accept(this);
+        EndScope();
     }
 
     public void Visit(ElseIfStatement node)
@@ -193,11 +201,9 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 
     public void Visit(ForStatement node)
     {
-        if (node.Initializer is not null)
-        {
-            node.Initializer.Accept(this);
-            EmitOpCode(OpCode.POP);
-        }
+        BeginScope(node.SymbolTable);
+
+        node.Initializer?.Accept(this);
 
         var loopStart = Code.Count;
 
@@ -220,6 +226,8 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         PatchJump(exitJump);
 
         EmitOpCode(OpCode.POP);
+
+        EndScope();
     }
 
     public void Visit(WhileStatement node)
@@ -243,8 +251,8 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 
     public void Visit(BoolLiteralExpression node)
     {
-        var index = AddConstant(node.Value ? TrueBytes.Span : FalseBytes.Span);
         EmitOpCode(OpCode.NUM_CONST);
+        var index = AddConstant(node.Value ? TrueBytes.Span : FalseBytes.Span);
         EmitInt32(index);
     }
 
@@ -253,11 +261,29 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         if (node.Target is IdentifierExpression identifier)
         {
             node.Value.Accept(this);
-            var offset = tree.SymbolTable.Offset(identifier.Symbol);
+            var offset = CurrentSymbolTable.Offset(identifier.Symbol);
+
+            if (node.Operator.Type is Token.PLUS_EQUAL or Token.MINUS_EQUAL or Token.STAR_EQUAL or Token.SLASH_EQUAL)
+            {
+                EmitOpCode(OpCode.GET_LOCAL);
+                EmitInt32(offset);
+
+                var op = node.Operator.Type switch
+                {
+                    Token.PLUS_EQUAL => OpCode.ADD,
+                    Token.MINUS_EQUAL => OpCode.SUB,
+                    Token.STAR_EQUAL => OpCode.MUL,
+                    Token.SLASH_EQUAL => OpCode.DIV,
+                    _ => throw new InvalidOperationException($"Unsupported assignment operator '{node.Operator.Type}'.")
+                };
+
+                EmitOpCode(op);
+            }
+
             EmitOpCode(OpCode.SET_LOCAL);
             EmitInt32(offset);
         }
 
-        throw new InvalidOperationException($"Assignment target of type '{node.GetType()}' is not supported.");
+        else throw new InvalidOperationException($"Assignment target of type '{node.GetType()}' is not supported.");
     }
 }

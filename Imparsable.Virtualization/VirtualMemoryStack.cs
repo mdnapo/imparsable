@@ -18,9 +18,14 @@ public sealed class VirtualMemoryStack<TSlot>(Memory<byte> memory) where TSlot :
 
     public TSlot Pop()
     {
-        return Pointer == 0
-            ? throw new InvalidOperationException("Cannot pop an empty stack.")
-            : Slots[--Pointer];
+        if (Pointer == 0)
+            throw new InvalidOperationException("Cannot pop an empty stack.");
+
+        ref var slot = ref Slots[--Pointer];
+        var value = slot;
+        slot = default;
+
+        return value;
     }
 
     public ref TSlot Peek()

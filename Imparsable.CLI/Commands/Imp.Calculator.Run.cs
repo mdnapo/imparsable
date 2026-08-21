@@ -30,14 +30,21 @@ internal sealed partial class Imp
 
                 var source = await File.ReadAllTextAsync(info.FullName);
                 var tree = SyntaxTree.Parse(source);
-                using var runtime = new Interpreter();
-                runtime.StdOut += Console.WriteLine;
-                runtime.Execute(tree);
+
+                if (!Validate(tree)) return;
 
                 var chunk = Compiler.Execute(tree);
                 using var vm = new VirtualMachine();
                 vm.StdOut += Console.WriteLine;
                 vm.Execute(chunk);
+            }
+
+            private static bool Validate(SyntaxTree tree)
+            {
+                foreach (var diagnostic in tree.Diagnostics)
+                    Console.WriteLine(diagnostic.Report);
+
+                return tree.Diagnostics.IsHealthy;
             }
         }
     }

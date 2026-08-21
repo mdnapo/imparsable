@@ -10,8 +10,7 @@ public partial class WhileStatement : ISyntax, IProduction
     public required ISyntax Condition { get; init; }
     public Lexer<Token>.Token RightParenthesis { get; init; }
     public required ISyntax Body { get; init; }
-    public SymbolTable SymbolTable { get; } = new();
-    
+
     public static ISyntax Parse(ParserContext<Token> context)
     {
         var keyword = context.Previous();
