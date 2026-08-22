@@ -7,12 +7,12 @@ public partial class Interpreter : ISyntaxVisitor, IDisposable
     private readonly Stack<object> _stack = [];
     private Stack<Scope> Scopes { get; } = new([new Scope()]);
 
-    public event Action<string> StdOut = delegate { };
+    public event Action<string> Out = delegate { };
 
     public void Execute(SyntaxTree tree)
     {
         foreach (var diagnostic in tree.Diagnostics)
-            StdOut(diagnostic.Report);
+            Out(diagnostic.Report);
 
         if (!tree.Diagnostics.IsHealthy) return;
 
@@ -81,7 +81,7 @@ public partial class Interpreter : ISyntaxVisitor, IDisposable
     public void Visit(PrintStatement node)
     {
         node.Expression.Accept(this);
-        StdOut(_stack.Pop().ToString()!);
+        Out(_stack.Pop().ToString()!);
     }
 
     public void Visit(StringLiteralExpression node) => _stack.Push(node.Value.Trim('"', '\''));
@@ -152,7 +152,7 @@ public partial class Interpreter : ISyntaxVisitor, IDisposable
 
     public void Dispose()
     {
-        foreach (var @delegate in StdOut.GetInvocationList())
-            StdOut -= @delegate as Action<string>;
+        foreach (var @delegate in Out.GetInvocationList())
+            Out -= @delegate as Action<string>;
     }
 }

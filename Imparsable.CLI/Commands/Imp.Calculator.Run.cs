@@ -35,7 +35,7 @@ internal sealed partial class Imp
 
                 var chunk = Compiler.Execute(tree);
                 using var vm = new VirtualMachine();
-                vm.StdOut += Console.WriteLine;
+                vm.Out += Console.WriteLine;
                 vm.Execute(chunk);
             }
 
