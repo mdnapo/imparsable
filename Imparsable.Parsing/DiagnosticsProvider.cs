@@ -3,19 +3,33 @@ using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Parsing;
 
-public class DiagnosticsProvider : IEnumerable<Diagnostic>
+public class DiagnosticsProvider : IEnumerable<Diagnostic>, IDisposable
 {
     private List<Diagnostic> Diagnostics { get; } = [];
-
+    public event Action<Diagnostic> Published = delegate { };
     public bool IsHealthy => Diagnostics.All(d => d.Severity != DiagnosticSeverity.ERROR);
-    
-    public void Warning(ISourceMarker marker, string message) =>
-        Diagnostics.Add(new Diagnostic(DiagnosticSeverity.WARNING, marker, message));
-
-    public void Error(ISourceMarker marker, string message) =>
-        Diagnostics.Add(new Diagnostic(DiagnosticSeverity.ERROR, marker, message));
 
     public IEnumerator<Diagnostic> GetEnumerator() => Diagnostics.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Warning(ISourceMarker marker, string message)
+    {
+        var diagnostic = new Diagnostic(DiagnosticSeverity.WARNING, marker, message);
+        Diagnostics.Add(diagnostic);
+        Published.Invoke(diagnostic);
+    }
+
+    public void Error(ISourceMarker marker, string message)
+    {
+        var diagnostic = new Diagnostic(DiagnosticSeverity.ERROR, marker, message);
+        Diagnostics.Add(diagnostic);
+        Published.Invoke(diagnostic);
+    }
+
+    public void Dispose()
+    {
+        foreach (var @delegate in Published.GetInvocationList())
+            Published -= @delegate as Action<Diagnostic>;
+    }
 }

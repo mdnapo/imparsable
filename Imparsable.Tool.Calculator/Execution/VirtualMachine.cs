@@ -5,7 +5,7 @@ namespace Imparsable.Tool.Calculator.Execution;
 
 public class VirtualMachine : IDisposable
 {
-    public event Action<string> Out = delegate { };
+    public event Action<string> StdOut = delegate { };
     public VirtualMemory Memory { get; } = new();
 
     public void Execute(Chunk chunk)
@@ -209,7 +209,7 @@ public class VirtualMachine : IDisposable
             {
                 var handle = PopString();
                 var value = Encoding.UTF8.GetString(Memory.Heap.GetBytes(handle.String)[sizeof(int)..]);
-                Out.Invoke(value);
+                StdOut.Invoke(value);
                 break;
             }
 
@@ -237,7 +237,7 @@ public class VirtualMachine : IDisposable
 
     public void Dispose()
     {
-        foreach (var @delegate in Out.GetInvocationList())
-            Out -= @delegate as Action<string>;
+        foreach (var @delegate in StdOut.GetInvocationList())
+            StdOut -= @delegate as Action<string>;
     }
 }

@@ -27,7 +27,7 @@ import { MatIconButton } from '@angular/material/button';
 })
 export class Layout {
   protected readonly router: Router = inject(Router);
-  protected openSideNav: boolean = false;
+  protected openSideNav: boolean = true;
   protected menuIconRotatedState: string = 'default';
 
   toggleNav(): void {

@@ -1,1 +1,38 @@
-<div #editor id="editor"></div>
+<main>
+  <div id="editor" #editor></div>
+
+  <section id="toolbar">
+    <mat-toolbar>
+      <button title="Run" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
+        <mat-icon (click)="emitExecute()">play_arrow</mat-icon>
+      </button>
+    </mat-toolbar>
+  </section>
+
+  <section id="auxilliary">
+    <mat-tab-group [(selectedIndex)]="selectedTab"
+                   animationDuration="0s"
+                   headerPosition="below"
+                   mat-align-tabs="start"
+                   mat-stretch-tabs="false">
+      <mat-tab label="Output">
+        @for (line of output | async; track line.id) {
+          <code>{{ line.text }}</code><br/>
+        }
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span [matBadge]="diagnostics.value.length"
+                [matBadgeHidden]="diagnostics.value.length <= 0"
+                [matBadgePosition]="'above after'"
+                matBadgeOverlap="false">Problems</span>
+        </ng-template>
+        <div class="padded">
+          @for (diagnostic of diagnostics | async; track diagnostic.marker) {
+            <code>{{ formatDiagnostic(diagnostic) }}</code><br/>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

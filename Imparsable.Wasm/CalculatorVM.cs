@@ -1,28 +1,33 @@
+using Imparsable.Parsing;
 using Imparsable.Tool.Calculator;
 using Imparsable.Tool.Calculator.Execution;
 using Imparsable.Tool.Calculator.Syntax;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable once InconsistentNaming
-public class CalculatorVM
+public class CalculatorVM : IDisposable
 {
-    public event Action<string>? Out;
+    public event Action<Diagnostic> OnDiagnosticPublished = delegate { };
+    public event Action<string> OnStdOut = delegate { };
 
     public void Execute(string code)
     {
-        if (SyntaxTree.Parse(code) is not { } tree || !Validate(tree)) return;
+        using var tree = SyntaxTree.Parse(code, OnDiagnosticPublished);
+
+        if (!tree.IsHealthy) return;
 
         var chunk = Compiler.Execute(tree);
         using var vm = new VirtualMachine();
-        vm.Out += Out;
+        vm.StdOut += OnStdOut;
         vm.Execute(chunk);
     }
 
-    private bool Validate(SyntaxTree tree)
+    public void Dispose()
     {
-        foreach (var diagnostic in tree.Diagnostics)
-            Out?.Invoke(diagnostic.Report);
+        foreach (var @delegate in OnDiagnosticPublished.GetInvocationList())
+            OnDiagnosticPublished -= @delegate as Action<Diagnostic>;
 
-        return tree.Diagnostics.IsHealthy;
+        foreach (var @delegate in OnStdOut.GetInvocationList())
+            OnStdOut -= @delegate as Action<string>;
     }
 }

@@ -3,7 +3,7 @@ using Imparsable.Parsing.Interfaces;
 
 namespace Imparsable.Parsing;
 
-public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
+public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : IDisposable
     where TToken : Enum
     where TSyntax : ISyntax<TToken>
     where TSyntaxTree : SyntaxTree<TToken, TSyntax, TSyntaxTree>, new()
@@ -12,13 +12,24 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     public DiagnosticsProvider Diagnostics { get; } = new();
     public List<Lexer<TToken>.Token> Tokens { get; private set; } = [];
     public List<TSyntax> Roots { get; } = [];
+    public bool IsHealthy => Diagnostics.All(x => x.Severity != DiagnosticSeverity.ERROR);
 
-    public static TSyntaxTree Create(string source) => new() { Source = new Source(source) };
+    private static TSyntaxTree Create(string source, Action<Diagnostic>? diagnosticPublishedHandler = null)
+    {
+        var tree = new TSyntaxTree { Source = new Source(source) };
 
-    public static TSyntaxTree Parse<TProduction>(string source)
+        if (diagnosticPublishedHandler != null)
+        {
+            tree.Diagnostics.Published += diagnosticPublishedHandler;
+        }
+
+        return tree;
+    }
+
+    public static TSyntaxTree Parse<TProduction>(string source, Action<Diagnostic>? diagnosticHandler = null)
         where TProduction : IProduction<TToken, TSyntax>
     {
-        var tree = Create(source);
+        var tree = Create(source, diagnosticHandler);
         var configuration = ParserConfiguration<TToken>.Default;
         var lexerContext = new Lexer<TToken>.Context(configuration, tree.Diagnostics, tree.Source);
 
@@ -45,11 +56,14 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
         return tree;
     }
 
-    public static TSyntaxTree Parse<TProduction, TSynchronizer>(string source)
+    public static TSyntaxTree Parse<TProduction, TSynchronizer>(
+        string source,
+        Action<Diagnostic>? diagnosticHandler = null
+    )
         where TProduction : IProduction<TToken, TSyntax>
         where TSynchronizer : ISynchronizer<TToken>
     {
-        var tree = Create(source);
+        var tree = Create(source, diagnosticHandler);
         var configuration = ParserConfiguration<TToken>.Default;
         var lexerContext = new Lexer<TToken>.Context(configuration, tree.Diagnostics, tree.Source);
 
@@ -75,5 +89,10 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
         }
 
         return tree;
+    }
+
+    public void Dispose()
+    {
+        Diagnostics.Dispose();
     }
 }
