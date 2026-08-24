@@ -11,7 +11,7 @@ import {SourceFile} from '../app.models';
 @Service()
 export class FileSystem implements OnDestroy {
   private fsProvider!: RegisteredFileSystemProvider;
-  private fsOverlay?: IDisposable;
+  private fsOverlay!: IDisposable;
 
   public initialize(): void {
     this.fsProvider = new RegisteredFileSystemProvider(false);

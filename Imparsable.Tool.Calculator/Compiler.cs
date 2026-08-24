@@ -8,9 +8,9 @@ namespace Imparsable.Tool.Calculator;
 
 public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 {
+    private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
     private static readonly ReadOnlyMemory<byte> FalseBytes = BitConverter.GetBytes((double)0);
     private static readonly ReadOnlyMemory<byte> TrueBytes = BitConverter.GetBytes((double)1);
-    private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
 
     private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
     private readonly Stack<List<int>> _elseJumps = [];
@@ -36,10 +36,34 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         _symbolTables.Pop();
     }
 
+    private void EmitToString(StringConversion conversion)
+    {
+        EmitOpCode(OpCode.TO_STRING);
+        EmitByte((byte)conversion);
+    }
+
+    private void BinaryOperand(ISyntax node, Token op)
+    {
+        node.Accept(this);
+
+        var type = tree.Types[node];
+
+        if (op != Token.DOT || type == SystemType.STRING) return;
+
+        var conversion = type switch
+        {
+            SystemType.BOOL => StringConversion.BOOL,
+            SystemType.NUMBER => StringConversion.NUMBER,
+            _ => throw new InvalidOperationException()
+        };
+
+        EmitToString(conversion);
+    }
+
     public void Visit(BinaryExpression node)
     {
-        node.LeftOperand.Accept(this);
-        node.RightOperand.Accept(this);
+        BinaryOperand(node.LeftOperand, node.Operator.Type);
+        BinaryOperand(node.RightOperand, node.Operator.Type);
 
         var text = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
 
@@ -87,7 +111,7 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 
     public void Visit(NumericLiteralExpression node)
     {
-        var buffer = ByteBuffer.Acquire(sizeof(double));
+        using var buffer = ByteBuffer.Acquire(sizeof(double));
         var span = buffer.Span;
 
         BinaryPrimitives.WriteDoubleLittleEndian(span, node.Value);
@@ -96,9 +120,27 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         EmitInt32(index);
     }
 
+    private void PrintOperand(ISyntax node)
+    {
+        node.Accept(this);
+
+        var type = tree.Types[node];
+
+        if (type == SystemType.STRING) return;
+
+        var conversion = type switch
+        {
+            SystemType.BOOL => StringConversion.BOOL,
+            SystemType.NUMBER => StringConversion.NUMBER,
+            _ => throw new InvalidOperationException()
+        };
+
+        EmitToString(conversion);
+    }
+
     public void Visit(PrintStatement node)
     {
-        node.Expression.Accept(this);
+        PrintOperand(node.Expression);
         EmitOpCode(OpCode.PRINT);
     }
 
@@ -107,7 +149,7 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         var @string = node.Value.Trim('\'', '"');
         var length = @string.Length;
         var size = sizeof(int) + length;
-        var buffer = ByteBuffer.Acquire(size);
+        using var buffer = ByteBuffer.Acquire(size);
         var span = buffer.Span;
 
         BinaryPrimitives.WriteInt32LittleEndian(span[..sizeof(int)], length);

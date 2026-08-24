@@ -27,5 +27,6 @@ public enum OpCode : byte
     
     JMP,
     JMP_FALSE,
+    TO_STRING,
     PRINT,
 }

@@ -15,6 +15,8 @@ public abstract class Compiler<T> where T : unmanaged
 
     public void EmitOpCode(T op) => Code.Add((byte)(object)op);
 
+    public void EmitByte(byte @byte) => Code.Add(@byte);
+    
     public int AddConstant(ReadOnlySpan<byte> value)
     {
         var offset = Constants.Count;

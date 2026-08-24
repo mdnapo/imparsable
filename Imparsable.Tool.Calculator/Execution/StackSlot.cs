@@ -2,25 +2,19 @@ using System.Runtime.InteropServices;
 
 namespace Imparsable.Tool.Calculator.Execution;
 
-[StructLayout(LayoutKind.Explicit, Size = 16)]
+[StructLayout(LayoutKind.Explicit, Size = 8)]
 public struct StackSlot
 {
     [FieldOffset(0)]
-    public StackType Type;
-
-    [FieldOffset(8)]
     public bool Bool;
 
-    [FieldOffset(8)]
+    [FieldOffset(0)]
     public double Number;
 
-    [FieldOffset(8)]
+    [FieldOffset(0)]
     public int String;
 
-    public override string ToString() => Type switch
-    {
-        StackType.BOOL => Bool.ToString(),
-        StackType.NUMBER => Number.ToString(),
-        _ => throw new InvalidOperationException()
-    };
+    public static StackSlot FromBool(bool value) => new() { Bool = value };
+    public static StackSlot FromNumber(double value) => new() { Number = value };
+    public static StackSlot FromString(int value) => new() { String = value };
 }

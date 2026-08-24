@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 
 namespace Imparsable.Tool.Calculator.Execution;
@@ -21,6 +22,9 @@ public class VirtualMachine : IDisposable
 
     private static int ReadInt32(ref int ip, ref Chunk chunk) =>
         BinaryPrimitives.ReadInt32LittleEndian(chunk.Code[ip..(ip += sizeof(int))]);
+
+    private static StringConversion ReadStringConversion(ref int ip, ref Chunk chunk) =>
+        (StringConversion)chunk.Code[ip++];
 
     private void Execute(ref int ip, ref Chunk chunk, OpCode op)
     {
@@ -51,7 +55,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.NUMBER, Number = left.Number + right.Number });
+                Memory.Stack.Push(StackSlot.FromNumber(left.Number + right.Number));
                 break;
             }
 
@@ -59,7 +63,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.NUMBER, Number = left.Number - right.Number });
+                Memory.Stack.Push(StackSlot.FromNumber(left.Number - right.Number));
                 break;
             }
 
@@ -67,7 +71,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.NUMBER, Number = left.Number * right.Number });
+                Memory.Stack.Push(StackSlot.FromNumber(left.Number * right.Number));
                 break;
             }
 
@@ -75,21 +79,21 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.NUMBER, Number = left.Number / right.Number });
+                Memory.Stack.Push(StackSlot.FromNumber(left.Number / right.Number));
                 break;
             }
 
             case OpCode.CONCAT:
             {
-                var right = PopString();
-                var left = PopString();
+                var right = Memory.Stack.Pop();
+                var left = Memory.Stack.Pop();
                 var lhsBytes = Memory.Heap.GetBytes(left.String);
                 var rhsBytes = Memory.Heap.GetBytes(right.String);
                 var leftString = Encoding.UTF8.GetString(lhsBytes);
                 var rightString = Encoding.UTF8.GetString(rhsBytes);
                 var concatenatedString = leftString + rightString;
                 var handle = Memory.StringHeap.Allocate(concatenatedString);
-                Memory.Stack.Push(new StackSlot { Type = StackType.STRING, String = handle });
+                Memory.Stack.Push(StackSlot.FromString(handle));
                 break;
             }
 
@@ -102,7 +106,7 @@ public class VirtualMachine : IDisposable
                 // so comparing the values as doubles means comparing the entire byte sequence.
                 // This will cover all equality operations for now.
                 // TODO: Fix this!
-                Memory.Stack.Push(new StackSlot { Type = StackType.BOOL, Bool = left.Number.Equals(right.Number) });
+                Memory.Stack.Push(StackSlot.FromBool(left.Number.Equals(right.Number)));
                 break;
             }
 
@@ -115,7 +119,7 @@ public class VirtualMachine : IDisposable
                 // so comparing the values as doubles means comparing the entire byte sequence.
                 // This will cover all equality operations for now.
                 // TODO: Fix this!
-                Memory.Stack.Push(new StackSlot { Type = StackType.BOOL, Bool = !left.Number.Equals(right.Number) });
+                Memory.Stack.Push(StackSlot.FromBool(!left.Number.Equals(right.Number)));
                 break;
             }
 
@@ -123,7 +127,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.BOOL, Bool = left.Number < right.Number });
+                Memory.Stack.Push(StackSlot.FromBool(left.Number < right.Number));
                 break;
             }
 
@@ -131,7 +135,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.BOOL, Bool = left.Number <= right.Number });
+                Memory.Stack.Push(StackSlot.FromBool(left.Number <= right.Number));
                 break;
             }
 
@@ -139,7 +143,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.BOOL, Bool = left.Number > right.Number });
+                Memory.Stack.Push(StackSlot.FromBool(left.Number > right.Number));
                 break;
             }
 
@@ -147,7 +151,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.BOOL, Bool = left.Number >= right.Number });
+                Memory.Stack.Push(StackSlot.FromBool(left.Number >= right.Number));
                 break;
             }
 
@@ -156,7 +160,7 @@ public class VirtualMachine : IDisposable
                 var constantIndex = ReadInt32(ref ip, ref chunk);
                 var constant = chunk.Constants[constantIndex..(constantIndex + sizeof(double))];
                 var value = BinaryPrimitives.ReadDoubleLittleEndian(constant);
-                Memory.Stack.Push(new StackSlot { Type = StackType.NUMBER, Number = value });
+                Memory.Stack.Push(StackSlot.FromNumber(value));
                 break;
             }
 
@@ -170,21 +174,21 @@ public class VirtualMachine : IDisposable
                 var value = Encoding.UTF8.GetString(chunk.Constants[stringStart..stringEnd]);
 
                 var handle = Memory.StringHeap.Allocate(value);
-                Memory.Stack.Push(new StackSlot { Type = StackType.STRING, String = handle });
+                Memory.Stack.Push(StackSlot.FromString(handle));
                 break;
             }
 
             case OpCode.NEGATE_BOOL:
             {
                 var value = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.BOOL, Bool = !value.Bool });
+                Memory.Stack.Push(StackSlot.FromBool(!value.Bool));
                 break;
             }
 
             case OpCode.NEGATE_NUM:
             {
                 var value = Memory.Stack.Pop();
-                Memory.Stack.Push(new StackSlot { Type = StackType.NUMBER, Number = -value.Number });
+                Memory.Stack.Push(StackSlot.FromNumber(-value.Number));
                 break;
             }
 
@@ -202,12 +206,28 @@ public class VirtualMachine : IDisposable
                 {
                     ip += jmp;
                 }
+
+                break;
+            }
+
+            case OpCode.TO_STRING:
+            {
+                var conversion = ReadStringConversion(ref ip, ref chunk);
+                var @string = conversion switch
+                {
+                    StringConversion.BOOL => Memory.Stack.Pop().Bool.ToString(),
+                    StringConversion.NUMBER => Memory.Stack.Pop().Number.ToString(CultureInfo.InvariantCulture),
+                    _ => throw new InvalidOperationException()
+                };
+                var handle = Memory.StringHeap.Allocate(@string);
+                Memory.Stack.Push(StackSlot.FromString(handle));
+
                 break;
             }
 
             case OpCode.PRINT:
             {
-                var handle = PopString();
+                var handle = Memory.Stack.Pop();
                 var value = Encoding.UTF8.GetString(Memory.Heap.GetBytes(handle.String)[sizeof(int)..]);
                 StdOut.Invoke(value);
                 break;
@@ -216,23 +236,6 @@ public class VirtualMachine : IDisposable
             default:
                 throw new InvalidOperationException("Unknown opcode: " + op);
         }
-    }
-
-    private StackSlot PopString()
-    {
-        var value = Memory.Stack.Pop();
-
-        if (value.Type == StackType.STRING) return value;
-
-        var @string = value.Type switch
-        {
-            StackType.BOOL or StackType.NUMBER => value.ToString(),
-            _ => throw new InvalidOperationException("Cannot convert stack type to string: " + value.Type)
-        };
-
-        var handle = Memory.StringHeap.Allocate(@string);
-
-        return new StackSlot { Type = StackType.STRING, String = handle };
     }
 
     public void Dispose()
