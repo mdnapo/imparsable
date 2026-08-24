@@ -42,6 +42,10 @@ public abstract class Statement : IProduction
                     case Token.CONST:
                     case Token.VAR:
                     case Token.PRINT:
+                    case Token.FOR:
+                    case Token.WHILE:
+                    case Token.IF:
+                    case Token.ELSE:
                         return true;
                 }
 

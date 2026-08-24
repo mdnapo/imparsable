@@ -1,12 +1,11 @@
-import {OnDestroy, Service} from '@angular/core';
+import {inject, OnDestroy, Service} from '@angular/core';
 import {LogLevel} from '@codingame/monaco-vscode-api';
-import {RegisteredFileSystemProvider, registerFileSystemOverlay} from '@codingame/monaco-vscode-files-service-override';
 import {LanguageClientWrapper} from 'monaco-languageclient/lcwrapper';
 import {MonacoVscodeApiWrapper} from 'monaco-languageclient/vscodeApiWrapper';
 import EditorWorker from '@codingame/monaco-vscode-editor-api/esm/vs/editor/editor.worker?worker';
 import {LanguageId, registerCalculatorLanguage} from '../app.config.monaco';
 import * as vscode from 'vscode';
-import {IDisposable} from "@codingame/monaco-vscode-editor-api";
+import {FileSystem} from './file-system';
 
 window.MonacoEnvironment = {
   getWorker(_moduleId, _label) {
@@ -16,11 +15,10 @@ window.MonacoEnvironment = {
 
 @Service()
 export class LspService implements OnDestroy {
+  private readonly fs: FileSystem = inject(FileSystem);
   private vscode?: MonacoVscodeApiWrapper;
   private calculator?: LanguageClientWrapper;
   private initialization?: Promise<void>;
-  private fsProvider!: RegisteredFileSystemProvider;
-  private fsOverlay?: IDisposable;
   private intervalHandle?: number;
 
   public async initialize(): Promise<void> {
@@ -28,14 +26,9 @@ export class LspService implements OnDestroy {
   }
 
   private async runInitializers(): Promise<void> {
-    this.initializeFileSystem();
+    this.fs.initialize();
     await this.initializeVsCodeWrapper();
     await this.initializeClcClient();
-  }
-
-  private initializeFileSystem(): void {
-    this.fsProvider = new RegisteredFileSystemProvider(false);
-    this.fsOverlay = registerFileSystemOverlay(-1, this.fsProvider);
   }
 
   private async initializeVsCodeWrapper(): Promise<void> {
@@ -64,7 +57,7 @@ export class LspService implements OnDestroy {
         workspaceFolder: {
           index: 0,
           name: 'workspace',
-          uri: vscode.Uri.parse(`file:///workspace`)
+          uri: vscode.Uri.parse(`file:///workspace`),
         },
       }
     });
@@ -97,6 +90,5 @@ export class LspService implements OnDestroy {
     }
     this.calculator?.dispose();
     this.vscode?.dispose();
-    this.fsOverlay?.dispose();
   }
 }

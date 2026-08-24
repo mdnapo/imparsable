@@ -63,12 +63,13 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
     await editorApp.start(this.editorContainer.nativeElement);
     this.editor = editorApp.getEditor();
 
-    const uri = monaco.Uri.parse(`file:///workspace/${this.file.name}`);
-    const model = monaco.editor.createModel(this.file.content, this.file.languageId, uri);
+    // const uri = monaco.Uri.parse(`file:///workspace/${this.file.name}`);
+    // this.languageServer.registerFile(uri, this.file.content);
+    const model = monaco.editor.createModel(this.file.content, this.file.languageId, this.file.uri);
     monaco.editor.setModelLanguage(model, this.file.languageId);
     this.editor?.setModel(model);
 
-    await vscode.workspace.openTextDocument(uri);
+    await vscode.workspace.openTextDocument(this.file.uri);
   }
 
   emitExecute(): void {

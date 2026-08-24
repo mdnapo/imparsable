@@ -1,9 +1,10 @@
-import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, OnDestroy, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CodeEditor} from '../code-editor/code-editor';
 import {LanguageId} from '../../app.config.monaco';
 import {CalculatorVM} from "imp-wasm";
 import {Diagnostic, SourceFile} from '../../app.models';
+import {FileSystem} from '../../services/file-system';
 
 
 const code: string = `const pi = 3.14;
@@ -27,6 +28,7 @@ for (var x = 0; x < 3; x += 1)
 })
 export class CalculatorEditor implements AfterViewInit, OnDestroy {
   @ViewChild('editor') editor!: CodeEditor;
+  private readonly fs: FileSystem = inject(FileSystem);
 
   private onStdOut: (output: string) =>
     void = (output: string) => this.editor.onOutput(output);
@@ -34,13 +36,10 @@ export class CalculatorEditor implements AfterViewInit, OnDestroy {
   private onDiagnosticPublished: (diagnostic: Diagnostic) =>
     void = (output: Diagnostic) => this.editor.onDiagnosticPublished(output);
 
-  protected readonly file: SourceFile = {
-    name: 'test.clc',
-    content: code,
-    languageId: LanguageId.Calculator,
-  }
+  protected file!: SourceFile;
 
   ngAfterViewInit(): void {
+    this.file = this.fs.registerFile('test.clc', code, LanguageId.Calculator);
     CalculatorVM.onDiagnosticPublished.subscribe(this.onDiagnosticPublished);
     CalculatorVM.onStdOut.subscribe(this.onStdOut);
   }
