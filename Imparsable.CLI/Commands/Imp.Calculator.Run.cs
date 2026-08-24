@@ -1,8 +1,8 @@
 using System.CommandLine;
 using Imparsable.CLI.Interfaces;
-using Imparsable.Tool.Calculator;
-using Imparsable.Tool.Calculator.Execution;
-using Imparsable.Tool.Calculator.Syntax;
+using Imparsable.Lang.Calculator.Compilation;
+using Imparsable.Lang.Calculator.Parsing;
+using Imparsable.Lang.Calculator.Virtualization;
 
 namespace Imparsable.CLI.Commands;
 

@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Imparsable.LSP.Server.Calculator\Imparsable.LSP.Server.Calculator.csproj" />
+      <ProjectReference Include="..\Imparsable.Lang.Calculator.LSP\Imparsable.Lang.Calculator.LSP.csproj" />
     </ItemGroup>
 
 </Project>

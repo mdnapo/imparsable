@@ -1,4 +1,4 @@
-using Imparsable.LSP.Server.Calculator;
+using Imparsable.Lang.Calculator.LSP;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Imparsable.API.Controllers;

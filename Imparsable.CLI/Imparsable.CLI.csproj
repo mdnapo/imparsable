@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Imparsable.Tool.Calculator\Imparsable.Tool.Calculator.csproj" />
+      <ProjectReference Include="..\Imparsable.Lang.Calculator\Imparsable.Lang.Calculator.csproj" />
     </ItemGroup>
 
 </Project>

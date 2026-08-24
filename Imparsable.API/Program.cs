@@ -1,4 +1,4 @@
-using Imparsable.LSP.Server.Calculator.Extensions;
+using Imparsable.Lang.Calculator.LSP.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

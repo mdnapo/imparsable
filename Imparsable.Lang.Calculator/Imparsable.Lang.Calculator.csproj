@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Imparsable.Tools.Compilation\Imparsable.Tools.Compilation.csproj" />
+        <ProjectReference Include="..\Imparsable.Tools.Parsing\Imparsable.Tools.Parsing.csproj" />
+        <ProjectReference Include="..\Imparsable.Tools.Parsing.SourceGenerators\Imparsable.Tools.Parsing.SourceGenerators.csproj" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\Imparsable.Tools.Virtualization\Imparsable.Tools.Virtualization.csproj" />
+    </ItemGroup>
+
+</Project>

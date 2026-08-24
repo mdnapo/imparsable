@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Imparsable.Tools.LSP\Imparsable.Tools.LSP.csproj" />
+        <ProjectReference Include="..\Imparsable.Lang.Calculator\Imparsable.Lang.Calculator.csproj" />
+    </ItemGroup>
+
+</Project>
