@@ -6,7 +6,7 @@ import {MonacoVscodeApiWrapper} from 'monaco-languageclient/vscodeApiWrapper';
 import EditorWorker from '@codingame/monaco-vscode-editor-api/esm/vs/editor/editor.worker?worker';
 import {LanguageId, registerCalculatorLanguage} from '../app.config.monaco';
 import * as vscode from 'vscode';
-import { IDisposable } from "@codingame/monaco-vscode-editor-api";
+import {IDisposable} from "@codingame/monaco-vscode-editor-api";
 
 window.MonacoEnvironment = {
   getWorker(_moduleId, _label) {
@@ -21,6 +21,7 @@ export class LspService implements OnDestroy {
   private initialization?: Promise<void>;
   private fsProvider!: RegisteredFileSystemProvider;
   private fsOverlay?: IDisposable;
+  private intervalHandle?: number;
 
   public async initialize(): Promise<void> {
     return this.initialization ??= this.runInitializers();
@@ -69,9 +70,31 @@ export class LspService implements OnDestroy {
     });
 
     await this.calculator.start();
+
+    this.monitorConnection();
+  }
+
+  private monitorConnection(): void {
+    this.intervalHandle = setInterval(async () => {
+      try {
+        if (this.calculator === undefined || this.calculator.getLanguageClient() === undefined) {
+          console.log("LanguageClient was not initialized...");
+          return;
+        }
+
+        if (!this.calculator.getLanguageClient()!.isRunning()) {
+          await this.calculator.start();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, 5000);
   }
 
   ngOnDestroy(): void {
+    if (this.intervalHandle) {
+      clearInterval(this.intervalHandle);
+    }
     this.calculator?.dispose();
     this.vscode?.dispose();
     this.fsOverlay?.dispose();
