@@ -87,32 +87,6 @@ public class VirtualMachine : IDisposable
 
             case OpCode.CONCAT:
             {
-                // var right = Memory.Stack.Pop();
-                // var left = Memory.Stack.Pop();
-                // var lhsBytes = Memory.Heap.GetBytes(left.Reference);
-                // var rhsBytes = Memory.Heap.GetBytes(right.Reference);
-                // var leftString = Encoding.UTF8.GetString(lhsBytes[sizeof(int)..]);
-                // var rightString = Encoding.UTF8.GetString(rhsBytes[sizeof(int)..]);
-                // var concatenatedString = leftString + rightString;
-                // var handle = Memory.StringHeap.Allocate(concatenatedString);* 2
-                // Memory.Stack.Push(StackSlot.FromString(handle));
-
-                // var right = Memory.Stack.Pop();
-                // var left = Memory.Stack.Pop();
-                // var lhsBytes = Memory.Heap.GetBytes(left.Reference);
-                // var rhsBytes = Memory.Heap.GetBytes(right.Reference);
-                // var lhsLength = BinaryPrimitives.ReadInt32LittleEndian(lhsBytes[..sizeof(int)]);
-                // var rhsLength = BinaryPrimitives.ReadInt32LittleEndian(rhsBytes[..sizeof(int)]);
-                // var lhsCharCount = Encoding.UTF8.GetCharCount(lhsBytes[sizeof(int)..(sizeof(int) + lhsLength)]);
-                // var rhsCharCount = Encoding.UTF8.GetCharCount(rhsBytes[sizeof(int)..(sizeof(int) + rhsLength)]);
-                //
-                // using var buffer = CharBuffer.Acquire(lhsCharCount + rhsCharCount);
-                // Encoding.UTF8.GetChars(lhsBytes[sizeof(int)..(sizeof(int) + lhsLength)], buffer.Span[..lhsLength]);
-                // Encoding.UTF8.GetChars(rhsBytes[sizeof(int)..(sizeof(int) + rhsLength)], buffer.Span[lhsLength..(lhsLength + rhsLength)]);
-                //
-                // var handle = Memory.StringHeap.Allocate(buffer.Span);
-                // Memory.Stack.Push(StackSlot.FromString(handle));
-
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
 
@@ -252,12 +226,6 @@ public class VirtualMachine : IDisposable
 
             case OpCode.PRINT:
             {
-                // var handle = Memory.Stack.Pop();
-                // var bytes = Memory.Heap.GetBytes(handle.Reference);
-                // var length = BinaryPrimitives.ReadInt32LittleEndian(bytes[..sizeof(int)]);
-                // var value = Encoding.UTF8.GetString(bytes[sizeof(int)..(sizeof(int) + length)]);
-                // StdOut.Invoke(value);
-
                 var handle = Memory.Stack.Pop();
                 var value = Memory.StringHeap.GetValueUtf8(handle.Reference);
                 StdOut.Invoke(Encoding.UTF8.GetString(value));

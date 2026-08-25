@@ -2,7 +2,7 @@ using Imparsable.Tools.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
+public partial class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
 {
     private const string IncompatibleOperandsErrorMessage = "Invalid operation '{0}' for types '{1}' and '{2}'.";
 
@@ -25,45 +25,16 @@ public class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
     {
         var left = node.LeftOperand.Accept(this);
         var right = node.RightOperand.Accept(this);
-        var opText = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
-        SystemType type;
+        var type = BinaryOperation.Resolve(node.Operator.Type, left, right);
 
-        switch (node.Operator.Type)
+        if (type is SystemType.UNKNOWN)
         {
-            case Token.PLUS or Token.MINUS
-                or Token.STAR or Token.SLASH
-                when left is SystemType.NUMBER && right is SystemType.NUMBER:
-            {
-                type = SystemType.NUMBER;
-                break;
-            }
-
-            case Token.EQUAL_EQUAL or Token.BANG_EQUAL
-                or Token.LOWER_EQUAL or Token.LOWER_THAN
-                or Token.GREATER_EQUAL or Token.GREATER_THAN
-                when left is SystemType.NUMBER && right is SystemType.NUMBER:
-
-            case Token.EQUAL_EQUAL or Token.BANG_EQUAL
-                when (left is SystemType.STRING && right is SystemType.STRING) ||
-                     (left is SystemType.BOOL && right is SystemType.BOOL):
-            {
-                type = SystemType.BOOL;
-                break;
-            }
-
-            case Token.DOT:
-            {
-                type = SystemType.STRING;
-                break;
-            }
-
-            default:
-                Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, opText, left, right));
-                type = SystemType.UNKNOWN;
-                break;
+            var op = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
+            Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, left, right));
         }
 
         tree.Types[node] = type;
+
         return type;
     }
 
