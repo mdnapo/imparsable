@@ -1,0 +1,64 @@
+using Imparsable.Lang.Calculator.Parsing;
+
+namespace Imparsable.Lang.Calculator.Compilation;
+
+public partial class Compiler
+{
+    private const string ErrorMessage = "No binary compilation rule for '{0}' with '{1}' and '{2}'.";
+
+    private sealed record BinaryOperation(
+        Token Operator,
+        SystemType Left,
+        SystemType Right,
+        OpCode OpCode,
+        SystemType? ConversionTarget = null,
+        StringConversion? Conversion = null
+    )
+    {
+        private static readonly BinaryOperation[] Signatures =
+        [
+            // Arithmetic
+            new(Token.PLUS, SystemType.NUMBER, SystemType.NUMBER, OpCode.ADD),
+            new(Token.MINUS, SystemType.NUMBER, SystemType.NUMBER, OpCode.SUB),
+            new(Token.STAR, SystemType.NUMBER, SystemType.NUMBER, OpCode.MUL),
+            new(Token.SLASH, SystemType.NUMBER, SystemType.NUMBER, OpCode.DIV),
+
+            // Comparison
+            new(Token.LOWER_THAN, SystemType.NUMBER, SystemType.NUMBER, OpCode.LOWER_THAN),
+            new(Token.LOWER_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.LOWER_EQUAL),
+            new(Token.GREATER_THAN, SystemType.NUMBER, SystemType.NUMBER, OpCode.GREATER_THAN),
+            new(Token.GREATER_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.GREATER_EQUAL),
+
+            // Equality
+            new(Token.EQUAL_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.EQUAL),
+            new(Token.BANG_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.NOT_EQUAL),
+
+            new(Token.EQUAL_EQUAL, SystemType.BOOL, SystemType.BOOL, OpCode.EQUAL),
+            new(Token.BANG_EQUAL, SystemType.BOOL, SystemType.BOOL, OpCode.NOT_EQUAL),
+
+            new(Token.EQUAL_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.EQUAL),
+            new(Token.BANG_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.NOT_EQUAL),
+
+            // Concatenation
+            new(Token.DOT, SystemType.STRING, SystemType.STRING, OpCode.CONCAT),
+            new(Token.DOT, SystemType.STRING, SystemType.NUMBER, OpCode.CONCAT, 
+                ConversionTarget: SystemType.NUMBER, Conversion: StringConversion.NUMBER),
+            new(Token.DOT, SystemType.STRING, SystemType.BOOL, OpCode.CONCAT, 
+                ConversionTarget: SystemType.NUMBER, Conversion: StringConversion.BOOL),
+        ];
+        
+        public static BinaryOperation Resolve(Token @operator, SystemType left, SystemType right)
+        {
+            foreach (var signature in Signatures)
+            {
+                if (signature.Operator != @operator) continue;
+
+                if (signature.Left == left && signature.Right == right ||
+                    signature.Left == right && signature.Right == left)
+                    return signature;
+            }
+
+            throw new InvalidOperationException(string.Format(ErrorMessage, @operator, left, right));
+        }
+    }
+}

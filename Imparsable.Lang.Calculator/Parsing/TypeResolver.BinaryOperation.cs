@@ -2,13 +2,8 @@ namespace Imparsable.Lang.Calculator.Parsing;
 
 public partial class TypeResolver
 {
-    private sealed class BinaryOperation(Token @operator, SystemType left, SystemType right, SystemType result)
+    private sealed record BinaryOperation(Token Operator, SystemType Left, SystemType Right, SystemType Result)
     {
-        private Token Operator { get; } = @operator;
-        private SystemType Left { get; } = left;
-        private SystemType Right { get; } = right;
-        private SystemType Result { get; } = result;
-
         private static readonly BinaryOperation[] Signatures =
         [
             // Arithmetic

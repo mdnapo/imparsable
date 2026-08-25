@@ -5,7 +5,7 @@ using Imparsable.Tools.Compilation;
 
 namespace Imparsable.Lang.Calculator.Compilation;
 
-public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
+public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 {
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
     private static readonly ReadOnlyMemory<byte> FalseBytes = BitConverter.GetBytes((double)0);
@@ -41,48 +41,21 @@ public class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
         EmitByte((byte)conversion);
     }
 
-    private void BinaryOperand(ISyntax node, Token op)
-    {
-        node.Accept(this);
-
-        var type = tree.Types[node];
-
-        if (op != Token.DOT || type == SystemType.STRING) return;
-
-        var conversion = type switch
-        {
-            SystemType.BOOL => StringConversion.BOOL,
-            SystemType.NUMBER => StringConversion.NUMBER,
-            _ => throw new InvalidOperationException()
-        };
-
-        EmitToString(conversion);
-    }
-
     public void Visit(BinaryExpression node)
     {
-        BinaryOperand(node.LeftOperand, node.Operator.Type);
-        BinaryOperand(node.RightOperand, node.Operator.Type);
+        var left = tree.Types[node.LeftOperand];
+        var right = tree.Types[node.RightOperand];
+        var operation = BinaryOperation.Resolve(node.Operator.Type, left, right);
 
-        var text = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
+        node.LeftOperand.Accept(this);
+        if (left == operation.ConversionTarget)
+            EmitToString(operation.Conversion ?? throw new NullReferenceException(nameof(operation.Conversion)));
 
-        var op = node.Operator.Type switch
-        {
-            Token.PLUS => OpCode.ADD,
-            Token.MINUS => OpCode.SUB,
-            Token.STAR => OpCode.MUL,
-            Token.SLASH => OpCode.DIV,
-            Token.LOWER_THAN => OpCode.LOWER_THAN,
-            Token.LOWER_EQUAL => OpCode.LOWER_EQUAL,
-            Token.GREATER_THAN => OpCode.GREATER_THAN,
-            Token.GREATER_EQUAL => OpCode.GREATER_EQUAL,
-            Token.EQUAL_EQUAL => OpCode.EQUAL,
-            Token.BANG_EQUAL => OpCode.NOT_EQUAL,
-            Token.DOT => OpCode.CONCAT,
-            _ => throw new InvalidOperationException($"Unsupported operator '{text}' for binary expression.")
-        };
+        node.RightOperand.Accept(this);
+        if (right == operation.ConversionTarget)
+            EmitToString(operation.Conversion ?? throw new InvalidOperationException(nameof(operation.Conversion)));
 
-        EmitOpCode(op);
+        EmitOpCode(operation.OpCode);
     }
 
     public void Visit(ConstStatement node)
