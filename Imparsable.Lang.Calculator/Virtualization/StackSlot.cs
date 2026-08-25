@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace Imparsable.Lang.Calculator.Virtualization;
 
-[StructLayout(LayoutKind.Explicit, Size = 8)]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
 public struct StackSlot
 {
     [FieldOffset(0)]
@@ -12,9 +12,12 @@ public struct StackSlot
     public double Number;
 
     [FieldOffset(0)]
-    public int String;
+    public int Reference;
 
-    public static StackSlot FromBool(bool value) => new() { Bool = value };
-    public static StackSlot FromNumber(double value) => new() { Number = value };
-    public static StackSlot FromString(int value) => new() { String = value };
+    [FieldOffset(8)]
+    public StackType Type;
+
+    public static StackSlot FromBool(bool value) => new() { Bool = value, Type = StackType.BOOL };
+    public static StackSlot FromNumber(double value) => new() { Number = value, Type = StackType.NUMBER };
+    public static StackSlot FromString(int value) => new() { Reference = value, Type = StackType.STRING };
 }
