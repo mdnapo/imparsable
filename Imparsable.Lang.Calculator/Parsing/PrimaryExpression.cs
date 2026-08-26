@@ -15,6 +15,9 @@ public abstract class PrimaryExpression : IProduction
         if (context.Match(Token.STRING))
             return StringLiteralExpression.Parse(context);
 
+        if (context.MatchAny(Token.TRUE, Token.FALSE))
+            return BoolLiteralExpression.Parse(context);
+
         if (context.Match(Token.NUMBER))
             return NumericLiteralExpression.Parse(context);
 

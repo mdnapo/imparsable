@@ -251,7 +251,7 @@ public class VirtualMachine : IDisposable
                 var value = Memory.Stack.Pop();
                 var @string = conversion switch
                 {
-                    StringConversion.BOOL => value.Bool.ToString(),
+                    StringConversion.BOOL => value.Bool ? "true" : "false",
                     StringConversion.NUMBER => value.Number.ToString(CultureInfo.InvariantCulture),
                     _ => throw new InvalidOperationException()
                 };
