@@ -87,14 +87,13 @@ public class VirtualMachine : IDisposable
 
             case OpCode.CONCAT:
             {
+                Memory.CollectGarbage();
+                
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-
                 var lhs = Memory.StringHeap.GetValueUtf8(left.Reference);
                 var rhs = Memory.StringHeap.GetValueUtf8(right.Reference);
-
                 var handle = Memory.StringHeap.Allocate(lhs, rhs);
-
                 Memory.Stack.Push(StackSlot.FromString(handle));
                 break;
             }
@@ -168,6 +167,8 @@ public class VirtualMachine : IDisposable
 
             case OpCode.STRING_CONST:
             {
+                Memory.CollectGarbage();
+                
                 var index = ReadInt32(ref ip, ref chunk);
                 var header = index + sizeof(int);
                 var length = BinaryPrimitives.ReadInt32LittleEndian(chunk.Constants[index..header]);
@@ -211,16 +212,19 @@ public class VirtualMachine : IDisposable
 
             case OpCode.TO_STRING:
             {
+                Memory.CollectGarbage();
+                
                 var conversion = ReadStringConversion(ref ip, ref chunk);
+                var value = Memory.Stack.Pop();
                 var @string = conversion switch
                 {
-                    StringConversion.BOOL => Memory.Stack.Pop().Bool.ToString(),
-                    StringConversion.NUMBER => Memory.Stack.Pop().Number.ToString(CultureInfo.InvariantCulture),
+                    StringConversion.BOOL => value.Bool.ToString(),
+                    StringConversion.NUMBER => value.Number.ToString(CultureInfo.InvariantCulture),
                     _ => throw new InvalidOperationException()
                 };
+                
                 var handle = Memory.StringHeap.Allocate(@string);
                 Memory.Stack.Push(StackSlot.FromString(handle));
-
                 break;
             }
 

@@ -13,14 +13,16 @@ public class Memory : Memory<StackSlot, Allocation>
 
     private void MarkRoots()
     {
-        foreach (ref var slot in Stack.Slots)
+        foreach (ref var slot in Stack.ActiveSlots)
             if (slot.Type is StackType.STRING)
                 Heap.GetEntry(slot.Reference).IsMarked = true;
     }
 
-    public override void CollectGarbage()
+    // TODO: Properly determine how often this should run.
+    public void CollectGarbage()
     {
         MarkRoots();
-        Heap.Compact();
+        Heap.Reclaim();
+        Heap.Compress();
     }
 }

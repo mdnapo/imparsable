@@ -5,6 +5,7 @@ namespace Imparsable.Tools.Virtualization;
 public sealed class Stack<TSlot>(Memory<byte> memory) where TSlot : unmanaged
 {
     public Span<TSlot> Slots => MemoryMarshal.Cast<byte, TSlot>(memory.Span);
+    public Span<TSlot> ActiveSlots => MemoryMarshal.Cast<byte, TSlot>(memory.Span)[..Pointer];
 
     private int Pointer { get; set; }
 

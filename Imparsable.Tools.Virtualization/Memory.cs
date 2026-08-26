@@ -19,8 +19,6 @@ public class Memory<TStackSlot, THeapEntry>
 
         _memory = new byte[stackSegment + heapSegment];
         Stack = new Stack<TStackSlot>(_memory[..stackSegment]);
-        Heap = new Heap<THeapEntry>(_memory.Slice(stackSegment, heapSegment), CollectGarbage);
+        Heap = new Heap<THeapEntry>(_memory.Slice(stackSegment, heapSegment));
     }
-
-    public virtual void CollectGarbage() { }
 }

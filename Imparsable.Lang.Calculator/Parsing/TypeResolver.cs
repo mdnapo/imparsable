@@ -23,19 +23,19 @@ public partial class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
 
     public SystemType Visit(BinaryExpression node)
     {
-        var left = node.LeftOperand.Accept(this);
-        var right = node.RightOperand.Accept(this);
-        var type = BinaryOperation.Resolve(node.Operator.Type, left, right);
+        var leftType = node.LeftOperand.Accept(this);
+        var rightType = node.RightOperand.Accept(this);
+        var resultType = BinaryOperation.Resolve(node.Operator.Type, leftType, rightType);
 
-        if (type is SystemType.UNKNOWN)
+        if (resultType is SystemType.UNKNOWN)
         {
             var op = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
-            Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, left, right));
+            Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, leftType, rightType));
         }
 
-        tree.Types[node] = type;
+        tree.Types[node] = resultType;
 
-        return type;
+        return resultType;
     }
 
     public SystemType Visit(ConstStatement node)
@@ -117,33 +117,22 @@ public partial class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
 
     public SystemType Visit(AssignmentExpression node)
     {
-        var target = node.Target.Accept(this);
-        var value = node.Value.Accept(this);
-        var op = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
-        SystemType type;
+        if (node.Target is not IdentifierExpression)
+            Diagnostics.Error(node.Target.Token, "Invalid assignment target.");
 
-        switch (node.Operator.Type)
+        var targetType = node.Target.Accept(this);
+        var valueType = node.Value.Accept(this);
+        var resultType = AssignmentOperation.Resolve(node.Operator.Type, targetType, valueType);
+
+        if (resultType is SystemType.UNKNOWN)
         {
-            case Token.EQUAL:
-            case Token.PLUS_EQUAL:
-            case Token.MINUS_EQUAL:
-            case Token.STAR_EQUAL:
-            case Token.SLASH_EQUAL
-                when target is SystemType.NUMBER && value is SystemType.NUMBER:
-            {
-                type = SystemType.NUMBER;
-                break;
-            }
-
-            default:
-                Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, target, value));
-                type = SystemType.UNKNOWN;
-                break;
+            var op = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
+            Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, targetType, valueType));
         }
 
-        tree.Types[node] = type;
+        tree.Types[node] = resultType;
 
-        return type;
+        return resultType;
     }
 
     public SystemType Visit(BlockStatement node)

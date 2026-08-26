@@ -1,8 +1,15 @@
 const pi = 3.14;
 const radius = 4 / 2;
 var area = 2 * pi * radius;
-print "Area" . ': ' . area;
+print "Area" + ': ' + area;
 print 1 + 2;
+var acc = "";
 
-for (var x = 0; x < 3; x += 1)
+for (var x = 0; x < 3; x += 1) {
     print x + 1;
+    acc += x ;
+}
+
+print acc;
+
+print "123" + 5;

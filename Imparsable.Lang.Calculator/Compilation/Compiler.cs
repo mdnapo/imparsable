@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Text;
+using Imparsable.Lang.Calculator.Extensions;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Tools.Compilation;
 
@@ -41,19 +42,25 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
         EmitByte((byte)conversion);
     }
 
+    private void EmitConversion(SystemType type, BinaryOperation operation)
+    {
+        if (type != operation.ConversionTarget)
+            return;
+
+        EmitToString(operation.Conversion ?? throw new InvalidOperationException($"Missing conversion for '{operation}'."));
+    }
+
     public void Visit(BinaryExpression node)
     {
-        var left = tree.Types[node.LeftOperand];
-        var right = tree.Types[node.RightOperand];
-        var operation = BinaryOperation.Resolve(node.Operator.Type, left, right);
+        var leftType = tree.Types[node.LeftOperand];
+        var rightType = tree.Types[node.RightOperand];
+        var operation = BinaryOperation.Resolve(node.Operator.Type, leftType, rightType);
 
         node.LeftOperand.Accept(this);
-        if (left == operation.ConversionTarget)
-            EmitToString(operation.Conversion ?? throw new NullReferenceException(nameof(operation.Conversion)));
+        EmitConversion(leftType, operation);
 
         node.RightOperand.Accept(this);
-        if (right == operation.ConversionTarget)
-            EmitToString(operation.Conversion ?? throw new InvalidOperationException(nameof(operation.Conversion)));
+        EmitConversion(rightType, operation);
 
         EmitOpCode(operation.OpCode);
     }
@@ -272,32 +279,29 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
 
     public void Visit(AssignmentExpression node)
     {
-        if (node.Target is IdentifierExpression identifier)
+        var identifier = node.Target.As<IdentifierExpression>();
+        var assignment = AssignmentOperation.Resolve(node.Operator.Type);
+        var offset = CurrentSymbolTable.Offset(identifier.Symbol);
+
+        if (assignment.BinaryOperator is null)
         {
             node.Value.Accept(this);
-            var offset = CurrentSymbolTable.Offset(identifier.Symbol);
+        }
+        else
+        {
+            var targetType = tree.Types[node.Target];
+            var valueType = tree.Types[node.Value];
+            var operation = BinaryOperation.Resolve(assignment.BinaryOperator.Value, targetType, valueType);
 
-            if (node.Operator.Type is Token.PLUS_EQUAL or Token.MINUS_EQUAL or Token.STAR_EQUAL or Token.SLASH_EQUAL)
-            {
-                EmitOpCode(OpCode.GET_LOCAL);
-                EmitInt32(offset);
-
-                var op = node.Operator.Type switch
-                {
-                    Token.PLUS_EQUAL => OpCode.ADD,
-                    Token.MINUS_EQUAL => OpCode.SUB,
-                    Token.STAR_EQUAL => OpCode.MUL,
-                    Token.SLASH_EQUAL => OpCode.DIV,
-                    _ => throw new InvalidOperationException($"Unsupported assignment operator '{node.Operator.Type}'.")
-                };
-
-                EmitOpCode(op);
-            }
-
-            EmitOpCode(OpCode.SET_LOCAL);
+            EmitOpCode(OpCode.GET_LOCAL);
             EmitInt32(offset);
+
+            node.Value.Accept(this);
+            EmitConversion(valueType, operation);
+            EmitOpCode(operation.OpCode);
         }
 
-        else throw new InvalidOperationException($"Assignment target of type '{node.GetType()}' is not supported.");
+        EmitOpCode(OpCode.SET_LOCAL);
+        EmitInt32(offset);
     }
 }

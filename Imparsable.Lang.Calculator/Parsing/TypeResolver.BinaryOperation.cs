@@ -4,6 +4,8 @@ public partial class TypeResolver
 {
     private sealed record BinaryOperation(Token Operator, SystemType Left, SystemType Right, SystemType Result)
     {
+        public override string ToString() => $"{Left} {Operator} {Right}";
+        
         private static readonly BinaryOperation[] Signatures =
         [
             // Arithmetic
@@ -31,9 +33,9 @@ public partial class TypeResolver
             new(Token.BANG_EQUAL, SystemType.STRING, SystemType.STRING, SystemType.BOOL),
 
             // String concatenation
-            new(Token.DOT, SystemType.STRING, SystemType.STRING, SystemType.STRING),
-            new(Token.DOT, SystemType.STRING, SystemType.BOOL, SystemType.STRING),
-            new(Token.DOT, SystemType.STRING, SystemType.NUMBER, SystemType.STRING),
+            new(Token.PLUS, SystemType.STRING, SystemType.STRING, SystemType.STRING),
+            new(Token.PLUS, SystemType.STRING, SystemType.BOOL, SystemType.STRING),
+            new(Token.PLUS, SystemType.STRING, SystemType.NUMBER, SystemType.STRING),
         ];
 
         public static SystemType Resolve(Token @operator, SystemType left, SystemType right)

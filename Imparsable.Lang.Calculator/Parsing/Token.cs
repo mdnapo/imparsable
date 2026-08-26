@@ -50,9 +50,6 @@ public enum Token
     [Character<Token>(';')]
     SEMICOLON,
 
-    [Character<Token>('.')]
-    DOT,
-
     [Character<Token>('!')]
     BANG,
 

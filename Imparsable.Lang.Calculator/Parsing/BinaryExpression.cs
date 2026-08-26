@@ -14,7 +14,6 @@ public partial class BinaryExpression : ISyntax, IProduction
         Parsing.Token.GREATER_EQUAL,
     ];
 
-    private static readonly Token[] ConcatenationOperators = [Parsing.Token.DOT];
     private static readonly Token[] AdditionSubtractionOperators = [Parsing.Token.PLUS, Parsing.Token.MINUS];
     private static readonly Token[] MultiplicationDivisionOperators = [Parsing.Token.STAR, Parsing.Token.SLASH];
 
@@ -26,10 +25,8 @@ public partial class BinaryExpression : ISyntax, IProduction
     public static ISyntax Parse(ParserContext<Token> context) => Equality(context);
 
     private static ISyntax Equality(ParserContext<Token> context) =>
-        Parse(context, EqualityOperators, Concatenation);
+        Parse(context, EqualityOperators, AdditionSubtraction);
 
-    private static ISyntax Concatenation(ParserContext<Token> context) =>
-        Parse(context, ConcatenationOperators, AdditionSubtraction);
 
     private static ISyntax AdditionSubtraction(ParserContext<Token> context) =>
         Parse(context, AdditionSubtractionOperators, MultiplicationDivision);

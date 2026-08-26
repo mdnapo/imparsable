@@ -15,6 +15,8 @@ public partial class Compiler
         StringConversion? Conversion = null
     )
     {
+        public override string ToString() => $"{Left} {Operator} {Right}";
+
         private static readonly BinaryOperation[] Signatures =
         [
             // Arithmetic
@@ -40,21 +42,23 @@ public partial class Compiler
             new(Token.BANG_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.NOT_EQUAL),
 
             // Concatenation
-            new(Token.DOT, SystemType.STRING, SystemType.STRING, OpCode.CONCAT),
-            new(Token.DOT, SystemType.STRING, SystemType.NUMBER, OpCode.CONCAT, 
+            new(Token.PLUS, SystemType.STRING, SystemType.STRING, OpCode.CONCAT),
+            
+            new(Token.PLUS, SystemType.STRING, SystemType.NUMBER, OpCode.CONCAT,
                 ConversionTarget: SystemType.NUMBER, Conversion: StringConversion.NUMBER),
-            new(Token.DOT, SystemType.STRING, SystemType.BOOL, OpCode.CONCAT, 
-                ConversionTarget: SystemType.NUMBER, Conversion: StringConversion.BOOL),
+            
+            new(Token.PLUS, SystemType.STRING, SystemType.BOOL, OpCode.CONCAT,
+                ConversionTarget: SystemType.BOOL, Conversion: StringConversion.BOOL),
         ];
-        
+
         public static BinaryOperation Resolve(Token @operator, SystemType left, SystemType right)
         {
             foreach (var signature in Signatures)
             {
                 if (signature.Operator != @operator) continue;
 
-                if (signature.Left == left && signature.Right == right ||
-                    signature.Left == right && signature.Right == left)
+                if ((signature.Left == left && signature.Right == right) ||
+                    (signature.Left == right && signature.Right == left))
                     return signature;
             }
 

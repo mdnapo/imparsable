@@ -6,7 +6,7 @@ public class SymbolTable
     public List<ISymbol> Symbols { get; } = [];
 
     public ISymbol? Lookup(string symbol) => Symbols.Find(s => s.Symbol == symbol);
-    public ISymbol? RecursiveLookup(string symbol) => Symbols.Find(s => s.Symbol == symbol) ?? Parent?.Lookup(symbol);
+    public ISymbol? RecursiveLookup(string symbol) => Symbols.Find(s => s.Symbol == symbol) ?? Parent?.RecursiveLookup(symbol);
 
     public int StackDepth => Parent?.StackDepth ?? 0 + Symbols.Count;
 
