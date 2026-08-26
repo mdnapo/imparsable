@@ -15,3 +15,5 @@ print acc;
 print "123" + 5;
 
 print acc == "1235";
+
+print "" + false == "false";
