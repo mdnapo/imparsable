@@ -13,3 +13,5 @@ for (var x = 0; x < 3; x += 1) {
 print acc;
 
 print "123" + 5;
+
+print acc == "1235";

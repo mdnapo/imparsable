@@ -42,7 +42,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
         EmitByte((byte)conversion);
     }
 
-    private void EmitConversion(SystemType type, BinaryOperation operation)
+    private void EmitToStringConversion(SystemType type, BinaryOperation operation)
     {
         if (type != operation.ConversionTarget)
             return;
@@ -57,12 +57,14 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
         var operation = BinaryOperation.Resolve(node.Operator.Type, leftType, rightType);
 
         node.LeftOperand.Accept(this);
-        EmitConversion(leftType, operation);
+        EmitToStringConversion(leftType, operation);
 
         node.RightOperand.Accept(this);
-        EmitConversion(rightType, operation);
+        EmitToStringConversion(rightType, operation);
 
         EmitOpCode(operation.OpCode);
+        if (operation.Equality is { } equality) 
+            EmitByte((byte)equality);
     }
 
     public void Visit(ConstStatement node)
@@ -297,7 +299,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
             EmitInt32(offset);
 
             node.Value.Accept(this);
-            EmitConversion(valueType, operation);
+            EmitToStringConversion(valueType, operation);
             EmitOpCode(operation.OpCode);
         }
 

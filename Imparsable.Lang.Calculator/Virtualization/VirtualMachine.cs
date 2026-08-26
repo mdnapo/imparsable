@@ -28,6 +28,9 @@ public class VirtualMachine : IDisposable
     private static StringConversion ReadStringConversion(ref int ip, ref Chunk chunk) =>
         (StringConversion)chunk.Code[ip++];
 
+    private static EqualityType ReadEqualityType(ref int ip, ref Chunk chunk) =>
+        (EqualityType)chunk.Code[ip++];
+
     private void Execute(ref int ip, ref Chunk chunk, OpCode op)
     {
         switch (op)
@@ -88,7 +91,7 @@ public class VirtualMachine : IDisposable
             case OpCode.CONCAT:
             {
                 Memory.CollectGarbage();
-                
+
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
                 var lhs = Memory.StringHeap.GetValueUtf8(left.Reference);
@@ -100,27 +103,57 @@ public class VirtualMachine : IDisposable
 
             case OpCode.EQUAL:
             {
+                var equality = ReadEqualityType(ref ip, ref chunk);
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                // Hacky, but works because of type checking.
-                // At this point we know the types are equal,
-                // so comparing the values as doubles means comparing the entire byte sequence.
-                // This will cover all equality operations for now.
-                // TODO: Fix this!
-                Memory.Stack.Push(StackSlot.FromBool(left.Number.Equals(right.Number)));
+
+                switch (equality)
+                {
+                    case EqualityType.BOOL:
+                        Memory.Stack.Push(StackSlot.FromBool(left.Bool == right.Bool));
+                        break;
+
+                    case EqualityType.NUMBER:
+                        Memory.Stack.Push(StackSlot.FromBool(Math.Abs(left.Number - right.Number) < 0.01));
+                        break;
+
+                    case EqualityType.STRING:
+                        var lhs = Memory.StringHeap.GetValueUtf8(left.Reference);
+                        var rhs = Memory.StringHeap.GetValueUtf8(right.Reference);
+                        Memory.Stack.Push(StackSlot.FromBool(lhs.SequenceEqual(rhs)));
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
                 break;
             }
 
             case OpCode.NOT_EQUAL:
             {
+                var equality = ReadEqualityType(ref ip, ref chunk);
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                // Hacky, but works because of type checking.
-                // At this point we know the types are equal,
-                // so comparing the values as doubles means comparing the entire byte sequence.
-                // This will cover all equality operations for now.
-                // TODO: Fix this!
-                Memory.Stack.Push(StackSlot.FromBool(!left.Number.Equals(right.Number)));
+
+                switch (equality)
+                {
+                    case EqualityType.BOOL:
+                        Memory.Stack.Push(StackSlot.FromBool(!left.Bool == right.Bool));
+                        break;
+
+                    case EqualityType.NUMBER:
+                        Memory.Stack.Push(StackSlot.FromBool(!(Math.Abs(left.Number - right.Number) < 0.01)));
+                        break;
+
+                    case EqualityType.STRING:
+                        var lhs = Memory.StringHeap.GetValueUtf8(left.Reference);
+                        var rhs = Memory.StringHeap.GetValueUtf8(right.Reference);
+                        Memory.Stack.Push(StackSlot.FromBool(!lhs.SequenceEqual(rhs)));
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
                 break;
             }
 
@@ -168,7 +201,7 @@ public class VirtualMachine : IDisposable
             case OpCode.STRING_CONST:
             {
                 Memory.CollectGarbage();
-                
+
                 var index = ReadInt32(ref ip, ref chunk);
                 var header = index + sizeof(int);
                 var length = BinaryPrimitives.ReadInt32LittleEndian(chunk.Constants[index..header]);
@@ -213,7 +246,7 @@ public class VirtualMachine : IDisposable
             case OpCode.TO_STRING:
             {
                 Memory.CollectGarbage();
-                
+
                 var conversion = ReadStringConversion(ref ip, ref chunk);
                 var value = Memory.Stack.Pop();
                 var @string = conversion switch
@@ -222,7 +255,7 @@ public class VirtualMachine : IDisposable
                     StringConversion.NUMBER => value.Number.ToString(CultureInfo.InvariantCulture),
                     _ => throw new InvalidOperationException()
                 };
-                
+
                 var handle = Memory.StringHeap.Allocate(@string);
                 Memory.Stack.Push(StackSlot.FromString(handle));
                 break;

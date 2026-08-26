@@ -12,7 +12,8 @@ public partial class Compiler
         SystemType Right,
         OpCode OpCode,
         SystemType? ConversionTarget = null,
-        StringConversion? Conversion = null
+        StringConversion? Conversion = null,
+        EqualityType? Equality = null
     )
     {
         public override string ToString() => $"{Left} {Operator} {Right}";
@@ -32,14 +33,14 @@ public partial class Compiler
             new(Token.GREATER_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.GREATER_EQUAL),
 
             // Equality
-            new(Token.EQUAL_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.EQUAL),
-            new(Token.BANG_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.NOT_EQUAL),
+            new(Token.EQUAL_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.EQUAL, Equality: EqualityType.NUMBER),
+            new(Token.BANG_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.NOT_EQUAL, Equality: EqualityType.NUMBER),
 
-            new(Token.EQUAL_EQUAL, SystemType.BOOL, SystemType.BOOL, OpCode.EQUAL),
-            new(Token.BANG_EQUAL, SystemType.BOOL, SystemType.BOOL, OpCode.NOT_EQUAL),
+            new(Token.EQUAL_EQUAL, SystemType.BOOL, SystemType.BOOL, OpCode.EQUAL, Equality: EqualityType.BOOL),
+            new(Token.BANG_EQUAL, SystemType.BOOL, SystemType.BOOL, OpCode.NOT_EQUAL, Equality: EqualityType.BOOL),
 
-            new(Token.EQUAL_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.EQUAL),
-            new(Token.BANG_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.NOT_EQUAL),
+            new(Token.EQUAL_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.EQUAL, Equality: EqualityType.STRING),
+            new(Token.BANG_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.NOT_EQUAL, Equality: EqualityType.STRING),
 
             // Concatenation
             new(Token.PLUS, SystemType.STRING, SystemType.STRING, OpCode.CONCAT),
