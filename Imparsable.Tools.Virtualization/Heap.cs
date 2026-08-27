@@ -11,6 +11,7 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
     private int _pointer;
 
     public Span<TAllocation> Allocations => CollectionsMarshal.AsSpan(_allocations);
+    public int Pointer => _pointer;
 
     public int Allocate(int size, TAllocation entry)
     {
@@ -63,8 +64,8 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
     {
         for (var index = 0; index < Allocations.Length; index++)
         {
-            var allocation = Allocations[index];
-            if (!allocation.IsAllocated)
+            ref var allocation = ref Allocations[index];
+            if (!allocation.IsMarked)
             {
                 Reclaim(index, ref allocation);
             }
@@ -86,36 +87,48 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
     public void Compress()
     {
         var allocations = Allocations;
-        var buffer = ArrayPool<TAllocation>.Shared.Rent(allocations.Length);
+        var map = ArrayPool<CompressionIndex>.Shared.Rent(allocations.Length);
+        var count = GetCompressionMap(allocations, ref map);
 
         try
         {
-            var count = 0;
-            foreach (var allocation in allocations)
-            {
-                if (allocation.IsAllocated)
-                    buffer[count++] = allocation;
-            }
-
-            Array.Sort(buffer, 0, count, AllocationOffsetComparer.Instance);
-
             var destination = 0;
-            for (var i = 0; i < count; i++)
+
+            for (var index = 0; index < count; index++)
             {
-                ref var entry = ref buffer[i];
+                ref var allocation = ref allocations[map[index].Handle];
 
-                if (entry.Offset != destination)
-                    Move(destination, ref entry);
+                if (allocation.Offset != destination)
+                    Move(destination, ref allocation);
 
-                destination += entry.Size;
+                destination += allocation.Size;
             }
 
             _pointer = destination;
         }
         finally
         {
-            ArrayPool<TAllocation>.Shared.Return(buffer);
+            ArrayPool<CompressionIndex>.Shared.Return(map);
         }
+    }
+
+    private static int GetCompressionMap(Span<TAllocation> allocations, ref CompressionIndex[] map)
+    {
+        var index = 0;
+
+        for (var handle = 0; handle < allocations.Length; handle++)
+        {
+            var allocation = allocations[handle];
+
+            if (!allocation.IsAllocated)
+                continue;
+
+            map[index++] = new CompressionIndex(handle, allocation.Offset);
+        }
+
+        Array.Sort(map, 0, index, CompressionIndex.Comparer.Instance);
+
+        return index;
     }
 
     private void Move(int destination, ref TAllocation allocation)
