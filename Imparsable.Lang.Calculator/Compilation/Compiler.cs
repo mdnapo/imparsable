@@ -20,10 +20,11 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
     public static Chunk Execute(SyntaxTree tree)
     {
         var compiler = new Compiler(tree);
+        
         foreach (var node in tree.Roots)
             node.Accept(compiler);
 
-        return new Chunk(compiler.Code.ToArray(), compiler.Constants.ToArray());
+        return compiler.Build();
     }
 
     private void BeginScope(SymbolTable symbolTable) => _symbolTables.Push(symbolTable);
@@ -63,7 +64,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
         EmitToStringConversion(rightType, operation);
 
         EmitOpCode(operation.OpCode);
-        if (operation.Equality is { } equality) 
+        if (operation.Equality is { } equality)
             EmitByte((byte)equality);
     }
 

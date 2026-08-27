@@ -11,7 +11,7 @@ public sealed class Stack<TSlot>(Memory<byte> memory) where TSlot : unmanaged
 
     public void Push(TSlot value)
     {
-        if (Pointer >= Slots.Length - 1)
+        if (Pointer >= Slots.Length)
             throw new StackOverflowException("A stack overflow occurred.");
 
         Slots[Pointer++] = value;
