@@ -4,6 +4,8 @@ namespace Imparsable.Tools.Parsing.UnitTests;
 
 public class DiagnosticsProviderTests
 {
+    private const string Message = "This is just a test.";
+    
     private readonly struct SourceMarker(int offset, int length, int line, int column) : ISourceMarker
     {
         public int Offset { get; } = offset;
@@ -22,18 +24,18 @@ public class DiagnosticsProviderTests
         var marker = new SourceMarker(0, 0, 1, 1);
 
         // Act
-        diagnostics.Warning(marker, "This is just a test.");
+        diagnostics.Warning(marker, Message);
 
         // Assert
         Assert.Contains(list, d => 
             d.Severity == DiagnosticSeverity.WARNING && 
             d.Marker.Equals(marker) && 
-            d.Message == "This is just a test."
+            d.Message == Message
         );
         Assert.Contains(diagnostics, d => 
             d.Severity == DiagnosticSeverity.WARNING && 
             d.Marker.Equals(marker) && 
-            d.Message == "This is just a test."
+            d.Message == Message
         );
     }
 
@@ -47,18 +49,18 @@ public class DiagnosticsProviderTests
         var marker = new SourceMarker(0, 0, 1, 1);
 
         // Act
-        diagnostics.Error(marker, "This is just a test.");
+        diagnostics.Error(marker, Message);
 
         // Assert
         Assert.Contains(list, d => 
             d.Severity == DiagnosticSeverity.ERROR && 
             d.Marker.Equals(marker) && 
-            d.Message == "This is just a test."
+            d.Message == Message
         );
         Assert.Contains(diagnostics, d => 
             d.Severity == DiagnosticSeverity.ERROR && 
             d.Marker.Equals(marker) && 
-            d.Message == "This is just a test."
+            d.Message == Message
         );
     }
 }

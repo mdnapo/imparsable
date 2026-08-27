@@ -8,6 +8,14 @@ print 1 + 2;
 for (var x = 0; x < 3; x += 1) {
     print x + 1;
     acc += x;
+    
+    if (x == 0) {
+        print "1st iteration";
+    } else if (x == 1) {
+        print "2nd iteration";
+    } else {
+        print "Probably the 3rd iteration";
+    }
 }
 
 print acc;
@@ -17,3 +25,4 @@ print "123" + 5;
 print acc == "1235";
 
 print "" + false == "false";
+
