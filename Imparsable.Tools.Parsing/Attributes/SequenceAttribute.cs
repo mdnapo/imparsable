@@ -9,7 +9,7 @@ public sealed class SequenceAttribute<TToken>(string @string) : LexerRuleAttribu
         var src = context.Source;
         int line = src.Line, column = src.Column;
 
-        if (!src.Match(@string)) return false;
+        if (!src.MatchSequence(@string)) return false;
 
         var range = src.Extract();
         
