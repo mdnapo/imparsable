@@ -89,10 +89,11 @@ assignmentOperator
     ;
 
 binaryExpression
-    : binaryExpression (STAR | SLASH) binaryExpression
+    : binaryExpression (OR_OR) binaryExpression
+    | binaryExpression (AND_AND) binaryExpression
+    | binaryExpression (EQUAL_EQUAL | BANG_EQUAL |LESS | LESS_EQUAL | GREATER | GREATER_EQUAL) binaryExpression
     | binaryExpression (PLUS | MINUS) binaryExpression
-    | binaryExpression (LESS | LESS_EQUAL | GREATER | GREATER_EQUAL) binaryExpression
-    | binaryExpression (EQUAL_EQUAL | BANG_EQUAL) binaryExpression
+    | binaryExpression (STAR | SLASH) binaryExpression
     | unaryExpression
     ;
 
@@ -176,6 +177,14 @@ BANG_EQUAL
 
 LESS_EQUAL
     : '<='
+    ;
+    
+AND_AND
+    : '&&'
+    ;
+    
+OR_OR
+    : '||'
     ;
 
 GREATER_EQUAL

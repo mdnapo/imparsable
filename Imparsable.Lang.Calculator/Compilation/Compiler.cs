@@ -9,8 +9,6 @@ namespace Imparsable.Lang.Calculator.Compilation;
 public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
 {
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
-    private static readonly ReadOnlyMemory<byte> FalseBytes = BitConverter.GetBytes((double)0);
-    private static readonly ReadOnlyMemory<byte> TrueBytes = BitConverter.GetBytes((double)1);
 
     private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
     private readonly Stack<List<int>> _elseJumps = [];
@@ -20,7 +18,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
     public static Chunk Execute(SyntaxTree tree)
     {
         var compiler = new Compiler(tree);
-        
+
         foreach (var node in tree.Roots)
             node.Accept(compiler);
 
@@ -40,7 +38,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
     private void EmitToString(StringConversion conversion)
     {
         EmitOpCode(OpCode.TO_STRING);
-        EmitByte((byte)conversion);
+        EmitByte(conversion);
     }
 
     private void EmitToStringConversion(SystemType type, BinaryOperation operation)
@@ -65,7 +63,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
 
         EmitOpCode(operation.OpCode);
         if (operation.Equality is { } equality)
-            EmitByte((byte)equality);
+            EmitByte(equality);
     }
 
     public void Visit(ConstStatement node)
@@ -275,9 +273,8 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
 
     public void Visit(BoolLiteralExpression node)
     {
-        EmitOpCode(OpCode.NUM_CONST);
-        var index = AddConstant(node.Value ? TrueBytes.Span : FalseBytes.Span);
-        EmitInt32(index);
+        EmitOpCode(OpCode.BOOL_CONST);
+        EmitByte(node.Value ? BoolValue.TRUE : BoolValue.FALSE);
     }
 
     public void Visit(AssignmentExpression node)

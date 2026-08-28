@@ -28,6 +28,10 @@ public partial class TypeResolver
             new(Token.EQUAL_EQUAL, SystemType.BOOL, SystemType.BOOL, SystemType.BOOL),
             new(Token.BANG_EQUAL, SystemType.BOOL, SystemType.BOOL, SystemType.BOOL),
 
+            // Logical
+            new(Token.OR_OR, SystemType.BOOL, SystemType.BOOL, SystemType.BOOL),
+            new(Token.AND_AND, SystemType.BOOL, SystemType.BOOL, SystemType.BOOL),
+
             // String equality
             new(Token.EQUAL_EQUAL, SystemType.STRING, SystemType.STRING, SystemType.BOOL),
             new(Token.BANG_EQUAL, SystemType.STRING, SystemType.STRING, SystemType.BOOL),

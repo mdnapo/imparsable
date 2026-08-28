@@ -42,12 +42,16 @@ public partial class Compiler
             new(Token.EQUAL_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.EQUAL, Equality: EqualityType.STRING),
             new(Token.BANG_EQUAL, SystemType.STRING, SystemType.STRING, OpCode.NOT_EQUAL, Equality: EqualityType.STRING),
 
+            // Logical
+            new(Token.OR_OR, SystemType.BOOL, SystemType.BOOL, OpCode.OR),
+            new(Token.AND_AND, SystemType.BOOL, SystemType.BOOL, OpCode.AND),
+
             // Concatenation
             new(Token.PLUS, SystemType.STRING, SystemType.STRING, OpCode.CONCAT),
-            
+
             new(Token.PLUS, SystemType.STRING, SystemType.NUMBER, OpCode.CONCAT,
                 ConversionTarget: SystemType.NUMBER, Conversion: StringConversion.NUMBER),
-            
+
             new(Token.PLUS, SystemType.STRING, SystemType.BOOL, OpCode.CONCAT,
                 ConversionTarget: SystemType.BOOL, Conversion: StringConversion.BOOL),
         ];

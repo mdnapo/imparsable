@@ -26,3 +26,10 @@ print acc == "1235";
 
 print "" + false == "false";
 
+if (false || true) {
+    print "|| works";
+}
+
+if (true && true) {
+    print "&& works";
+}

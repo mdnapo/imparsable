@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Imparsable.Lang.Calculator.Compilation;
 using Imparsable.Tools.Compilation;
@@ -25,11 +27,8 @@ public class VirtualMachine : IDisposable
     private static int ReadInt32(ref int ip, ref Chunk chunk) =>
         BinaryPrimitives.ReadInt32LittleEndian(chunk.Code[ip..(ip += sizeof(int))]);
 
-    private static StringConversion ReadStringConversion(ref int ip, ref Chunk chunk) =>
-        (StringConversion)chunk.Code[ip++];
-
-    private static EqualityType ReadEqualityType(ref int ip, ref Chunk chunk) =>
-        (EqualityType)chunk.Code[ip++];
+    private static T ReadByte<T>(ref int ip, ref Chunk chunk) where T : unmanaged =>
+        MemoryMarshal.Read<T>(chunk.Code[ip..++ip]);
 
     private void Execute(ref int ip, ref Chunk chunk, OpCode op)
     {
@@ -101,9 +100,25 @@ public class VirtualMachine : IDisposable
                 break;
             }
 
+            case OpCode.OR:
+            {
+                var right = Memory.Stack.Pop();
+                var left = Memory.Stack.Pop();
+                Memory.Stack.Push(StackSlot.FromBool(left.Bool || right.Bool));
+                break;
+            }
+
+            case OpCode.AND:
+            {
+                var right = Memory.Stack.Pop();
+                var left = Memory.Stack.Pop();
+                Memory.Stack.Push(StackSlot.FromBool(left.Bool && right.Bool));
+                break;
+            }
+
             case OpCode.EQUAL:
             {
-                var equality = ReadEqualityType(ref ip, ref chunk);
+                var equality = ReadByte<EqualityType>(ref ip, ref chunk);
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
 
@@ -126,12 +141,13 @@ public class VirtualMachine : IDisposable
                     default:
                         throw new InvalidOperationException();
                 }
+
                 break;
             }
 
             case OpCode.NOT_EQUAL:
             {
-                var equality = ReadEqualityType(ref ip, ref chunk);
+                var equality = ReadByte<EqualityType>(ref ip, ref chunk);
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
 
@@ -186,6 +202,13 @@ public class VirtualMachine : IDisposable
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
                 Memory.Stack.Push(StackSlot.FromBool(left.Number >= right.Number));
+                break;
+            }
+
+            case OpCode.BOOL_CONST:
+            {
+                var value = ReadByte<BoolValue>(ref ip, ref chunk);
+                Memory.Stack.Push(StackSlot.FromBool(Unsafe.As<BoolValue, bool>(ref value)));
                 break;
             }
 
@@ -247,7 +270,7 @@ public class VirtualMachine : IDisposable
             {
                 Memory.CollectGarbage();
 
-                var conversion = ReadStringConversion(ref ip, ref chunk);
+                var conversion = ReadByte<StringConversion>(ref ip, ref chunk);
                 var value = Memory.Stack.Pop();
                 var @string = conversion switch
                 {

@@ -13,6 +13,8 @@ public enum OpCode : byte
     
     CONCAT,
     
+    OR,
+    AND,
     EQUAL,
     NOT_EQUAL,
     LOWER_THAN,
@@ -21,6 +23,7 @@ public enum OpCode : byte
     GREATER_THAN,
     
     NUM_CONST,
+    BOOL_CONST,
     STRING_CONST,
     NEGATE_BOOL,
     NEGATE_NUM,

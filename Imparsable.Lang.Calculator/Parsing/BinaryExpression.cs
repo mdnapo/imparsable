@@ -22,11 +22,16 @@ public partial class BinaryExpression : ISyntax, IProduction
     public required Lexer<Token>.Token Operator { get; init; }
     public required ISyntax RightOperand { get; init; }
 
-    public static ISyntax Parse(ParserContext<Token> context) => Equality(context);
+    public static ISyntax Parse(ParserContext<Token> context) => Or(context);
+
+    private static ISyntax Or(ParserContext<Token> context) =>
+        Parse(context, Parsing.Token.OR_OR, And);
+
+    private static ISyntax And(ParserContext<Token> context) =>
+        Parse(context, Parsing.Token.AND_AND, Equality);
 
     private static ISyntax Equality(ParserContext<Token> context) =>
         Parse(context, EqualityOperators, AdditionSubtraction);
-
 
     private static ISyntax AdditionSubtraction(ParserContext<Token> context) =>
         Parse(context, AdditionSubtractionOperators, MultiplicationDivision);
@@ -34,11 +39,28 @@ public partial class BinaryExpression : ISyntax, IProduction
     private static ISyntax MultiplicationDivision(ParserContext<Token> context) =>
         Parse(context, MultiplicationDivisionOperators, UnaryExpression.Parse);
 
-    private static ISyntax Parse(
-        ParserContext<Token> context,
-        Token[] operators,
-        ISyntax.Func<ISyntax> parser
-    )
+    private static ISyntax Parse(ParserContext<Token> context, Token op, ISyntax.Func<ISyntax> parser)
+    {
+        var expr = parser(context);
+
+        while (context.Match(op))
+        {
+            var @operator = context.Previous();
+            var right = parser(context);
+
+            expr = new BinaryExpression
+            {
+                Token = @operator,
+                LeftOperand = expr,
+                Operator = @operator,
+                RightOperand = right
+            };
+        }
+
+        return expr;
+    }
+
+    private static ISyntax Parse(ParserContext<Token> context, Token[] operators, ISyntax.Func<ISyntax> parser)
     {
         var expr = parser(context);
 

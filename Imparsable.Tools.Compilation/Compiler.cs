@@ -1,21 +1,28 @@
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 
 namespace Imparsable.Tools.Compilation;
 
-public abstract class Compiler<T> where T : unmanaged
+public abstract class Compiler<TOpCode> where TOpCode : unmanaged
 {
-    static Compiler()
-    {
-        if (Enum.GetUnderlyingType(typeof(T)) != typeof(byte))
-            throw new InvalidOperationException($"Enum {typeof(T).Name} is not backed by byte.");
-    }
+    static Compiler() => GuardByteBackedEnum<TOpCode>();
 
     public List<byte> Code { get; } = [];
     public List<byte> Constants { get; } = [];
 
-    public void EmitOpCode(T op) => Code.Add((byte)(object)op);
+    private static void GuardByteBackedEnum<TEnum>() where TEnum : unmanaged
+    {
+        if (Enum.GetUnderlyingType(typeof(TEnum)) != typeof(byte))
+            throw new InvalidOperationException($"Enum {typeof(TEnum).Name} is not backed by byte.");
+    }
 
-    public void EmitByte(byte @byte) => Code.Add(@byte);
+    public void EmitOpCode(TOpCode op) => Code.Add(Unsafe.As<TOpCode, byte>(ref op));
+
+    public void EmitByte<TValue>(TValue value) where TValue : unmanaged
+    {
+        GuardByteBackedEnum<TValue>();
+        Code.Add(Unsafe.As<TValue, byte>(ref value));
+    }
 
     public Chunk Build() => new(code: Code.ToArray(), constants: Constants.ToArray());
 
@@ -34,14 +41,14 @@ public abstract class Compiler<T> where T : unmanaged
         Code.AddRange(span);
     }
 
-    public int EmitJump(T instruction)
+    public int EmitJump(TOpCode instruction)
     {
         EmitOpCode(instruction);
         EmitInt32(0);
         return Code.Count - sizeof(int);
     }
 
-    public void EmitLoop(T jump, int loopStart)
+    public void EmitLoop(TOpCode jump, int loopStart)
     {
         EmitOpCode(jump);
         // Account for the parameter of the jump instruction by subtracting sizeof(int) from the offset.

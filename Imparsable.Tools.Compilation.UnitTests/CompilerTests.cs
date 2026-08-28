@@ -8,6 +8,9 @@ public class CompilerTests
     {
         NOP = 0x01,
         JMP = 0x02,
+        A = 0xAA,
+        B = 0xBB,
+        C = 0xCC,
     }
 
     private enum InvalidOpCode : int;
@@ -36,10 +39,10 @@ public class CompilerTests
         var compiler = new TestCompiler();
 
         // Act
-        compiler.EmitByte(0x42);
+        compiler.EmitByte(OpCode.A);
 
         // Assert
-        Assert.Equal([0x42], compiler.Code);
+        Assert.Equal([(byte)OpCode.A], compiler.Code);
     }
 
     [Fact]
@@ -124,9 +127,9 @@ public class CompilerTests
 
         var offset = compiler.EmitJump(OpCode.JMP);
 
-        compiler.EmitByte(0xAA);
-        compiler.EmitByte(0xBB);
-        compiler.EmitByte(0xCC);
+        compiler.EmitByte(OpCode.A);
+        compiler.EmitByte(OpCode.B);
+        compiler.EmitByte(OpCode.C);
 
         // Act
         compiler.PatchJump(offset);
@@ -146,9 +149,9 @@ public class CompilerTests
         var compiler = new TestCompiler();
         var loopStart = compiler.Code.Count;
 
-        compiler.EmitByte(0xAA);
-        compiler.EmitByte(0xBB);
-        compiler.EmitByte(0xCC);
+        compiler.EmitByte(OpCode.A);
+        compiler.EmitByte(OpCode.B);
+        compiler.EmitByte(OpCode.C);
 
         // Act
         compiler.EmitLoop(OpCode.JMP, loopStart);

@@ -71,6 +71,12 @@ public enum Token
     [Sequence<Token>("<=")]
     LOWER_EQUAL,
 
+    [Sequence<Token>("||")]
+    OR_OR,
+
+    [Sequence<Token>("&&")]
+    AND_AND,
+
     [Character<Token>('+')]
     PLUS,
 
