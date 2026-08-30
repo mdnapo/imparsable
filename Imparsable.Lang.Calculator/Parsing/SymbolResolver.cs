@@ -3,16 +3,16 @@ using Imparsable.Tools.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public class SymbolResolver(SyntaxTree tree) : ISyntaxVisitor
+public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : ISyntaxVisitor
 {
     private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
     private readonly Dictionary<ISymbol, bool> _definitions = new();
     private SymbolTable CurrentSymbolTable => _symbolTables.Peek();
-    private DiagnosticsProvider Diagnostics { get; } = tree.Diagnostics;
+    private DiagnosticsProvider Diagnostics { get; } = diagnostics;
 
-    public static void Execute(SyntaxTree tree)
+    public static void Execute(SyntaxTree tree, DiagnosticsProvider diagnostics)
     {
-        var resolver = new SymbolResolver(tree);
+        var resolver = new SymbolResolver(tree, diagnostics);
         foreach (var node in tree.Roots)
             node.Accept(resolver);
     }

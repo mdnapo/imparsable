@@ -4,5 +4,5 @@ namespace Imparsable.Lang.Calculator.LSP;
 
 public class InitializedHandler : IInitializedHandler
 {
-    public Task HandleAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public void Handle() { }
 }

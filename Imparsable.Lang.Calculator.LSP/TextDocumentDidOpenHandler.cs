@@ -1,19 +1,23 @@
 using Imparsable.Tools.LSP;
 using Imparsable.Tools.LSP.Interfaces;
 using Imparsable.Lang.Calculator.LSP.Extensions;
+using Imparsable.Tools.Parsing;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Imparsable.Lang.Calculator.LSP;
 
 public class TextDocumentDidOpenHandler(SyntaxBuffer buffer, JsonRpcProvider rpc) : ITextDocumentDidOpenHandler
 {
-    public async Task HandleAsync(DidOpenTextDocumentParams parameters, CancellationToken cancellationToken)
+    public async Task HandleAsync(DidOpenTextDocumentParams parameters)
     {
+        var diagnostics = new DiagnosticsProvider();
         var uri = parameters.TextDocument.Uri.ToString();
-        await buffer.OpenAsync(uri, parameters.TextDocument.Text, cancellationToken);
-        var tree = await buffer.GetBufferAsync(uri, cancellationToken);
-        var diagnostics = tree.ToPublishDiagnosticsParams(uri);
+        
+        buffer.OpenAsync(uri, parameters.TextDocument.Text, diagnostics);
+        
+        var tree = buffer.GetBufferAsync(uri);
+        var publishDiagnosticsParams = tree.ToPublishDiagnosticsParams(uri, diagnostics);
 
-        await rpc.Connection.NotifyWithParameterObjectAsync(LspMethodName.PublishDiagnostics, diagnostics);
+        await rpc.Connection.NotifyWithParameterObjectAsync(LspMethodName.PublishDiagnostics, publishDiagnosticsParams);
     }
 }

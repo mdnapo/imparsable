@@ -6,10 +6,10 @@ namespace Imparsable.Lang.Calculator.LSP;
 
 public class CompletionHandler(SyntaxBuffer buffer) : ICompletionHandler
 {
-    public async Task<CompletionList> HandleAsync(CompletionParams parameters, CancellationToken cancellationToken)
+    public CompletionList Handle(CompletionParams parameters)
     {
         var uri = parameters.TextDocument.Uri.ToString();
-        var tree = await buffer.GetBufferAsync(uri, cancellationToken);
+        var tree = buffer.GetBufferAsync(uri);
         var consts = tree.Roots
             .OfType<ConstStatement>()
             .Select(x => new CompletionItem

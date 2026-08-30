@@ -1,6 +1,8 @@
 using Imparsable.Lang.Calculator.Parsing;
+using Imparsable.Tools.Parsing;
 using Imparsable.Tools.Parsing.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Diagnostic = OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using ImparsableDiagnosticSeverity = Imparsable.Tools.Parsing.DiagnosticSeverity;
 using OmnisharpDiagnosticSeverity = OmniSharp.Extensions.LanguageServer.Protocol.Models.DiagnosticSeverity;
@@ -9,10 +11,10 @@ namespace Imparsable.Lang.Calculator.LSP.Extensions;
 
 public static class SyntaxTreeExtensions
 {
-    public static PublishDiagnosticsParams ToPublishDiagnosticsParams(this SyntaxTree tree, string uri) => new()
+    public static PublishDiagnosticsParams ToPublishDiagnosticsParams(this SyntaxTree tree, string uri, DiagnosticsProvider diagnostics) => new()
     {
         Uri = uri,
-        Diagnostics = new Container<Diagnostic>(tree.Diagnostics.Select(diagnostic => new Diagnostic
+        Diagnostics = new Container<Diagnostic>(diagnostics.Select(diagnostic => new Diagnostic
         {
             Range = diagnostic.Marker.ToRange(),
             Severity = diagnostic.Severity switch

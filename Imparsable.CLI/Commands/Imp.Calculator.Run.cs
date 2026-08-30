@@ -3,6 +3,7 @@ using Imparsable.CLI.Interfaces;
 using Imparsable.Lang.Calculator.Compilation;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Lang.Calculator.Virtualization;
+using Imparsable.Tools.Parsing;
 
 namespace Imparsable.CLI.Commands;
 
@@ -29,11 +30,12 @@ internal sealed partial class Imp
                 }
 
                 var source = await File.ReadAllTextAsync(info.FullName);
-                using var tree = SyntaxTree.Parse(source, Console.WriteLine);
+                using var diagnostics = new DiagnosticsProvider();
+                diagnostics.Published += Console.WriteLine;
+                var tree = SyntaxTree.Parse(source, diagnostics);
 
-                if (!tree.IsHealthy) return;
+                if (!diagnostics.IsHealthy || Compiler.Execute(tree, diagnostics) is not { } chunk) return;
 
-                var chunk = Compiler.Execute(tree);
                 using var vm = new VirtualMachine();
                 vm.StdOut += Console.WriteLine;
                 vm.Execute(chunk);

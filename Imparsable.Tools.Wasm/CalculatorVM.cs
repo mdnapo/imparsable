@@ -12,11 +12,12 @@ public class CalculatorVM : IDisposable
 
     public void Execute(string code)
     {
-        using var tree = SyntaxTree.Parse(code, OnDiagnosticPublished);
+        using var diagnostics = new DiagnosticsProvider();
+        diagnostics.Published += OnDiagnosticPublished;
+        var tree = SyntaxTree.Parse(code, diagnostics);
 
-        if (!tree.IsHealthy) return;
+        if (!diagnostics.IsHealthy || Compiler.Execute(tree, diagnostics) is not { } chunk) return;
 
-        var chunk = Compiler.Execute(tree);
         using var vm = new VirtualMachine();
         vm.StdOut += OnStdOut;
         vm.Execute(chunk);

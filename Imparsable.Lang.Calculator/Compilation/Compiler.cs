@@ -1,12 +1,15 @@
 using System.Buffers.Binary;
 using System.Text;
+using Imparsable.Lang.Calculator.Exceptions;
 using Imparsable.Lang.Calculator.Extensions;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Tools.Compilation;
+using Imparsable.Tools.Parsing;
+using Imparsable.Tools.Parsing.Interfaces;
 
 namespace Imparsable.Lang.Calculator.Compilation;
 
-public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisitor
+public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) : Compiler<OpCode>, ISyntaxVisitor
 {
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
 
@@ -14,15 +17,23 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
     private readonly Stack<List<int>> _elseJumps = [];
 
     private SymbolTable CurrentSymbolTable => _symbolTables.Peek();
+    private DiagnosticsProvider Diagnostics { get; } = diagnostics;
 
-    public static Chunk Execute(SyntaxTree tree)
+    public static Chunk? Execute(SyntaxTree tree, DiagnosticsProvider diagnostics)
     {
-        var compiler = new Compiler(tree);
+        try
+        {
+            var compiler = new Compiler(tree, diagnostics);
 
-        foreach (var node in tree.Roots)
-            node.Accept(compiler);
+            foreach (var node in tree.Roots)
+                node.Accept(compiler);
 
-        return compiler.Build();
+            return compiler.Build();
+        }
+        catch (HaltException)
+        {
+            return null;
+        }
     }
 
     private void BeginScope(SymbolTable symbolTable) => _symbolTables.Push(symbolTable);
@@ -41,25 +52,29 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
         EmitByte(conversion);
     }
 
-    private void EmitToStringConversion(SystemType type, BinaryOperation operation)
+    private void EmitToStringConversion(ISourceMarker marker, SystemType type, BinaryOperation operation)
     {
         if (type != operation.ConversionTarget)
             return;
 
-        EmitToString(operation.Conversion ?? throw new InvalidOperationException($"Missing conversion for '{operation}'."));
+        if (operation.Conversion is not { } conversion)
+            throw Diagnostics.Halt<HaltException>(marker, $"Missing string conversion for type '{type}'.");
+
+        EmitToString(conversion);
     }
 
     public void Visit(BinaryExpression node)
     {
         var leftType = tree.Types[node.LeftOperand];
         var rightType = tree.Types[node.RightOperand];
-        var operation = BinaryOperation.Resolve(node.Operator.Type, leftType, rightType);
+        var @operator = node.Operator;
+        var operation = BinaryOperation.Resolve(@operator.Type, leftType, rightType);
 
         node.LeftOperand.Accept(this);
-        EmitToStringConversion(leftType, operation);
+        EmitToStringConversion(node.LeftOperand.Token, leftType, operation);
 
         node.RightOperand.Accept(this);
-        EmitToStringConversion(rightType, operation);
+        EmitToStringConversion(node.RightOperand.Token, rightType, operation);
 
         EmitOpCode(operation.OpCode);
         if (operation.Equality is { } equality)
@@ -112,7 +127,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
         {
             SystemType.BOOL => StringConversion.BOOL,
             SystemType.NUMBER => StringConversion.NUMBER,
-            _ => throw new InvalidOperationException()
+            _ => throw Diagnostics.Halt<HaltException>(node.Token, $"Missing string conversion for type '{type}'.")
         };
 
         EmitToString(conversion);
@@ -149,7 +164,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
         {
             Token.MINUS => OpCode.NEGATE_NUM,
             Token.BANG => OpCode.NEGATE_BOOL,
-            _ => throw new InvalidOperationException($"Unsupported operator '{text}' for binary expression.")
+            _ => throw Diagnostics.Halt<HaltException>(node.Token, $"Unsupported operator '{text}' for binary expression.")
         };
 
         EmitOpCode(op);
@@ -297,7 +312,7 @@ public partial class Compiler(SyntaxTree tree) : Compiler<OpCode>, ISyntaxVisito
             EmitInt32(offset);
 
             node.Value.Accept(this);
-            EmitToStringConversion(valueType, operation);
+            EmitToStringConversion(node.Value.Token, valueType, operation);
             EmitOpCode(operation.OpCode);
         }
 

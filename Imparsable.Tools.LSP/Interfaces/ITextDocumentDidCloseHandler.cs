@@ -4,5 +4,5 @@ namespace Imparsable.Tools.LSP.Interfaces;
 
 public interface ITextDocumentDidCloseHandler : ILspMethodHandler
 {
-    public Task HandleAsync(DidCloseTextDocumentParams parameters, CancellationToken cancellationToken);
+    public void Handle(DidCloseTextDocumentParams parameters);
 }

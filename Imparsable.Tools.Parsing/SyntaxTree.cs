@@ -3,39 +3,27 @@ using Imparsable.Tools.Parsing.Interfaces;
 
 namespace Imparsable.Tools.Parsing;
 
-public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : IDisposable
+public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     where TToken : Enum
     where TSyntax : ISyntax<TToken>
     where TSyntaxTree : SyntaxTree<TToken, TSyntax, TSyntaxTree>, new()
 {
     public Source Source { get; init; } = null!;
-    public DiagnosticsProvider Diagnostics { get; } = new();
     public List<Lexer<TToken>.Token> Tokens { get; private set; } = [];
     public List<TSyntax> Roots { get; } = [];
-    public bool IsHealthy => Diagnostics.All(x => x.Severity != DiagnosticSeverity.ERROR);
 
-    private static TSyntaxTree Create(string source, Action<Diagnostic>? diagnosticPublishedHandler = null)
-    {
-        var tree = new TSyntaxTree { Source = new Source(source) };
+    private static TSyntaxTree Create(string source) => new() { Source = new Source(source) };
 
-        if (diagnosticPublishedHandler != null)
-        {
-            tree.Diagnostics.Published += diagnosticPublishedHandler;
-        }
-
-        return tree;
-    }
-
-    public static TSyntaxTree Parse<TProduction>(string source, Action<Diagnostic>? diagnosticHandler = null)
+    public static TSyntaxTree Parse<TProduction>(string source, DiagnosticsProvider diagnostics)
         where TProduction : IProduction<TToken, TSyntax>
     {
-        var tree = Create(source, diagnosticHandler);
+        var tree = Create(source);
         var configuration = ParserConfiguration<TToken>.Default;
-        var lexerContext = new Lexer<TToken>.Context(configuration, tree.Diagnostics, tree.Source);
+        var lexerContext = new Lexer<TToken>.Context(configuration, diagnostics, tree.Source);
 
         tree.Tokens = Lexer<TToken>.Default.Execute(lexerContext);
 
-        var parserContext = new ParserContext<TToken>(configuration, tree.Diagnostics, tree.Source, tree.Tokens);
+        var parserContext = new ParserContext<TToken>(configuration, diagnostics, tree.Source, tree.Tokens);
 
         while (!parserContext.Ended())
         {
@@ -48,7 +36,7 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : IDisposable
             }
             catch (SyntaxException e)
             {
-                tree.Diagnostics.Error(e.Marker, e.Message);
+                diagnostics.Error(e.Marker, e.Message);
                 break;
             }
         }
@@ -56,20 +44,17 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : IDisposable
         return tree;
     }
 
-    public static TSyntaxTree Parse<TProduction, TSynchronizer>(
-        string source,
-        Action<Diagnostic>? diagnosticHandler = null
-    )
+    public static TSyntaxTree Parse<TProduction, TSynchronizer>(string source, DiagnosticsProvider diagnostics)
         where TProduction : IProduction<TToken, TSyntax>
         where TSynchronizer : ISynchronizer<TToken>
     {
-        var tree = Create(source, diagnosticHandler);
+        var tree = Create(source);
         var configuration = ParserConfiguration<TToken>.Default;
-        var lexerContext = new Lexer<TToken>.Context(configuration, tree.Diagnostics, tree.Source);
+        var lexerContext = new Lexer<TToken>.Context(configuration, diagnostics, tree.Source);
 
         tree.Tokens = Lexer<TToken>.Default.Execute(lexerContext);
 
-        var parserContext = new ParserContext<TToken>(configuration, tree.Diagnostics, tree.Source, tree.Tokens);
+        var parserContext = new ParserContext<TToken>(configuration, diagnostics, tree.Source, tree.Tokens);
 
         while (!parserContext.Ended())
         {
@@ -82,17 +67,12 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree> : IDisposable
             }
             catch (SyntaxException e)
             {
-                tree.Diagnostics.Error(e.Marker, e.Message);
+                diagnostics.Error(e.Marker, e.Message);
                 if (!TSynchronizer.Synchronize(parserContext))
                     break;
             }
         }
 
         return tree;
-    }
-
-    public void Dispose()
-    {
-        Diagnostics.Dispose();
     }
 }

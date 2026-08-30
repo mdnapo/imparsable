@@ -17,22 +17,22 @@ public abstract class LanguageServer(JsonRpcProvider rpc, IEnumerable<ILspMethod
         RequireHandler<IInitializeHandler>().Handle(parameters);
 
     [LspMethod(LspMethodName.Initialized)]
-    public Task Initialized(CancellationToken cancellationToken) =>
-        RequireHandler<IInitializedHandler>().HandleAsync(cancellationToken);
+    public void Initialized() =>
+        RequireHandler<IInitializedHandler>().Handle();
 
     [LspMethod(LspMethodName.TextDocumentDidOpen)]
-    public async Task DidOpen(DidOpenTextDocumentParams parameters, CancellationToken cancellationToken) =>
-        await RequireHandler<ITextDocumentDidOpenHandler>().HandleAsync(parameters, cancellationToken);
+    public async Task DidOpen(DidOpenTextDocumentParams parameters) =>
+        await RequireHandler<ITextDocumentDidOpenHandler>().HandleAsync(parameters);
 
     [LspMethod(LspMethodName.TextDocumentDidChange)]
-    public async Task DidChange(DidChangeTextDocumentParams parameters, CancellationToken cancellationToken) =>
-        await RequireHandler<ITextDocumentDidChangeHandler>().HandleAsync(parameters, cancellationToken);
+    public async Task DidChange(DidChangeTextDocumentParams parameters) =>
+        await RequireHandler<ITextDocumentDidChangeHandler>().HandleAsync(parameters);
 
     [LspMethod(LspMethodName.TextDocumentDidClose)]
-    public async Task DidClose(DidCloseTextDocumentParams parameters, CancellationToken cancellationToken) =>
-        await RequireHandler<ITextDocumentDidCloseHandler>().HandleAsync(parameters, cancellationToken);
+    public void DidClose(DidCloseTextDocumentParams parameters) =>
+        RequireHandler<ITextDocumentDidCloseHandler>().Handle(parameters);
 
     [LspMethod(LspMethodName.TextDocumentCompletion)]
-    public async Task<CompletionList> Completion(CompletionParams parameters, CancellationToken cancellationToken) =>
-        await RequireHandler<ICompletionHandler>().HandleAsync(parameters, cancellationToken);
+    public CompletionList Completion(CompletionParams parameters) =>
+        RequireHandler<ICompletionHandler>().Handle(parameters);
 }

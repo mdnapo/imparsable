@@ -27,6 +27,12 @@ public class DiagnosticsProvider : IEnumerable<Diagnostic>, IDisposable
         Published.Invoke(diagnostic);
     }
 
+    public T Halt<T>(ISourceMarker marker, string message) where T : Exception
+    {
+        Error(marker, message);
+        return (T)Activator.CreateInstance(typeof(T), message)!;
+    }
+
     public void Dispose()
     {
         foreach (var @delegate in Published.GetInvocationList())

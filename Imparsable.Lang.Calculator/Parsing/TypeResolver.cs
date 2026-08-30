@@ -2,15 +2,16 @@ using Imparsable.Tools.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public partial class TypeResolver(SyntaxTree tree) : ISyntaxVisitor<SystemType>
+public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : ISyntaxVisitor<SystemType>
 {
     private const string IncompatibleOperandsErrorMessage = "Invalid operation '{0}' for types '{1}' and '{2}'.";
 
     private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
     private SymbolTable Symbols => _symbolTables.Peek();
-    public DiagnosticsProvider Diagnostics { get; } = tree.Diagnostics;
+    public DiagnosticsProvider Diagnostics { get; } = diagnostics;
 
-    public static void Execute(SyntaxTree tree) => new TypeResolver(tree).Execute();
+    public static void Execute(SyntaxTree tree, DiagnosticsProvider diagnostics) =>
+        new TypeResolver(tree, diagnostics).Execute();
 
     public void Execute()
     {
