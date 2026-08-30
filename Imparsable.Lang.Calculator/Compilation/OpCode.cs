@@ -6,6 +6,7 @@ public enum OpCode : byte
     SET_LOCAL,
     POP,
     
+    MOD,
     ADD,
     SUB,
     MUL,

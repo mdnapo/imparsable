@@ -26,6 +26,9 @@ public partial class Compiler
             new(Token.STAR, SystemType.NUMBER, SystemType.NUMBER, OpCode.MUL),
             new(Token.SLASH, SystemType.NUMBER, SystemType.NUMBER, OpCode.DIV),
 
+            // Numeric logic
+            new(Token.MODULO, SystemType.NUMBER, SystemType.NUMBER, OpCode.MOD),
+
             // Comparison
             new(Token.LOWER_THAN, SystemType.NUMBER, SystemType.NUMBER, OpCode.LOWER_THAN),
             new(Token.LOWER_EQUAL, SystemType.NUMBER, SystemType.NUMBER, OpCode.LOWER_EQUAL),

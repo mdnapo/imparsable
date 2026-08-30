@@ -77,6 +77,9 @@ public enum Token
     [Sequence<Token>("&&")]
     AND_AND,
 
+    [Character<Token>('%')]
+    MODULO,
+
     [Character<Token>('+')]
     PLUS,
 

@@ -32,7 +32,10 @@ public partial class BinaryExpression : ISyntax, IProduction
         Parse(context, Parsing.Token.AND_AND, Equality);
 
     private static ISyntax Equality(ParserContext<Token> context) =>
-        Parse(context, EqualityOperators, AdditionSubtraction);
+        Parse(context, EqualityOperators, Modulo);
+    
+    private static ISyntax Modulo(ParserContext<Token> context) =>
+        Parse(context, Parsing.Token.MODULO, AdditionSubtraction);
 
     private static ISyntax AdditionSubtraction(ParserContext<Token> context) =>
         Parse(context, AdditionSubtractionOperators, MultiplicationDivision);

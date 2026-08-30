@@ -33,3 +33,10 @@ if (false || true) {
 if (true && true) {
     print "&& works";
 }
+
+print 4 % 2;
+print 5 % 2;
+
+if (4 % 2 == 0) {
+    print "Modulo works";
+}

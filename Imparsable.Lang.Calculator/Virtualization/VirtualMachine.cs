@@ -116,6 +116,14 @@ public class VirtualMachine : IDisposable
                 break;
             }
 
+            case OpCode.MOD:
+            {
+                var right = Memory.Stack.Pop();
+                var left = Memory.Stack.Pop();
+                Memory.Stack.Push(StackSlot.FromNumber(left.Number % right.Number));
+                break;
+            }
+
             case OpCode.EQUAL:
             {
                 var equality = ReadByte<EqualityType>(ref ip, ref chunk);
@@ -170,6 +178,7 @@ public class VirtualMachine : IDisposable
                     default:
                         throw new InvalidOperationException();
                 }
+
                 break;
             }
 

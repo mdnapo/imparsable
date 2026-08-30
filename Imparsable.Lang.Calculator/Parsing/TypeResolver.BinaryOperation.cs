@@ -14,6 +14,9 @@ public partial class TypeResolver
             new(Token.STAR, SystemType.NUMBER, SystemType.NUMBER, SystemType.NUMBER),
             new(Token.SLASH, SystemType.NUMBER, SystemType.NUMBER, SystemType.NUMBER),
 
+            // Numeric logic
+            new(Token.MODULO, SystemType.NUMBER, SystemType.NUMBER, SystemType.NUMBER),
+            
             // Numeric comparison
             new(Token.LOWER_THAN, SystemType.NUMBER, SystemType.NUMBER, SystemType.BOOL),
             new(Token.LOWER_EQUAL, SystemType.NUMBER, SystemType.NUMBER, SystemType.BOOL),
