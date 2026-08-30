@@ -1,3 +1,4 @@
+using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
@@ -39,7 +40,7 @@ public partial class BinaryExpression : ISyntax, IProduction
     private static ISyntax MultiplicationDivision(ParserContext<Token> context) =>
         Parse(context, MultiplicationDivisionOperators, UnaryExpression.Parse);
 
-    private static ISyntax Parse(ParserContext<Token> context, Token op, ISyntax.Func<ISyntax> parser)
+    private static ISyntax Parse(ParserContext<Token> context, Token op, Interfaces.ISyntax.Func<ISyntax> parser)
     {
         var expr = parser(context);
 
@@ -60,7 +61,7 @@ public partial class BinaryExpression : ISyntax, IProduction
         return expr;
     }
 
-    private static ISyntax Parse(ParserContext<Token> context, Token[] operators, ISyntax.Func<ISyntax> parser)
+    private static ISyntax Parse(ParserContext<Token> context, Token[] operators, Interfaces.ISyntax.Func<ISyntax> parser)
     {
         var expr = parser(context);
 

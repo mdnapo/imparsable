@@ -3,10 +3,10 @@ using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public class SyntaxTree : SyntaxTree<Token, ISyntax, SyntaxTree>
+public class SyntaxTree : SyntaxTree<Token, Interfaces.ISyntax, SyntaxTree>
 {
-    public SymbolTable SymbolTable { get; } = new();
-    public Dictionary<ISyntax, SystemType> Types { get; } = [];
+    public SymbolRoot SymbolRoot { get; } = new();
+    public Dictionary<Interfaces.ISyntax, SystemType> Types { get; } = [];
 
     public static SyntaxTree Parse(string source, DiagnosticsProvider diagnostics)
     {

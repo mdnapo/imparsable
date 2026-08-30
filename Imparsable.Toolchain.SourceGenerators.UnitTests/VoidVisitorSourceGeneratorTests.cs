@@ -109,7 +109,7 @@ public class VoidVisitorSourceGeneratorTests
             .SourceText
             .ToString();
 
-        Assert.Contains("public void Accept(ISyntaxVisitor visitor) => visitor.Visit(this);", generated);
+        Assert.Contains("public void Accept(global::Test.ISyntaxVisitor visitor) => visitor.Visit(this);", generated);
     }
 
     [Fact]

@@ -1,8 +1,9 @@
+using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public partial class ForStatement : ISyntax, IProduction
+public partial class ForStatement : SymbolTable, ISyntax, IProduction
 {
     public Lexer<Token>.Token Token => Keyword;
     public required Lexer<Token>.Token Keyword { get; init; }
@@ -12,7 +13,6 @@ public partial class ForStatement : ISyntax, IProduction
     public ISyntax? Increment { get; init; }
     public required Lexer<Token>.Token RightParenthesis { get; init; }
     public required ISyntax Body { get; init; }
-    public SymbolTable SymbolTable { get; } = new();
 
     public static ISyntax Parse(ParserContext<Token> context)
     {

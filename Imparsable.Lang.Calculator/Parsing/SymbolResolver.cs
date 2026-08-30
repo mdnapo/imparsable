@@ -1,45 +1,51 @@
 using Imparsable.Lang.Calculator.Extensions;
+using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
 public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : ISyntaxVisitor
 {
-    private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
     private readonly Dictionary<ISymbol, bool> _definitions = new();
-    private SymbolTable CurrentSymbolTable => _symbolTables.Peek();
+
+    private SymbolRoot SymbolRoot => tree.SymbolRoot;
+    private ISymbolTable Symbols => tree.SymbolRoot.Current;
     private DiagnosticsProvider Diagnostics { get; } = diagnostics;
 
-    public static void Execute(SyntaxTree tree, DiagnosticsProvider diagnostics)
+    public static void Execute(SyntaxTree tree, DiagnosticsProvider diagnostics) =>
+        new SymbolResolver(tree, diagnostics).Execute();
+
+    public void Execute()
     {
-        var resolver = new SymbolResolver(tree, diagnostics);
-        foreach (var node in tree.Roots)
-            node.Accept(resolver);
+        try
+        {
+            tree.SymbolRoot.Pushed += OnPush;
+            foreach (var node in tree.Roots)
+                node.Accept(this);
+        }
+        finally
+        {
+            tree.SymbolRoot.Pushed -= OnPush;
+        }
     }
 
-    private void BeginScope(SymbolTable symbolTable)
-    {
-        symbolTable.Parent = CurrentSymbolTable;
-        _symbolTables.Push(symbolTable);
-    }
-
-    private void EndScope() => _symbolTables.Pop();
+    private static void OnPush(ISymbolTable parent, ISymbolTable child) => child.Parent = parent;
 
     private void Declare(ISymbol symbol)
     {
         var syntax = symbol.As<ISyntax>();
 
-        if (CurrentSymbolTable.Lookup(symbol.Symbol) is { } lookup)
+        if (Symbols.Lookup(symbol.Symbol) is { } lookup)
         {
             Diagnostics.Error(lookup.As<ISyntax>().Token, $"Duplicate declaration of '{lookup.Symbol}'.");
             Diagnostics.Error(symbol.As<ISyntax>().Token, $"Duplicate declaration of '{lookup.Symbol}'.");
         }
-        else if (CurrentSymbolTable.RecursiveLookup(symbol.Symbol) is not null)
+        else if (Symbols.RecursiveLookup(symbol.Symbol) is not null)
         {
             Diagnostics.Warning(syntax.Token, $"Symbol '{symbol.Symbol}' hides outer declaration.");
         }
 
-        CurrentSymbolTable.Symbols.Add(symbol);
+        Symbols.Add(symbol);
         _definitions.Add(symbol, false);
     }
 
@@ -64,7 +70,7 @@ public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : 
 
     public void Visit(IdentifierExpression node)
     {
-        if (CurrentSymbolTable.RecursiveLookup(node.Symbol) is not { } symbol)
+        if (Symbols.RecursiveLookup(node.Symbol) is not { } symbol)
             Diagnostics.Error(node.Token, $"Variable '{node.Symbol}' has not been declared.");
 
         else if (!_definitions.TryGetValue(symbol, out var defined) || !defined)
@@ -99,12 +105,12 @@ public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : 
 
     public void Visit(BlockStatement node)
     {
-        BeginScope(node.SymbolTable);
+        SymbolRoot.Push(node);
 
         foreach (var statement in node.Body)
             statement.Accept(this);
 
-        EndScope();
+        SymbolRoot.Pop();
     }
 
     public void Visit(ElseIfStatement node)
@@ -116,14 +122,14 @@ public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : 
 
     public void Visit(ForStatement node)
     {
-        BeginScope(node.SymbolTable);
+        SymbolRoot.Push(node);
 
         node.Initializer?.Accept(this);
         node.Condition.Accept(this);
         node.Increment?.Accept(this);
         node.Body.Accept(this);
 
-        EndScope();
+        SymbolRoot.Pop();
     }
 
     public void Visit(WhileStatement node)
@@ -141,12 +147,12 @@ public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : 
             Diagnostics.Error(node.Target.Token, "Invalid assignment target.");
             node.Value.Accept(this);
         }
-        else if (CurrentSymbolTable.RecursiveLookup(target.Symbol) is ConstStatement)
+        else if (Symbols.RecursiveLookup(target.Symbol) is ConstStatement)
         {
             Diagnostics.Error(node.Token, "Cannot reassign const.");
             node.Value.Accept(this);
         }
-        else if (CurrentSymbolTable.RecursiveLookup(target.Symbol) is VarStatement var)
+        else if (Symbols.RecursiveLookup(target.Symbol) is VarStatement var)
         {
             node.Value.Accept(this);
             Define(var);

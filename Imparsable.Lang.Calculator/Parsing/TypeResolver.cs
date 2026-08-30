@@ -1,3 +1,4 @@
+using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain;
 
 namespace Imparsable.Lang.Calculator.Parsing;
@@ -6,8 +7,8 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
 {
     private const string IncompatibleOperandsErrorMessage = "Invalid operation '{0}' for types '{1}' and '{2}'.";
 
-    private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
-    private SymbolTable Symbols => _symbolTables.Peek();
+    private SymbolRoot SymbolRoot => tree.SymbolRoot;
+    private ISymbolTable Symbols => tree.SymbolRoot.Current;
     public DiagnosticsProvider Diagnostics { get; } = diagnostics;
 
     public static void Execute(SyntaxTree tree, DiagnosticsProvider diagnostics) =>
@@ -18,9 +19,6 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
         foreach (var node in tree.Roots)
             node.Accept(this);
     }
-
-    private void BeginScope(SymbolTable symbolTable) => _symbolTables.Push(symbolTable);
-    private void EndScope() => _symbolTables.Pop();
 
     public SystemType Visit(BinaryExpression node)
     {
@@ -138,12 +136,12 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
 
     public SystemType Visit(BlockStatement node)
     {
-        BeginScope(node.SymbolTable);
+        SymbolRoot.Push(node);
 
         foreach (var statement in node.Body)
             statement.Accept(this);
 
-        EndScope();
+        SymbolRoot.Pop();
 
         return SystemType.NONE;
     }
@@ -163,7 +161,7 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
 
     public SystemType Visit(ForStatement node)
     {
-        BeginScope(node.SymbolTable);
+        SymbolRoot.Push(node);
 
         if (node.Initializer is not null)
         {
@@ -183,7 +181,7 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
 
         node.Body.Accept(this);
 
-        EndScope();
+        SymbolRoot.Pop();
 
         return SystemType.NONE;
     }

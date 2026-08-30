@@ -3,6 +3,7 @@ using System.Text;
 using Imparsable.Lang.Calculator.Exceptions;
 using Imparsable.Lang.Calculator.Extensions;
 using Imparsable.Lang.Calculator.Parsing;
+using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain;
 using Imparsable.Toolchain.Compilation;
 using Imparsable.Toolchain.Parsing.Interfaces;
@@ -12,38 +13,40 @@ namespace Imparsable.Lang.Calculator.Compilation;
 public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) : Compiler<OpCode>, ISyntaxVisitor
 {
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
-
-    private readonly Stack<SymbolTable> _symbolTables = new([tree.SymbolTable]);
     private readonly Stack<List<int>> _elseJumps = [];
 
-    private SymbolTable CurrentSymbolTable => _symbolTables.Peek();
+    private SymbolRoot SymbolRoot => tree.SymbolRoot;
+    private ISymbolTable Symbols => tree.SymbolRoot.Current;
     private DiagnosticsProvider Diagnostics { get; } = diagnostics;
 
-    public static Chunk? Execute(SyntaxTree tree, DiagnosticsProvider diagnostics)
+    public static Chunk? Execute(SyntaxTree tree, DiagnosticsProvider diagnostics) =>
+        new Compiler(tree, diagnostics).Execute();
+
+    public Chunk? Execute()
     {
         try
         {
-            var compiler = new Compiler(tree, diagnostics);
+            tree.SymbolRoot.Popped += OnPop;
 
             foreach (var node in tree.Roots)
-                node.Accept(compiler);
+                node.Accept(this);
 
-            return compiler.Build();
+            return Build();
         }
         catch (HaltException)
         {
             return null;
         }
+        finally
+        {
+            tree.SymbolRoot.Popped -= OnPop;
+        }
     }
 
-    private void BeginScope(SymbolTable symbolTable) => _symbolTables.Push(symbolTable);
-
-    private void EndScope()
+    private void OnPop(ISymbolTable parent, ISymbolTable child)
     {
-        foreach (var _ in CurrentSymbolTable.Symbols)
+        foreach (var _ in child)
             EmitOpCode(OpCode.POP);
-
-        _symbolTables.Pop();
     }
 
     private void EmitToString(StringConversion conversion)
@@ -85,7 +88,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
     {
         node.Initializer.Accept(this);
         EmitOpCode(OpCode.SET_LOCAL);
-        var offset = CurrentSymbolTable.Offset(node.Symbol);
+        var offset = Symbols.Offset(node.Symbol);
         EmitInt32(offset);
     }
 
@@ -100,7 +103,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
     public void Visit(IdentifierExpression node)
     {
         EmitOpCode(OpCode.GET_LOCAL);
-        var offset = CurrentSymbolTable.Offset(node.Symbol);
+        var offset = Symbols.Offset(node.Symbol);
         EmitInt32(offset);
     }
 
@@ -182,7 +185,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
         }
 
         EmitOpCode(OpCode.SET_LOCAL);
-        var offset = CurrentSymbolTable.Offset(node.Symbol);
+        var offset = Symbols.Offset(node.Symbol);
         EmitInt32(offset);
     }
 
@@ -211,10 +214,12 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
     public void Visit(BlockStatement node)
     {
-        BeginScope(node.SymbolTable);
+        SymbolRoot.Push(node);
+
         foreach (var statement in node.Body)
             statement.Accept(this);
-        EndScope();
+
+        SymbolRoot.Pop();
     }
 
     public void Visit(ElseIfStatement node)
@@ -238,7 +243,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
     public void Visit(ForStatement node)
     {
-        BeginScope(node.SymbolTable);
+        SymbolRoot.Push(node);
 
         node.Initializer?.Accept(this);
 
@@ -264,7 +269,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
         EmitOpCode(OpCode.POP);
 
-        EndScope();
+        SymbolRoot.Pop();
     }
 
     public void Visit(WhileStatement node)
@@ -296,7 +301,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
     {
         var identifier = node.Target.As<IdentifierExpression>();
         var assignment = AssignmentOperation.Resolve(node.Operator.Type);
-        var offset = CurrentSymbolTable.Offset(identifier.Symbol);
+        var offset = Symbols.Offset(identifier.Symbol);
 
         if (assignment.BinaryOperator is null)
         {

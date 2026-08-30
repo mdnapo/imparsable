@@ -1,14 +1,14 @@
+using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public partial class BlockStatement : ISyntax, IProduction
+public partial class BlockStatement : SymbolTable, ISyntax, IProduction
 {
     public Lexer<Token>.Token Token => LeftBrace;
     public required Lexer<Token>.Token LeftBrace { get; init; }
     public required List<ISyntax> Body { get; init; }
     public required Lexer<Token>.Token RightBrace { get; init; }
-    public SymbolTable SymbolTable { get; } = new();
 
     public static ISyntax Parse(ParserContext<Token> context)
     {

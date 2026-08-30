@@ -111,6 +111,9 @@ public abstract partial class VisitorSourceGenerator : IIncrementalGenerator
             var sb = new StringBuilder();
 
             var visitorName = interfaceName + GetVisitorInterfaceTypeName;
+            var qualifiedVisitorName = interfaceSymbol.ContainingNamespace.IsGlobalNamespace
+                ? visitorName
+                : $"global::{interfaceSymbol.ContainingNamespace}.{visitorName}";
 
             foreach (var t in walker.ImplementingTypes)
             {
@@ -139,8 +142,10 @@ public abstract partial class VisitorSourceGenerator : IIncrementalGenerator
                 nodeSb.AppendLine(name);
                 IndentCurrentLineIfRequired(indent, nodeSb);
                 nodeSb.AppendLine("{");
+                IndentCurrentLineIfRequired(indent, nodeSb);
+
                 nodeSb.Append($"    public {GetVisitorInterfaceReturnType} {GetVisitorInterfaceAcceptSignature}(")
-                    .Append(visitorName)
+                    .Append(qualifiedVisitorName)
                     .AppendLine(" visitor) => visitor.Visit(this);");
 
                 IndentCurrentLineIfRequired(indent, nodeSb);
