@@ -1,5 +1,5 @@
-using Imparsable.Tools.LSP;
-using Imparsable.Tools.LSP.Interfaces;
+using Imparsable.Toolchain.LSP;
+using Imparsable.Toolchain.LSP.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

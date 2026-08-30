@@ -1,6 +1,6 @@
 using System.Buffers.Binary;
 using System.Text;
-using Imparsable.Tools.Virtualization;
+using Imparsable.Toolchain.Virtualization;
 
 namespace Imparsable.Lang.Calculator.Virtualization;
 

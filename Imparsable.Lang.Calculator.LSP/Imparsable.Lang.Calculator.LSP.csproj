@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Imparsable.Tools.LSP\Imparsable.Tools.LSP.csproj" />
+        <ProjectReference Include="..\Imparsable.Toolchain.LSP\Imparsable.Toolchain.LSP.csproj" />
         <ProjectReference Include="..\Imparsable.Lang.Calculator\Imparsable.Lang.Calculator.csproj" />
     </ItemGroup>
 

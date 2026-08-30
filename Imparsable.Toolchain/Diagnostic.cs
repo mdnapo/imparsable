@@ -1,0 +1,10 @@
+using Imparsable.Toolchain.Parsing.Interfaces;
+
+namespace Imparsable.Toolchain;
+
+public record Diagnostic(DiagnosticSeverity Severity, ISourceMarker Marker, string Message)
+{
+    public string Report => $"[{Severity}][line: {Marker.Line}, column: {Marker.Column}] {Message}";
+
+    public override string ToString() => Report;
+}

@@ -1,4 +1,4 @@
-using Imparsable.Tools.LSP.Interfaces;
+using Imparsable.Toolchain.LSP.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 

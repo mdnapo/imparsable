@@ -1,4 +1,4 @@
-using Imparsable.Tools.LSP.Interfaces;
+using Imparsable.Toolchain.LSP.Interfaces;
 
 namespace Imparsable.Lang.Calculator.LSP;
 

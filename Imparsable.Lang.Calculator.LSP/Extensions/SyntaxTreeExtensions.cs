@@ -1,10 +1,10 @@
 using Imparsable.Lang.Calculator.Parsing;
-using Imparsable.Tools.Parsing;
-using Imparsable.Tools.Parsing.Interfaces;
+using Imparsable.Toolchain;
+using Imparsable.Toolchain.Parsing.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Diagnostic = OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using ImparsableDiagnosticSeverity = Imparsable.Tools.Parsing.DiagnosticSeverity;
+using ImparsableDiagnosticSeverity = Imparsable.Toolchain.DiagnosticSeverity;
 using OmnisharpDiagnosticSeverity = OmniSharp.Extensions.LanguageServer.Protocol.Models.DiagnosticSeverity;
 
 namespace Imparsable.Lang.Calculator.LSP.Extensions;

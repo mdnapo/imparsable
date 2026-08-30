@@ -1,5 +1,5 @@
 using Imparsable.Lang.Calculator.Parsing;
-using Imparsable.Tools.LSP.Interfaces;
+using Imparsable.Toolchain.LSP.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Imparsable.Lang.Calculator.LSP;
