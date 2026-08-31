@@ -4,16 +4,17 @@ using Imparsable.Toolchain;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : ISyntaxVisitor
+public class ScopeResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : ISyntaxVisitor
 {
     private readonly Dictionary<ISymbol, bool> _definitions = new();
 
     private SymbolRoot SymbolRoot => tree.SymbolRoot;
     private ISymbolTable Symbols => tree.SymbolRoot.Current;
     private DiagnosticsProvider Diagnostics { get; } = diagnostics;
+    private uint LoopDepth { get; set; }
 
     public static void Execute(SyntaxTree tree, DiagnosticsProvider diagnostics) =>
-        new SymbolResolver(tree, diagnostics).Execute();
+        new ScopeResolver(tree, diagnostics).Execute();
 
     public void Execute()
     {
@@ -123,19 +124,37 @@ public class SymbolResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : 
     public void Visit(ForStatement node)
     {
         SymbolRoot.Push(node);
+        LoopDepth++;
 
         node.Initializer?.Accept(this);
         node.Condition.Accept(this);
         node.Increment?.Accept(this);
         node.Body.Accept(this);
 
+        LoopDepth--;
         SymbolRoot.Pop();
     }
 
     public void Visit(WhileStatement node)
     {
+        LoopDepth++;
+
         node.Condition.Accept(this);
         node.Body.Accept(this);
+
+        LoopDepth--;
+    }
+
+    public void Visit(BreakStatement node)
+    {
+        if (LoopDepth == 0)
+            Diagnostics.Error(node.Token, "Break statements are not allowed outside of loops.");
+    }
+
+    public void Visit(ContinueStatement node)
+    {
+        if (LoopDepth == 0)
+            Diagnostics.Error(node.Token, "Continue statements are not allowed outside of loops.");
     }
 
     public void Visit(BoolLiteralExpression node) { }

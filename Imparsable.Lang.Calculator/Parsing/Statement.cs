@@ -25,6 +25,12 @@ public abstract class Statement : IProduction
         if (context.Match(Token.WHILE))
             return WhileStatement.Parse(context);
 
+        if (context.Match(Token.BREAK))
+            return BreakStatement.Parse(context);
+
+        if (context.Match(Token.CONTINUE))
+            return ContinueStatement.Parse(context);
+
         if (context.Match(Token.IF))
             return IfStatement.Parse(context);
 

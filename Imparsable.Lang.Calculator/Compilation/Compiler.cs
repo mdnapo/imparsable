@@ -14,6 +14,8 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 {
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
     private readonly Stack<List<int>> _elseJumps = [];
+    private readonly Stack<List<int>> _breaks = [];
+    private readonly Stack<List<int>> _continues = [];
 
     private SymbolRoot SymbolRoot => tree.SymbolRoot;
     private ISymbolTable Symbols => tree.SymbolRoot.Current;
@@ -244,6 +246,8 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
     public void Visit(ForStatement node)
     {
         SymbolRoot.Push(node);
+        _breaks.Push([]);
+        _continues.Push([]);
 
         node.Initializer?.Accept(this);
 
@@ -257,6 +261,9 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
         node.Body.Accept(this);
 
+        foreach (var @continue in _continues.Peek())
+            PatchJump(@continue);
+
         if (node.Increment is not null)
         {
             node.Increment.Accept(this);
@@ -269,11 +276,19 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
         EmitOpCode(OpCode.POP);
 
+        foreach (var @break in _breaks.Peek())
+            PatchJump(@break);
+
+        _continues.Pop();
+        _breaks.Pop();
         SymbolRoot.Pop();
     }
 
     public void Visit(WhileStatement node)
     {
+        _breaks.Push([]);
+        _continues.Push([]);
+
         var loopStart = Code.Count;
 
         node.Condition.Accept(this);
@@ -284,12 +299,27 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
         node.Body.Accept(this);
 
+        foreach (var @continue in _continues.Peek())
+            PatchJump(@continue);
+
         EmitLoop(OpCode.JMP, loopStart);
 
         PatchJump(exitJump);
 
         EmitOpCode(OpCode.POP);
+
+        foreach (var @break in _breaks.Peek())
+            PatchJump(@break);
+
+        _continues.Pop();
+        _breaks.Pop();
     }
+
+    public void Visit(BreakStatement node) =>
+        _breaks.Peek().Add(EmitJump(OpCode.JMP));
+
+    public void Visit(ContinueStatement node) =>
+        _continues.Peek().Add(EmitJump(OpCode.JMP));
 
     public void Visit(BoolLiteralExpression node)
     {

@@ -36,6 +36,12 @@ public enum Token
 
     [Keyword]
     WHILE,
+    
+    [Keyword]
+    BREAK,
+    
+    [Keyword]
+    CONTINUE,
 
     [Number<Token>]
     NUMBER,

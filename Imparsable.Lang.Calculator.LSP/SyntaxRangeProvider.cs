@@ -126,4 +126,18 @@ public class SyntaxRangeProvider : ISyntaxVisitor<CompletionRange>
             StartLine = node.Token.Line,
             StartColumn = node.Token.Column
         };
+
+    public CompletionRange Visit(BreakStatement node) => new(
+        node.Token.Line,
+        node.Token.Column,
+        node.SemiColon.Line,
+        node.SemiColon.Column
+    );
+
+    public CompletionRange Visit(ContinueStatement node) => new(
+        node.Token.Line,
+        node.Token.Column,
+        node.SemiColon.Line,
+        node.SemiColon.Column
+    );
 }

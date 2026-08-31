@@ -98,4 +98,8 @@ public class CompletionWalker(SyntaxTree tree, Position position) : ISyntaxVisit
     }
 
     public void Visit(WhileStatement node) => node.Body.Accept(this);
+    
+    public void Visit(BreakStatement node) { }
+    
+    public void Visit(ContinueStatement node) { }
 }
