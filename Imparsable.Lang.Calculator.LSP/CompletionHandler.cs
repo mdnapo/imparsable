@@ -1,4 +1,3 @@
-using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Toolchain.LSP.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -10,22 +9,6 @@ public class CompletionHandler(SyntaxBuffer buffer) : ICompletionHandler
     {
         var uri = parameters.TextDocument.Uri.ToString();
         var tree = buffer.GetBufferAsync(uri);
-        var consts = tree.Roots
-            .OfType<ConstStatement>()
-            .Select(x => new CompletionItem
-            {
-                Label = x.Symbol,
-                Kind = CompletionItemKind.Constant,
-            });
-
-        var vars = tree.Roots
-            .OfType<VarStatement>()
-            .Select(x => new CompletionItem
-            {
-                Label = x.Symbol,
-                Kind = CompletionItemKind.Constant,
-            });
-
-        return new CompletionList([.. consts, .. vars]);
+        return CompletionWalker.Execute(tree, parameters.Position);
     }
 }
