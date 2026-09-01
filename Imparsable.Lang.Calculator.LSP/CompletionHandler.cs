@@ -9,6 +9,6 @@ public class CompletionHandler(SyntaxBuffer buffer) : ICompletionHandler
     {
         var uri = parameters.TextDocument.Uri.ToString();
         var tree = buffer.GetBufferAsync(uri);
-        return CompletionWalker.Execute(tree, parameters.Position);
+        return CompletionItemProvider.Execute(tree, parameters.Position);
     }
 }

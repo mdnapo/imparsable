@@ -2,7 +2,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Imparsable.Lang.Calculator.LSP;
 
-public readonly record struct CompletionRange(int StartLine, int StartColumn, int EndLine, int EndColumn)
+public readonly record struct SyntaxRange(int StartLine, int StartColumn, int EndLine, int EndColumn)
 {
     public bool Contains(Position position)
     {
@@ -13,5 +13,13 @@ public readonly record struct CompletionRange(int StartLine, int StartColumn, in
         return
             (line > StartLine || line == StartLine && character >= StartColumn) &&
             (line < EndLine || line == EndLine && character <= EndColumn);
+    }
+
+    public bool Precedes(Position position)
+    {
+        // Normalize position by adding 1 to line and character
+        var line = position.Line + 1;
+        var character = position.Character + 1;
+        return EndLine < line || EndLine == line && EndColumn < character;
     }
 };

@@ -9,9 +9,9 @@ using OmnisharpDiagnosticSeverity = OmniSharp.Extensions.LanguageServer.Protocol
 
 namespace Imparsable.Lang.Calculator.LSP.Extensions;
 
-public static class SyntaxTreeExtensions
+public static class DiagnosticsProviderExtensions
 {
-    public static PublishDiagnosticsParams ToPublishDiagnosticsParams(this SyntaxTree tree, string uri, DiagnosticsProvider diagnostics) => new()
+    public static PublishDiagnosticsParams ToPublishDiagnosticsParams(this DiagnosticsProvider diagnostics, string uri) => new()
     {
         Uri = uri,
         Diagnostics = new Container<Diagnostic>(diagnostics.Select(diagnostic => new Diagnostic

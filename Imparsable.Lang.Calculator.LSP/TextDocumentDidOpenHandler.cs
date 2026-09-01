@@ -12,11 +12,10 @@ public class TextDocumentDidOpenHandler(SyntaxBuffer buffer, JsonRpcProvider rpc
     {
         var diagnostics = new DiagnosticsProvider();
         var uri = parameters.TextDocument.Uri.ToString();
-        
+
         buffer.OpenAsync(uri, parameters.TextDocument.Text, diagnostics);
-        
-        var tree = buffer.GetBufferAsync(uri);
-        var publishDiagnosticsParams = tree.ToPublishDiagnosticsParams(uri, diagnostics);
+
+        var publishDiagnosticsParams = diagnostics.ToPublishDiagnosticsParams(uri);
 
         await rpc.Connection.NotifyWithParameterObjectAsync(LspMethodName.PublishDiagnostics, publishDiagnosticsParams);
     }

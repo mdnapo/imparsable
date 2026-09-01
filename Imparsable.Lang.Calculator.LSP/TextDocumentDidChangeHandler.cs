@@ -15,9 +15,8 @@ public class TextDocumentDidChangeHandler(SyntaxBuffer buffer, JsonRpcProvider r
 
         // TODO: Implement incremental updates
         buffer.UpdateAsync(uri, parameters.ContentChanges.First().Text, diagnostics);
-
-        var tree = buffer.GetBufferAsync(uri);
-        var publishDiagnosticsParams = tree.ToPublishDiagnosticsParams(uri, diagnostics);
+        
+        var publishDiagnosticsParams = diagnostics.ToPublishDiagnosticsParams(uri);
 
         await rpc.Connection.NotifyWithParameterObjectAsync(LspMethodName.PublishDiagnostics, publishDiagnosticsParams);
     }

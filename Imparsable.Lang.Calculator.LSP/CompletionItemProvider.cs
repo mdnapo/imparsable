@@ -4,21 +4,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Imparsable.Lang.Calculator.LSP;
 
-public class CompletionWalker(SyntaxTree tree, Position position) : ISyntaxVisitor
+public class CompletionItemProvider(SyntaxTree tree, Position position) : ISyntaxVisitor
 {
     private SymbolRoot SymbolRoot => tree.SymbolRoot;
     private ISymbolTable Symbols => tree.SymbolRoot.Current;
-    private Stack<CompletionRange> CompletionScope { get; } = [];
+    private Stack<SyntaxRange> CompletionScope { get; } = [];
     private List<CompletionItem> Completions { get; } = [];
 
     public static List<CompletionItem> Execute(SyntaxTree tree, Position position)
     {
-        var walker = new CompletionWalker(tree, position);
+        var provider = new CompletionItemProvider(tree, position);
 
         foreach (var root in tree.Roots)
-            root.Accept(walker);
+            root.Accept(provider);
 
-        return walker.Completions;
+        return provider.Completions;
     }
 
     public void Visit(AssignmentExpression node) { }
@@ -43,6 +43,10 @@ public class CompletionWalker(SyntaxTree tree, Position position) : ISyntaxVisit
     {
         if (Symbols.Parent is null || CompletionScope.Peek().Contains(position))
         {
+            var range = SyntaxRangeProvider.Instance.Visit(node);
+
+            if (!range.Precedes(position)) return;
+
             Completions.Add(new CompletionItem
             {
                 Label = node.Symbol,
@@ -87,14 +91,17 @@ public class CompletionWalker(SyntaxTree tree, Position position) : ISyntaxVisit
 
     public void Visit(VarStatement node)
     {
-        if (Symbols.Parent is null || CompletionScope.Peek().Contains(position))
+        if (Symbols.Parent is not null && !CompletionScope.Peek().Contains(position)) return;
+        
+        var range = SyntaxRangeProvider.Instance.Visit(node);
+
+        if (!range.Precedes(position)) return;
+
+        Completions.Add(new CompletionItem
         {
-            Completions.Add(new CompletionItem
-            {
-                Label = node.Symbol,
-                Kind = CompletionItemKind.Variable,
-            });
-        }
+            Label = node.Symbol,
+            Kind = CompletionItemKind.Variable,
+        });
     }
 
     public void Visit(WhileStatement node) => node.Body.Accept(this);
