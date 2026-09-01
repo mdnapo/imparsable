@@ -28,13 +28,13 @@ public abstract partial class CompilerBase(SyntaxTree tree, DiagnosticsProvider 
             EmitOpCode(OpCode.POP);
     }
 
-    protected virtual void EmitToString(StringConversion conversion)
+    protected void EmitToString(StringConversion conversion)
     {
         EmitOpCode(OpCode.TO_STRING);
         EmitByte(conversion);
     }
 
-    protected virtual void EmitToStringConversion(ISourceMarker marker, SystemType type, BinaryOperation operation)
+    protected void EmitToStringConversion(ISourceMarker marker, SystemType type, BinaryOperation operation)
     {
         if (type != operation.ConversionTarget)
             return;

@@ -36,9 +36,9 @@ internal sealed partial class Imp
 
                 if (!diagnostics.IsHealthy || Compiler.Execute(tree, diagnostics) is not { } chunk) return;
 
-                using var vm = new VirtualMachine();
-                vm.StdOut += Console.WriteLine;
-                vm.Execute(chunk);
+                // using var vm = new VirtualMachine();
+                // vm.StdOut += Console.WriteLine;
+                // vm.Execute(chunk);
 
                 Console.WriteLine(Disassembler.Disassemble(tree, diagnostics));
             }
