@@ -1,5 +1,3 @@
-using Imparsable.Toolchain.Parsing.Exceptions;
-
 namespace Imparsable.Toolchain.Parsing;
 
 public class ParserContext<TToken>(
@@ -108,14 +106,14 @@ public class ParserContext<TToken>(
             }
         }
 
-        throw Halt(message);
+        Diagnostics.Error(Current, message);
+        return Current with { Type = configuration.Error };
     }
 
     public Lexer<TToken>.Token Consume(TToken type, string message)
     {
         if (Check(type)) return Advance();
-        throw Halt(message);
+        Diagnostics.Error(Current, message);
+        return Current with { Type = configuration.Error };
     }
-
-    public SyntaxException Halt(string message) => throw new SyntaxException(Current, message);
 }

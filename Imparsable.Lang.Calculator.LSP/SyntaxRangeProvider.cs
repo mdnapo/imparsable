@@ -140,4 +140,11 @@ public class SyntaxRangeProvider : ISyntaxVisitor<CompletionRange>
         node.SemiColon.Line,
         node.SemiColon.Column
     );
+
+    public CompletionRange Visit(ErrorNode node) => new(
+        node.Token.Line,
+        node.Token.Column,
+        node.Token.Line,
+        node.Token.Column
+    );
 }

@@ -32,8 +32,6 @@ public sealed class DoubleQuoteStringAttribute<TToken> : LexerRuleAttribute<TTok
         src.Advance();
 
         var range = src.Extract();
-        // range.Offset + 1 accounts for the leading quotation mark
-        // range.Length - 2 accounts for the trailing quotation mark
         context.AddToken(Type, range.Offset, range.Length, line, column);
 
         return true;

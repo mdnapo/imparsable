@@ -7,7 +7,7 @@ public partial class ExpressionStatement : ISyntax, IProduction
 {
     public required Lexer<Token>.Token Token { get; init; }
     public required ISyntax Expression { get; init; }
-    public required Lexer<Token>.Token SemiColon { get; set; }
+    public required Lexer<Token>.Token SemiColon { get; init; }
 
     public static ISyntax Parse(ParserContext<Token> context)
     {

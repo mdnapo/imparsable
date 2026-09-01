@@ -321,6 +321,8 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
     public void Visit(ContinueStatement node) =>
         _continues.Peek().Add(EmitJump(OpCode.JMP));
 
+    public void Visit(ErrorNode node) { }
+
     public void Visit(BoolLiteralExpression node)
     {
         EmitOpCode(OpCode.BOOL_CONST);

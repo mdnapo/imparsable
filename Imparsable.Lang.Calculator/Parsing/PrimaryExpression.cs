@@ -22,6 +22,8 @@ public abstract class PrimaryExpression : IProduction
         if (context.Match(Token.NUMBER))
             return NumericLiteralExpression.Parse(context);
 
-        throw context.Halt("Expected an expression.");
+        context.Diagnostics.Error(context.Current, "Expected an expression.");
+
+        return ErrorNode.Parse(context);
     }
 }

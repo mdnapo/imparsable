@@ -111,6 +111,8 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
     public SystemType Visit(BreakStatement node) => SystemType.NONE;
 
     public SystemType Visit(ContinueStatement node) => SystemType.NONE;
+    
+    public SystemType Visit(ErrorNode node) => SystemType.UNKNOWN;
 
     public SystemType Visit(BoolLiteralExpression node)
     {

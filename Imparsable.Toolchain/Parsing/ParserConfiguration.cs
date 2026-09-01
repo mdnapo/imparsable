@@ -11,6 +11,7 @@ public class ParserConfiguration<TToken> where TToken : Enum
     public int TabSize => 4;
 
     public TToken Unexpected { get; } = GetValue<UnexpectedAttribute>();
+    public TToken Error { get; } = GetValue<ErrorAttribute>();
     public TToken End { get; } = GetValue<EndAttribute>();
 
 

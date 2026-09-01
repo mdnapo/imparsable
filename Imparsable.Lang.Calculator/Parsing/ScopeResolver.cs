@@ -157,6 +157,8 @@ public class ScopeResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : I
             Diagnostics.Error(node.Token, "Continue statements are not allowed outside of loops.");
     }
 
+    public void Visit(ErrorNode node) { }
+
     public void Visit(BoolLiteralExpression node) { }
 
     public void Visit(AssignmentExpression node)

@@ -36,33 +36,4 @@ public abstract class Statement : IProduction
 
         return ExpressionStatement.Parse(context);
     }
-
-    public abstract class Synchronizer : ISynchronizer
-    {
-        public static bool Synchronize(ParserContext<Token> context)
-        {
-            context.Advance();
-
-            while (!context.Ended())
-            {
-                if (context.Previous().Type.Equals(Token.SEMICOLON)) return true;
-
-                switch (context.Peek().Type)
-                {
-                    case Token.CONST:
-                    case Token.VAR:
-                    case Token.PRINT:
-                    case Token.FOR:
-                    case Token.WHILE:
-                    case Token.IF:
-                    case Token.ELSE:
-                        return true;
-                }
-
-                context.Advance();
-            }
-
-            return true;
-        }
-    }
 }

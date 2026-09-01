@@ -128,6 +128,9 @@ public enum Token
     [Unexpected]
     UNEXPECTED,
 
+    [Error]
+    ERROR,
+
     [End]
     END,
 }
