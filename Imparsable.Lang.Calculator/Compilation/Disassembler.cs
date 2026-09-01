@@ -8,9 +8,23 @@ namespace Imparsable.Lang.Calculator.Compilation;
 
 public sealed class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostics) : CompilerBase(tree, diagnostics)
 {
+    private readonly Dictionary<int, string> _constants = [];
+    
     private sealed record Instruction(int Offset, int Indent, OpCode OpCode)
     {
-        public List<string> Operands { get; } = [];
+        public List<Operand> Operands { get; } = [];
+    }
+
+    private abstract record Operand;
+
+    private sealed record ValueOperand(string Value) : Operand;
+    
+    private sealed record EnumOperand<T>(T Value) : Operand where T : unmanaged;
+
+    private sealed record JumpOperand(int Offset) : Operand
+    {
+        public int GetTarget(Instruction instruction) =>
+            instruction.Offset + sizeof(byte) + sizeof(int) + Offset;
     }
 
     private readonly List<Instruction> _instructions = [];
@@ -37,7 +51,27 @@ public sealed class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostic
             foreach (var operand in instruction.Operands)
             {
                 builder.Append(' ');
-                builder.Append(operand);
+
+                switch (operand)
+                {
+                    case ValueOperand value:
+                        builder.Append(value.Value);
+                        break;
+                    
+                    case EnumOperand<BoolValue> value:
+                        builder.Append(value.Value);
+                        break;
+
+                    case EnumOperand<StringConversion> value:
+                        builder.Append(value.Value);
+                        break;
+
+                    case JumpOperand jump:
+                        builder.Append(jump.Offset.ToString("+#;-#;0"));
+                        builder.Append(" -> ");
+                        builder.Append(jump.GetTarget(instruction).ToString("000000"));
+                        break;
+                }
             }
 
             builder.AppendLine();
@@ -71,13 +105,40 @@ public sealed class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostic
     public override void EmitInt32(int value)
     {
         base.EmitInt32(value);
-        _current?.Operands.Add(value.ToString());
-    }
 
+        if (_current is null)
+            return;
+
+        if (_current.OpCode == OpCode.NUM_CONST)
+        {
+            var constants = CollectionsMarshal.AsSpan(Constants);
+            var number = BinaryPrimitives.ReadDoubleLittleEndian(
+                constants.Slice(value, sizeof(double))
+            );
+
+            _current.Operands.Add(new ValueOperand($"{value} ({number})"));
+            return;
+        }
+        
+        if (_current.OpCode == OpCode.STRING_CONST)
+        {
+            var constants = CollectionsMarshal.AsSpan(Constants);
+            var span = constants[value..];
+
+            var length = BinaryPrimitives.ReadInt32LittleEndian(span[..sizeof(int)]);
+            var text = Encoding.UTF8.GetString(span.Slice(sizeof(int), length));
+
+            _current.Operands.Add(new ValueOperand($"{value} (\"{text}\")"));
+            return;
+        }
+
+        _current.Operands.Add(new ValueOperand(value.ToString()));
+    }
+    
     public override void EmitByte<TValue>(TValue value)
     {
         base.EmitByte(value);
-        _current?.Operands.Add(value.ToString()!);
+        _current?.Operands.Add(new EnumOperand<TValue>(value));
     }
 
     public override int EmitJump(OpCode instruction)
@@ -86,7 +147,7 @@ public sealed class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostic
 
         var entry = new Instruction(Offset: Code.Count, Indent: Indent, OpCode: instruction);
 
-        entry.Operands.Add("0");
+        entry.Operands.Add(new JumpOperand(0));
 
         _instructions.Add(entry);
 
@@ -107,8 +168,9 @@ public sealed class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostic
         );
 
         var instruction = _jumps[offset];
+
         instruction.Operands.Clear();
-        instruction.Operands.Add(jump.ToString());
+        instruction.Operands.Add(new JumpOperand(jump));
     }
 
     public override void Visit(BlockStatement node)
