@@ -2,11 +2,11 @@ using Imparsable.Lang.Calculator.Parsing;
 
 namespace Imparsable.Lang.Calculator.Compilation;
 
-public partial class Compiler
+public partial class CompilerBase
 {
     private const string ErrorMessage = "No binary compilation rule for '{0}' with '{1}' and '{2}'.";
 
-    private sealed record BinaryOperation(
+    protected sealed record BinaryOperation(
         Token Operator,
         SystemType Left,
         SystemType Right,

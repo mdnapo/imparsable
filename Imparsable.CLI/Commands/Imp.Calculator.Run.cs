@@ -39,6 +39,8 @@ internal sealed partial class Imp
                 using var vm = new VirtualMachine();
                 vm.StdOut += Console.WriteLine;
                 vm.Execute(chunk);
+
+                Console.WriteLine(Disassembler.Disassemble(tree, diagnostics));
             }
         }
     }

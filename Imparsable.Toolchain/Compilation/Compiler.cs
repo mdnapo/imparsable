@@ -16,9 +16,9 @@ public abstract class Compiler<TOpCode> where TOpCode : unmanaged
             throw new InvalidOperationException($"Enum {typeof(TEnum).Name} is not backed by byte.");
     }
 
-    public void EmitOpCode(TOpCode op) => Code.Add(Unsafe.As<TOpCode, byte>(ref op));
+    public virtual void EmitOpCode(TOpCode op) => Code.Add(Unsafe.As<TOpCode, byte>(ref op));
 
-    public void EmitByte<TValue>(TValue value) where TValue : unmanaged
+    public virtual void EmitByte<TValue>(TValue value) where TValue : unmanaged
     {
         GuardByteBackedEnum<TValue>();
         Code.Add(Unsafe.As<TValue, byte>(ref value));
@@ -26,14 +26,14 @@ public abstract class Compiler<TOpCode> where TOpCode : unmanaged
 
     public Chunk Build() => new(code: Code.ToArray(), constants: Constants.ToArray());
 
-    public int AddConstant(ReadOnlySpan<byte> value)
+    public virtual int AddConstant(ReadOnlySpan<byte> value)
     {
         var offset = Constants.Count;
         Constants.AddRange(value);
         return offset;
     }
 
-    public void EmitInt32(int value)
+    public virtual void EmitInt32(int value)
     {
         using var buffer = ByteBuffer.Acquire(sizeof(int));
         var span = buffer.Span;
@@ -41,14 +41,14 @@ public abstract class Compiler<TOpCode> where TOpCode : unmanaged
         Code.AddRange(span);
     }
 
-    public int EmitJump(TOpCode instruction)
+    public virtual int EmitJump(TOpCode instruction)
     {
         EmitOpCode(instruction);
         EmitInt32(0);
         return Code.Count - sizeof(int);
     }
 
-    public void EmitLoop(TOpCode jump, int loopStart)
+    public virtual void EmitLoop(TOpCode jump, int loopStart)
     {
         EmitOpCode(jump);
         // Account for the parameter of the jump instruction by subtracting sizeof(int) from the offset.
@@ -57,7 +57,7 @@ public abstract class Compiler<TOpCode> where TOpCode : unmanaged
         EmitInt32(offset);
     }
 
-    public void PatchJump(int offset)
+    public virtual void PatchJump(int offset)
     {
         var jump = Code.Count - offset - sizeof(int);
         using var buffer = ByteBuffer.Acquire(sizeof(int));

@@ -2,7 +2,7 @@ using Imparsable.Lang.Calculator.Parsing;
 
 namespace Imparsable.Lang.Calculator.Compilation;
 
-public partial class Compiler
+public partial class CompilerBase
 {
     private sealed record AssignmentOperation(Token Operator, Token? BinaryOperator)
     {
