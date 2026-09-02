@@ -16,5 +16,20 @@
     <ItemGroup>
         <ProjectReference Include="..\Imparsable.Lang.Calculator\Imparsable.Lang.Calculator.csproj"/>
     </ItemGroup>
+    
+    <Target Name="CopyPublishFiles" AfterTargets="Publish">
+        <ItemGroup>
+            <FolderFiles Include="$(MSBuildProjectDirectory)\bin\**\*" />
+            <RootFile Include="$(MSBuildProjectDirectory)\package.json"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(FolderFiles)"
+              DestinationFiles="@(FolderFiles->'$(MSBuildProjectDirectory)\..\Imparsable.UI\imp-wasm\bin\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true"/>
+
+        <Copy SourceFiles="@(RootFile)"
+              DestinationFolder="$(MSBuildProjectDirectory)\..\Imparsable.UI\imp-wasm"
+              SkipUnchangedFiles="true"/>
+    </Target>
 
 </Project>

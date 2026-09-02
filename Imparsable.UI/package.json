@@ -23,7 +23,7 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "vscode-ws-jsonrpc": "^3.5.0",
-    "imp-wasm": "file:../Imparsable.Toolchain.Wasm"
+    "imp-wasm": "file:./imp-wasm"
   },
   "devDependencies": {
     "@angular/build": "^22.1.3",

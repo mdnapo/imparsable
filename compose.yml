@@ -1,0 +1,33 @@
+services:
+  api:
+    image: imp-api
+    container_name: api
+    build:
+      context: .
+      dockerfile: Imparsable.API/Dockerfile
+    ports:
+      - "7280:8080"
+    networks:
+      - imparsable
+  
+  ui:
+    image: imp-ui
+    container_name: ui
+    build:
+      context: ./Imparsable.UI
+      dockerfile: Dockerfile
+    ports:
+      - "7281:8080"
+    networks:
+      - imparsable
+
+  cli:
+    image: imp-cli
+    profiles: [ "cli" ]
+    build:
+      context: .
+      dockerfile: Imparsable.CLI/Dockerfile
+
+networks:
+  imparsable:
+    name: imparsable
