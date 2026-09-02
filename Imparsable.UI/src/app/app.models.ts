@@ -1,4 +1,4 @@
-import * as monaco from '@codingame/monaco-vscode-editor-api';
+// import * as monaco from '@codingame/monaco-vscode-editor-api';
 
 export enum DiagnosticSeverity {
   WARNING = 1,
@@ -19,7 +19,7 @@ export interface Diagnostic {
 }
 
 export interface SourceFile {
-  uri: monaco.Uri;
+  // uri: monaco.Uri;
   name: string;
   content: string;
   languageId: string;

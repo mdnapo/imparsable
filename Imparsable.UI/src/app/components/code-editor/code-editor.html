@@ -1,44 +1,50 @@
 <main>
-  <div id="editor" #editor></div>
-
-  <section id="toolbar">
-    <mat-toolbar>
-      <button title="Run" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
-        <mat-icon (click)="emitExecute()">play_arrow</mat-icon>
-      </button>
-      <button title="Disassemble" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
-        <mat-icon (click)="emitDisassemble()">bug_report</mat-icon>
-      </button>
-    </mat-toolbar>
-  </section>
-
-  <section id="auxiliary">
-    <mat-tab-group [(selectedIndex)]="selectedTab"
-                   animationDuration="0s"
-                   headerPosition="below"
-                   mat-align-tabs="start"
-                   mat-stretch-tabs="false">
-      <mat-tab label="Output">
-        @for (line of output | async; track line.id) {
-          <code>{{ line.text }}</code><br/>
-        }
-      </mat-tab>
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <span [matBadge]="diagnostics.value.length"
-                [matBadgeHidden]="diagnostics.value.length <= 0"
-                [matBadgePosition]="'above after'"
-                matBadgeOverlap="false">Problems</span>
-        </ng-template>
-        <div class="padded">
-          @for (diagnostic of diagnostics | async; track diagnostic.marker) {
-            <code>{{ formatDiagnostic(diagnostic) }}</code><br/>
-          }
-        </div>
-      </mat-tab>
-      <mat-tab label="Disassembly">
-        <code style="white-space: preserve">{{ disassembly | async }}</code><br/>
-      </mat-tab>
-    </mat-tab-group>
-  </section>
+  <ngx-monaco-editor id="editor"
+                     [options]="editorOptions"
+                     [(ngModel)]="code"
+                     (ngModelChange)="onChange.emit($event)"/>
 </main>
+<!--<main>-->
+<!--  <div id="editor" #editor></div>-->
+
+<!--  <section id="toolbar">-->
+<!--    <mat-toolbar>-->
+<!--      <button title="Run" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">-->
+<!--        <mat-icon (click)="emitExecute()">play_arrow</mat-icon>-->
+<!--      </button>-->
+<!--      <button title="Disassemble" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">-->
+<!--        <mat-icon (click)="emitDisassemble()">bug_report</mat-icon>-->
+<!--      </button>-->
+<!--    </mat-toolbar>-->
+<!--  </section>-->
+
+<!--  <section id="auxiliary">-->
+<!--    <mat-tab-group [(selectedIndex)]="selectedTab"-->
+<!--                   animationDuration="0s"-->
+<!--                   headerPosition="below"-->
+<!--                   mat-align-tabs="start"-->
+<!--                   mat-stretch-tabs="false">-->
+<!--      <mat-tab label="Output">-->
+<!--        @for (line of output | async; track line.id) {-->
+<!--          <code>{{ line.text }}</code><br/>-->
+<!--        }-->
+<!--      </mat-tab>-->
+<!--      <mat-tab>-->
+<!--        <ng-template mat-tab-label>-->
+<!--          <span [matBadge]="diagnostics.value.length"-->
+<!--                [matBadgeHidden]="diagnostics.value.length <= 0"-->
+<!--                [matBadgePosition]="'above after'"-->
+<!--                matBadgeOverlap="false">Problems</span>-->
+<!--        </ng-template>-->
+<!--        <div class="padded">-->
+<!--          @for (diagnostic of diagnostics | async; track diagnostic.marker) {-->
+<!--            <code>{{ formatDiagnostic(diagnostic) }}</code><br/>-->
+<!--          }-->
+<!--        </div>-->
+<!--      </mat-tab>-->
+<!--      <mat-tab label="Disassembly">-->
+<!--        <code style="white-space: preserve">{{ disassembly | async }}</code><br/>-->
+<!--      </mat-tab>-->
+<!--    </mat-tab-group>-->
+<!--  </section>-->
+<!--</main>-->

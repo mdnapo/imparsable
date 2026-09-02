@@ -1,0 +1,57 @@
+<main #ide class="ide" [style.--panel-height.px]="panelHeight">
+  <span></span>
+
+  <div class="workspace">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        Explorer
+      </div>
+
+      <div class="file">
+        main.clc
+      </div>
+    </aside>
+
+    <main class="editor">
+      <div class="editor-tabs">
+        <div class="editor-tab">
+          main.clc
+        </div>
+      </div>
+
+      <div class="editor-content">
+        <ngx-monaco-editor
+          class="monaco"
+          [options]="editorOptions"
+          [(ngModel)]="code">
+        </ngx-monaco-editor>
+      </div>
+    </main>
+  </div>
+
+  <div class="horizontal-resizer" (pointerdown)="startPanelResize($event, ide)"></div>
+
+  <section class="panel">
+    <mat-tab-group
+                   mat-align-tabs="start"
+                   mat-stretch-tabs="false">
+      <mat-tab label="Problems">
+        <div class="panel-content">
+          No problems.
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Output">
+        <div class="panel-content">
+          Ready.
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Terminal">
+        <div class="panel-content">
+          Terminal goes here later.
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

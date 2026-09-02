@@ -4,21 +4,21 @@ main {
   flex-direction: column;
 }
 
-div#editor {
+#editor {
   width: 100%;
   flex: 1;
 }
-
-section#auxiliary {
-  flex: .4;
-  overflow: hidden;
-}
-
-mat-tab-group {
-  height: 100%;
-  min-height: 0;
-}
-
-code {
-  padding: 10px;
-}
+//
+//section#auxiliary {
+//  flex: .4;
+//  overflow: hidden;
+//}
+//
+//mat-tab-group {
+//  height: 100%;
+//  min-height: 0;
+//}
+//
+//code {
+//  padding: 10px;
+//}
