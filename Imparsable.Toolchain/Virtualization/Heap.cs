@@ -1,5 +1,5 @@
 using System.Buffers;
-using System.Runtime.InteropServices;
+using Imparsable.Toolchain.Extensions;
 
 namespace Imparsable.Toolchain.Virtualization;
 
@@ -8,10 +8,9 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
     private const int Alignment = sizeof(long);
     private readonly List<TAllocation> _allocations = new(128);
     private readonly System.Collections.Generic.Stack<int> _reclaimed = new(128);
-    private int _pointer;
 
-    public Span<TAllocation> Allocations => CollectionsMarshal.AsSpan(_allocations);
-    public int Pointer => _pointer;
+    public Span<TAllocation> Allocations => _allocations.Span;
+    public int Pointer { get; private set; }
 
     public int Allocate(int size, TAllocation entry)
     {
@@ -19,17 +18,17 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
 
         size = Align(size);
 
-        if (_pointer > memory.Length - size)
+        if (Pointer > memory.Length - size)
             throw new OutOfMemoryException();
 
-        entry.Offset = _pointer;
+        entry.Offset = Pointer;
         entry.Size = size;
         entry.IsAllocated = true;
         entry.IsMarked = false;
 
         var handle = AllocateHandle(ref entry);
 
-        _pointer += size;
+        Pointer += size;
 
         return handle;
     }
@@ -104,7 +103,7 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
                 destination += allocation.Size;
             }
 
-            _pointer = destination;
+            Pointer = destination;
         }
         finally
         {

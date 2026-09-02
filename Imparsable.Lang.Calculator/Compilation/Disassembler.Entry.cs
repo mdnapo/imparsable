@@ -9,6 +9,6 @@ public sealed partial class Disassembler
         public abstract void WriteTo(StringBuilder builder);
 
         protected void WriteIndent(StringBuilder builder) =>
-            builder.Append(' ', Indent * 2);
+            builder.Append(' ', Indent);
     }
 }

@@ -12,7 +12,7 @@ public sealed partial class Disassembler
         {
             WriteIndent(builder);
             builder.Append(Offset.ToString("000000"));
-            builder.Append('\t');
+            builder.Append(' ');
             builder.Append(OpCode);
 
             foreach (var operand in Operands)

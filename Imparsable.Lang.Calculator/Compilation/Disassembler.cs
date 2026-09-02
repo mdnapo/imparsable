@@ -1,44 +1,38 @@
 using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 using System.Text;
+using Imparsable.Lang.Calculator.Exceptions;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Toolchain;
+using Imparsable.Toolchain.Extensions;
 
 namespace Imparsable.Lang.Calculator.Compilation;
 
-public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostics) : CompilerBase(tree, diagnostics)
+public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostics) : Compiler(tree, diagnostics)
 {
     private readonly List<Entry> _entries = [];
     private readonly Dictionary<int, Instruction> _jumps = [];
     private Instruction? _current;
     private int Indent { get; set; }
 
-    public static string Disassemble(SyntaxTree tree, DiagnosticsProvider diagnostics)
-    {
-        var disassembler = new Disassembler(tree, diagnostics);
-        disassembler.Visit();
-        disassembler.FlushInstruction();
+    public static string? Disassemble(SyntaxTree tree, DiagnosticsProvider diagnostics) =>
+        new Disassembler(tree, diagnostics).Disassemble();
 
-        var builder = new StringBuilder();
-
-        foreach (var entry in disassembler._entries)
-            entry.WriteTo(builder);
-
-        return builder.ToString();
-    }
-
-    public void Visit()
+    public string? Disassemble()
     {
         try
         {
-            Tree.SymbolRoot.Popped += OnPop;
+            WalkTree();
 
-            foreach (var node in Tree.Roots)
-                node.Accept(this);
+            var builder = new StringBuilder();
+
+            foreach (var entry in _entries)
+                entry.WriteTo(builder);
+
+            return builder.ToString();
         }
-        finally
+        catch (HaltException)
         {
-            Tree.SymbolRoot.Popped -= OnPop;
+            return null;
         }
     }
 
@@ -83,9 +77,8 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
         if (_current is null)
             throw new InvalidOperationException("Missing loop instruction.");
 
-        var code = CollectionsMarshal.AsSpan(Code);
         var offset = BinaryPrimitives.ReadInt32LittleEndian(
-            code.Slice(Code.Count - sizeof(int), sizeof(int))
+            Code.Span.Slice(Code.Count - sizeof(int), sizeof(int))
         );
 
         _current.Operands.Clear();
@@ -96,9 +89,8 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
     {
         base.PatchJump(offset);
 
-        var code = CollectionsMarshal.AsSpan(Code);
         var jump = BinaryPrimitives.ReadInt32LittleEndian(
-            code.Slice(offset, sizeof(int))
+            Code.Span.Slice(offset, sizeof(int))
         );
 
         var instruction = _jumps[offset];
@@ -131,27 +123,25 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
         AddLabel("while:", () => base.Visit(node));
     }
 
-    private Operand GetOperand(int value) => _current?.OpCode switch
+    private ValueOperand GetOperand(int value) => _current?.OpCode switch
     {
         OpCode.NUM_CONST => GetNumberConstant(value),
         OpCode.STRING_CONST => GetStringConstant(value),
         _ => new ValueOperand(value.ToString())
     };
 
-    private Operand GetNumberConstant(int offset)
+    private ValueOperand GetNumberConstant(int offset)
     {
-        var constants = CollectionsMarshal.AsSpan(Constants);
         var value = BinaryPrimitives.ReadDoubleLittleEndian(
-            constants.Slice(offset, sizeof(double))
+            Constants.Span.Slice(offset, sizeof(double))
         );
 
         return new ValueOperand($"{offset} ({value})");
     }
 
-    private Operand GetStringConstant(int offset)
+    private ValueOperand GetStringConstant(int offset)
     {
-        var constants = CollectionsMarshal.AsSpan(Constants);
-        var span = constants[offset..];
+        var span = Constants.Span[offset..];
 
         var length = BinaryPrimitives.ReadInt32LittleEndian(span[..sizeof(int)]);
         var value = Encoding.UTF8.GetString(span.Slice(sizeof(int), length));
@@ -163,7 +153,7 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
     {
         FlushInstruction();
         _entries.Add(new Label(Indent: Indent, Name: name));
-        
+
         Indent++;
         action();
         Indent--;
@@ -171,8 +161,7 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
 
     private void FlushInstruction()
     {
-        if (_current is null)
-            return;
+        if (_current is null) return;
 
         _entries.Add(_current);
         _current = null;

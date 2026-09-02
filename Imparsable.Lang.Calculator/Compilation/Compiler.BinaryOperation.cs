@@ -2,7 +2,7 @@ using Imparsable.Lang.Calculator.Parsing;
 
 namespace Imparsable.Lang.Calculator.Compilation;
 
-public partial class CompilerBase
+public partial class Compiler
 {
     private const string ErrorMessage = "No binary compilation rule for '{0}' with '{1}' and '{2}'.";
 

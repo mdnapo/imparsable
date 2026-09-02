@@ -2,7 +2,6 @@ using System.CommandLine;
 using Imparsable.CLI.Interfaces;
 using Imparsable.Lang.Calculator.Compilation;
 using Imparsable.Lang.Calculator.Parsing;
-using Imparsable.Lang.Calculator.Virtualization;
 using Imparsable.Toolchain;
 
 namespace Imparsable.CLI.Commands;
@@ -11,11 +10,11 @@ internal sealed partial class Imp
 {
     internal sealed partial class Calculator
     {
-        internal sealed class Run : Command, ISubCommandOf<Calculator>
+        internal sealed class Disassemble : Command, ISubCommandOf<Calculator>
         {
-            public Run() : base("run", "Run calculator file")
+            public Disassemble() : base("disassemble", "Disassemble calculator file")
             {
-                Aliases.Add("r");
+                Aliases.Add("d");
                 Options.Add(Shared.Options.FileOption);
                 SetAction(result => Execute(
                     result.GetValue(Shared.Options.FileOption)
@@ -35,11 +34,9 @@ internal sealed partial class Imp
                 diagnostics.Published += Console.WriteLine;
                 var tree = SyntaxTree.Parse(source, diagnostics);
 
-                if (!diagnostics.IsHealthy || Compiler.Compile(tree, diagnostics) is not { } chunk) return;
+                if (!diagnostics.IsHealthy || Disassembler.Disassemble(tree, diagnostics) is not { } output) return;
 
-                using var vm = new VirtualMachine();
-                vm.StdOut += Console.WriteLine;
-                vm.Execute(chunk);
+                Console.WriteLine(output);
             }
         }
     }

@@ -16,7 +16,7 @@ public class CalculatorVM : IDisposable
         diagnostics.Published += OnDiagnosticPublished;
         var tree = SyntaxTree.Parse(code, diagnostics);
 
-        if (!diagnostics.IsHealthy || Compiler.Execute(tree, diagnostics) is not { } chunk) return;
+        if (!diagnostics.IsHealthy || Compiler.Compile(tree, diagnostics) is not { } chunk) return;
 
         using var vm = new VirtualMachine();
         vm.StdOut += OnStdOut;
