@@ -2,7 +2,7 @@ import {AfterViewInit, Component, inject, OnDestroy, ViewChild} from '@angular/c
 import {FormsModule} from '@angular/forms';
 import {CodeEditor} from '../code-editor/code-editor';
 import {LanguageId} from '../../app.config.monaco';
-import {CalculatorVM} from "imp-wasm";
+import {Calculator} from "imp-wasm";
 import {Diagnostic, SourceFile} from '../../app.models';
 import {FileSystem} from '../../services/file-system';
 
@@ -36,20 +36,29 @@ export class CalculatorEditor implements AfterViewInit, OnDestroy {
   private onDiagnosticPublished: (diagnostic: Diagnostic) =>
     void = (output: Diagnostic) => this.editor.onDiagnosticPublished(output);
 
+  private onDisassemble: (disassembly: string) =>
+    void = (disassembly: string) => this.editor.onDisassembly(disassembly);
+
   protected file!: SourceFile;
 
   ngAfterViewInit(): void {
     this.file = this.fs.registerFile('test.clc', code, LanguageId.Calculator);
-    CalculatorVM.onDiagnosticPublished.subscribe(this.onDiagnosticPublished);
-    CalculatorVM.onStdOut.subscribe(this.onStdOut);
+    Calculator.onDisassemble.subscribe(this.onDisassemble);
+    Calculator.onDiagnosticPublished.subscribe(this.onDiagnosticPublished);
+    Calculator.onStdOut.subscribe(this.onStdOut);
   }
 
   ngOnDestroy(): void {
-    CalculatorVM.onDiagnosticPublished.unsubscribe(this.onDiagnosticPublished);
-    CalculatorVM.onStdOut.unsubscribe(this.onStdOut);
+    Calculator.onDisassemble.unsubscribe(this.onDisassemble);
+    Calculator.onDiagnosticPublished.unsubscribe(this.onDiagnosticPublished);
+    Calculator.onStdOut.unsubscribe(this.onStdOut);
   }
 
   execute(code: string) {
-    CalculatorVM.execute(code);
+    Calculator.execute(code);
+  }
+
+  disassemble(code: string) {
+    Calculator.disassemble(code);
   }
 }

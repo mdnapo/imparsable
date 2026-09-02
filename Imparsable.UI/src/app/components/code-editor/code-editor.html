@@ -6,10 +6,13 @@
       <button title="Run" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
         <mat-icon (click)="emitExecute()">play_arrow</mat-icon>
       </button>
+      <button title="Disassemble" matIconButton class="example-icon" aria-label="Example icon-button with menu icon">
+        <mat-icon (click)="emitDisassemble()">bug_report</mat-icon>
+      </button>
     </mat-toolbar>
   </section>
 
-  <section id="auxilliary">
+  <section id="auxiliary">
     <mat-tab-group [(selectedIndex)]="selectedTab"
                    animationDuration="0s"
                    headerPosition="below"
@@ -32,6 +35,9 @@
             <code>{{ formatDiagnostic(diagnostic) }}</code><br/>
           }
         </div>
+      </mat-tab>
+      <mat-tab label="Disassembly">
+        <code style="white-space: preserve">{{ disassembly | async }}</code><br/>
       </mat-tab>
     </mat-tab-group>
   </section>

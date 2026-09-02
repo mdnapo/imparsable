@@ -46,8 +46,10 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
 
   @Input() file!: SourceFile;
   @Output() onExecute: EventEmitter<any> = new EventEmitter();
+  @Output() onDisassemble: EventEmitter<any> = new EventEmitter();
   output: BehaviorSubject<StdOutput[]> = new BehaviorSubject([] as StdOutput[]);
   diagnostics: BehaviorSubject<Diagnostic[]> = new BehaviorSubject([] as Diagnostic[]);
+  disassembly: BehaviorSubject<string> = new BehaviorSubject("");
 
   protected selectedTab: number = 0;
 
@@ -63,8 +65,6 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
     await editorApp.start(this.editorContainer.nativeElement);
     this.editor = editorApp.getEditor();
 
-    // const uri = monaco.Uri.parse(`file:///workspace/${this.file.name}`);
-    // this.languageServer.registerFile(uri, this.file.content);
     const model = monaco.editor.createModel(this.file.content, this.file.languageId, this.file.uri);
     monaco.editor.setModelLanguage(model, this.file.languageId);
     this.editor?.setModel(model);
@@ -72,7 +72,7 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
     await vscode.workspace.openTextDocument(this.file.uri);
   }
 
-  emitExecute(): void {
+  protected emitExecute(): void {
     let code = this.editor!.getModel()!.getValue();
     this.output.next([]);
     this.diagnostics.next([]);
@@ -83,6 +83,12 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
     } else {
       this.selectedTab = 0;
     }
+  }
+
+  protected emitDisassemble(): void {
+    let code = this.editor!.getModel()!.getValue();
+    this.onDisassemble.emit(code);
+    this.selectedTab = 2;
   }
 
   public ngOnDestroy(): void {
@@ -101,5 +107,11 @@ export class CodeEditor implements AfterViewInit, OnDestroy {
 
   protected formatDiagnostic(line: Diagnostic): string {
     return `[${DiagnosticSeverity[line.severity]}][line: ${line.marker.line}, col: ${line.marker.column}] ${line.message}`;
+  }
+
+  public onDisassembly(output: string): void {
+    // For some reason the code element adds a leading whitespace to the output.
+    // Prepend a newline to circumvent this issue.
+    this.disassembly.next("\n" + output.trim());
   }
 }

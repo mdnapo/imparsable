@@ -2,10 +2,10 @@
 using Bootsharp.Inject;
 using Microsoft.Extensions.DependencyInjection;
 
-[assembly: Export(typeof(CalculatorVM))]
+[assembly: Export(typeof(Calculator))]
 
 new ServiceCollection()
     .AddBootsharp()
-    .AddSingleton<CalculatorVM>()
+    .AddSingleton<Calculator>()
     .BuildServiceProvider()
     .RunBootsharp();
