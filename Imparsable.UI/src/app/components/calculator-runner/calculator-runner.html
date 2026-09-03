@@ -1,0 +1,13 @@
+<!--suppress AngularForBlockNonIterableVar -->
+<main>
+  <mat-toolbar>
+    <button matIconButton class="example-icon" (click)="run()" aria-label="Example icon-button with share icon">
+      <mat-icon>play_arrow</mat-icon>
+    </button>
+  </mat-toolbar>
+  <section id="output">
+    @for (line of output | async; track line.id) {
+      <code>{{ line.text }}</code><br/>
+    }
+  </section>
+</main>

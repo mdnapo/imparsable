@@ -1,11 +1,8 @@
 import {NgxMonacoEditorConfig} from 'ngx-monaco-editor-v2';
-import * as monaco from 'monaco-editor';
 
 export const LanguageId = {
   Calculator: 'clc'
 }
-
-declare const window: { monaco: typeof monaco };
 
 export const DefaultOptions: NgxMonacoEditorConfig = {
   defaultOptions: {

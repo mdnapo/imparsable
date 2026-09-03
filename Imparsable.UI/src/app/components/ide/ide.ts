@@ -26,11 +26,11 @@ import * as monaco from 'monaco-editor';
 export class Ide {
   @Input() side: IdeWidget[] = [];
   @Input() sideView?: IdeWidget;
-  protected sideViewWidth = 240;
+  protected sideViewWidth = 250;
 
   @Input() bottom: IdeWidget[] = [];
   @Input() bottomView?: IdeWidget;
-  protected bottomViewHeight = 200;
+  protected bottomViewHeight = 300;
 
   @Output() onInit = new EventEmitter<monaco.editor.IStandaloneCodeEditor>();
 

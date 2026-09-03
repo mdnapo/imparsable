@@ -54,7 +54,7 @@
   @if (bottomView !== undefined) {
     <section class="bottom-view-window">
       <div class="tool-window">
-        <div class="tool-window-header">{{ bottomView?.label }}</div>
+        <h4 class="tool-window-header">{{ bottomView?.label }}</h4>
         <ng-container *ngComponentOutlet="bottomView!.view"/>
       </div>
     </section>

@@ -16,7 +16,7 @@
   --activity-bar-width: 48px;
   --side-view-width: 240px;
   --bottom-view-height: 200px;
-  --resizer-size: 4px;
+  --resizer-size: 1px;
 
   display: grid;
 
@@ -62,7 +62,8 @@
   min-width: 0;
   min-height: 0;
 
-  border-right: 1px solid var(--mat-sys-outline-variant);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 5px;
 
   .toolbar {
     display: flex;
@@ -98,8 +99,9 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-top: 1px solid var(--mat-sys-outline-variant);
-
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 5px;
+  margin: 1px;
 }
 
 .vertical-resizer {
@@ -144,11 +146,33 @@
 }
 
 .bottom-view-window {
+  display: flex;
+  flex-direction: column;
   grid-column: 2 / -1;
   grid-row: 3;
 
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-top: 1px solid var(--mat-sys-outline-variant);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 5px;
+  margin: 1px;
+}
+
+.tool-window-header {
+  margin: 0;
+  padding-left: 15px;
+  padding-top: 15px;
+}
+
+.editor {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 5px;
+  margin: 1px;
+}
+
+.tool-window {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
 }
