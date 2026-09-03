@@ -1,12 +1,10 @@
 import {Component} from '@angular/core';
 import {IdeWidget} from '../../app.models';
-import {Ide2} from '../ide2/ide2';
+import {Ide} from '../ide/ide';
 
 @Component({
   selector: 'app-calculator-ide',
-  imports: [
-    Ide2
-  ],
+  imports: [Ide],
   templateUrl: './calculator-ide.html',
   styleUrl: './calculator-ide.scss',
 })
