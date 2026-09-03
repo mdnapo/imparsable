@@ -1,15 +1,15 @@
 <main #ide class="ide"
-      [class.t1-open]="t1View !== undefined"
-      [class.t2-open]="t2View !== undefined"
-      [style.--t1-width.px]="t1Width"
-      [style.--t2-height.px]="t2Height">
+      [class.side-view-open]="sideView !== undefined"
+      [class.bottom-view-open]="bottomView !== undefined"
+      [style.--side-view-width.px]="sideViewWidth"
+      [style.--bottom-view-height.px]="bottomViewHeight">
 
   <aside class="activity-bar">
     <div class="toolbar toolbar-top">
       @for (view of side; track view.id) {
         <button mat-icon-button
-                [class.active]="t1View?.id === view.id"
-                (click)="toggleT1View(view)">
+                [class.active]="sideView?.id === view.id"
+                (click)="toggleSideView(view)">
           <mat-icon>{{ view.icon }}</mat-icon>
         </button>
       }
@@ -18,24 +18,24 @@
     <div class="toolbar toolbar-bottom">
       @for (view of bottom; track view.id) {
         <button mat-icon-button
-                [class.active]="t2View?.id === view.id"
-                (click)="toggleT2View(view)">
+                [class.active]="bottomView?.id === view.id"
+                (click)="toggleBottomView(view)">
           <mat-icon>{{ view.icon }}</mat-icon>
         </button>
       }
     </div>
   </aside>
 
-  @if (t1View !== undefined) {
-    <section class="t1-window">
+  @if (sideView !== undefined) {
+    <section class="side-view-window">
       <div class="tool-window">
-        <div class="tool-window-header">{{ t1View?.label }}</div>
-        <ng-container *ngComponentOutlet="t1View!.view"/>
+        <div class="tool-window-header">{{ sideView?.label }}</div>
+        <ng-container *ngComponentOutlet="sideView!.view"/>
       </div>
     </section>
   }
 
-  <div class="vertical-resizer" (pointerdown)="startT1Resize($event, ide)"></div>
+  <div class="vertical-resizer" (pointerdown)="startSideViewResize($event, ide)"></div>
 
   <main class="editor">
     <div class="editor-tabs">
@@ -45,17 +45,17 @@
     </div>
 
     <div class="editor-content">
-      <ngx-monaco-editor class="monaco" [options]="editorOptions" [(ngModel)]="code"/>
+      <ngx-monaco-editor class="monaco" [(ngModel)]="code"/>
     </div>
   </main>
 
-  <div class="horizontal-resizer" (pointerdown)="startT2Resize($event, ide)"></div>
+  <div class="horizontal-resizer" (pointerdown)="startBottomViewResize($event, ide)"></div>
 
-  @if (t2View !== undefined) {
-    <section class="t2-window">
+  @if (bottomView !== undefined) {
+    <section class="bottom-view-window">
       <div class="tool-window">
-        <div class="tool-window-header">{{ t2View?.label }}</div>
-        <ng-container *ngComponentOutlet="t2View!.view"/>
+        <div class="tool-window-header">{{ bottomView?.label }}</div>
+        <ng-container *ngComponentOutlet="bottomView!.view"/>
       </div>
     </section>
   }

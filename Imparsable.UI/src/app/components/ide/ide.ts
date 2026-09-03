@@ -8,10 +8,6 @@ import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
 import {IdeWidget} from '../../app.models';
 import {NgComponentOutlet} from '@angular/common';
 
-// type T1View = 'explorer' | 'search' | 'outline';
-// type T2View = 'problems' | 'output' | 'terminal';
-
-
 @Component({
   selector: 'app-ide',
   imports: [
@@ -27,54 +23,38 @@ import {NgComponentOutlet} from '@angular/common';
   styleUrl: './ide.scss',
 })
 export class Ide {
-  public code = [
+  @Input() side: IdeWidget[] = [];
+  @Input() sideView?: IdeWidget;
+  protected sideViewWidth = 240;
+
+  @Input() bottom: IdeWidget[] = [];
+  @Input() bottomView?: IdeWidget;
+  protected bottomViewHeight = 200;
+
+  protected code = [
     'let answer = 40 + 2;',
     '',
     'print(answer);',
   ].join('\n');
 
-  public editorOptions = {
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-  };
-
-  @Input()
-  side: IdeWidget[] = [];
-  // protected _side?: IdeWidget;
-
-  @Input()
-  bottom: IdeWidget[] = [];
-  // protected _bottom?: IdeWidget;
-
-  // public t1View?: string = 'explorer';
-  // public t2View?: string = 'output';
-  @Input()
-  public t1View?: IdeWidget;
-
-  @Input()
-  public t2View?: IdeWidget;
-
-  public t1Width = 240;
-  public t2Height = 200;
-
-  public toggleT1View(view: IdeWidget): void {
-    this.t1View = this.t1View?.id === view.id
+  protected toggleSideView(view: IdeWidget): void {
+    this.sideView = this.sideView?.id === view.id
       ? undefined
       : view;
   }
 
-  public toggleT2View(view: IdeWidget): void {
-    this.t2View = this.t2View?.id === view.id
+  protected toggleBottomView(view: IdeWidget): void {
+    this.bottomView = this.bottomView?.id === view.id
       ? undefined
       : view;
   }
 
-  protected startT1Resize(event: PointerEvent, element: HTMLElement): void {
+  protected startSideViewResize(event: PointerEvent, element: HTMLElement): void {
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
 
     const startX = event.clientX;
-    const startWidth = this.t1Width;
+    const startWidth = this.sideViewWidth;
 
     let nextWidth = startWidth;
     let frame = 0;
@@ -89,7 +69,7 @@ export class Ide {
         return;
 
       frame = requestAnimationFrame(() => {
-        element.style.setProperty('--t1-width', `${nextWidth}px`);
+        element.style.setProperty('--side-view-width', `${nextWidth}px`);
         frame = 0;
       });
     };
@@ -98,7 +78,7 @@ export class Ide {
       if (frame !== 0)
         cancelAnimationFrame(frame);
 
-      this.t1Width = nextWidth;
+      this.sideViewWidth = nextWidth;
 
       target.releasePointerCapture(event.pointerId);
 
@@ -110,12 +90,12 @@ export class Ide {
     target.addEventListener('pointerup', stop);
   }
 
-  protected startT2Resize(event: PointerEvent, element: HTMLElement): void {
+  protected startBottomViewResize(event: PointerEvent, element: HTMLElement): void {
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
 
     const startY = event.clientY;
-    const startHeight = this.t2Height;
+    const startHeight = this.bottomViewHeight;
 
     let nextHeight = startHeight;
     let frame = 0;
@@ -130,7 +110,7 @@ export class Ide {
         return;
 
       frame = requestAnimationFrame(() => {
-        element.style.setProperty('--t2-height', `${nextHeight}px`);
+        element.style.setProperty('--bottom-view-height', `${nextHeight}px`);
         frame = 0;
       });
     };
@@ -139,7 +119,7 @@ export class Ide {
       if (frame !== 0)
         cancelAnimationFrame(frame);
 
-      this.t2Height = nextHeight;
+      this.bottomViewHeight = nextHeight;
 
       target.releasePointerCapture(event.pointerId);
 

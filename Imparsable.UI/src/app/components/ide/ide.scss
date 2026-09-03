@@ -14,8 +14,8 @@
 
 .ide {
   --activity-bar-width: 48px;
-  --t1-width: 240px;
-  --t2-height: 200px;
+  --side-view-width: 240px;
+  --bottom-view-height: 200px;
   --resizer-size: 4px;
 
   display: grid;
@@ -36,19 +36,19 @@
   min-width: 0;
   min-height: 0;
 
-  &.t1-open {
+  &.side-view-open {
     grid-template-columns:
       var(--activity-bar-width)
-      var(--t1-width)
+      var(--side-view-width)
       var(--resizer-size)
       minmax(0, 1fr);
   }
 
-  &.t2-open {
+  &.bottom-view-open {
     grid-template-rows:
       minmax(0, 1fr)
       var(--resizer-size)
-      var(--t2-height);
+      var(--bottom-view-height);
   }
 }
 
@@ -91,7 +91,7 @@
   }
 }
 
-.t1-window {
+.side-view-window {
   grid-column: 2;
   grid-row: 1;
 
@@ -143,7 +143,7 @@
   touch-action: none;
 }
 
-.t2-window {
+.bottom-view-window {
   grid-column: 2 / -1;
   grid-row: 3;
 

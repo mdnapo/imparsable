@@ -23,6 +23,9 @@
         },
         "@schematics/angular:service": {
           "path": "src/app/services"
+        },
+        "@schematics/angular:directive": {
+          "path": "src/app/directives"
         }
       },
       "root": "",

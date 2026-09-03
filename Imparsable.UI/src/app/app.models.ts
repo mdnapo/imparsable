@@ -1,6 +1,4 @@
-// import * as monaco from '@codingame/monaco-vscode-editor-api';
-
-import {Component, Type} from '@angular/core';
+import {Type} from '@angular/core';
 
 export enum DiagnosticSeverity {
   WARNING = 1,
