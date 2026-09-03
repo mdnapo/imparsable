@@ -27,12 +27,12 @@ export class Ide {
   ].join('\n');
 
   public editorOptions = {
-    automaticLayout: true,
-    minimap: {
-      enabled: true,
-    },
-    scrollBeyondLastLine: false,
-    fontSize: 14,
+    // automaticLayout: true,
+    // minimap: {
+    //   enabled: true,
+    // },
+    // scrollBeyondLastLine: false,
+    // fontSize: 14,
   };
 
   public panelHeight = 200;

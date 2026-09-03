@@ -1,6 +1,4 @@
 <main #ide class="ide" [style.--panel-height.px]="panelHeight">
-  <span></span>
-
   <div class="workspace">
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -20,11 +18,7 @@
       </div>
 
       <div class="editor-content">
-        <ngx-monaco-editor
-          class="monaco"
-          [options]="editorOptions"
-          [(ngModel)]="code">
-        </ngx-monaco-editor>
+        <ngx-monaco-editor class="monaco" [options]="editorOptions" [(ngModel)]="code"/>
       </div>
     </main>
   </div>
@@ -32,9 +26,7 @@
   <div class="horizontal-resizer" (pointerdown)="startPanelResize($event, ide)"></div>
 
   <section class="panel">
-    <mat-tab-group
-                   mat-align-tabs="start"
-                   mat-stretch-tabs="false">
+    <mat-tab-group headerPosition="below" mat-align-tabs="start" mat-stretch-tabs="false">
       <mat-tab label="Problems">
         <div class="panel-content">
           No problems.

@@ -1,7 +1,21 @@
 // import * as monaco from '@codingame/monaco-vscode-editor-api';
 //
+import {NgxMonacoEditorConfig} from 'ngx-monaco-editor-v2';
+
 export const LanguageId = {
   Calculator: 'clc'
+}
+
+export const DefaultOptions: NgxMonacoEditorConfig = {
+  defaultOptions: {
+    theme: 'vs-dark',
+    automaticLayout: true,
+    minimap: {
+      enabled: true,
+    },
+    scrollBeyondLastLine: false,
+    fontSize: 14,
+  }
 }
 //
 // export function registerCalculatorLanguage(): void {
