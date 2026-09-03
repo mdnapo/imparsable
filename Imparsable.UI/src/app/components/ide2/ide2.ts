@@ -1,13 +1,15 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
+import {IdeWidget} from '../../app.models';
+import {NgComponentOutlet} from '@angular/common';
 
-type T1View = 'explorer' | 'search' | 'outline';
-type T2View = 'problems' | 'output' | 'terminal';
+// type T1View = 'explorer' | 'search' | 'outline';
+// type T2View = 'problems' | 'output' | 'terminal';
 
 
 @Component({
@@ -19,6 +21,7 @@ type T2View = 'problems' | 'output' | 'terminal';
     MatTabsModule,
     MatToolbarModule,
     MonacoEditorModule,
+    NgComponentOutlet,
   ],
   templateUrl: './ide2.html',
   styleUrl: './ide2.scss',
@@ -35,30 +38,39 @@ export class Ide2 {
     scrollBeyondLastLine: false,
   };
 
-  public t1View?: T1View = 'explorer';
-  public t2View?: T2View = 'output';
+  @Input()
+  side: IdeWidget[] = [];
+  // protected _side?: IdeWidget;
+
+  @Input()
+  bottom: IdeWidget[] = [];
+  // protected _bottom?: IdeWidget;
+
+  // public t1View?: string = 'explorer';
+  // public t2View?: string = 'output';
+  @Input()
+  public t1View?: IdeWidget;
+
+  @Input()
+  public t2View?: IdeWidget;
 
   public t1Width = 240;
   public t2Height = 200;
 
-  public toggleT1View(view: T1View): void {
-    this.t1View = this.t1View === view
+  public toggleT1View(view: IdeWidget): void {
+    this.t1View = this.t1View?.id === view.id
       ? undefined
       : view;
   }
 
-  public toggleT2View(view: T2View): void {
-    this.t2View = this.t2View === view
+  public toggleT2View(view: IdeWidget): void {
+    this.t2View = this.t2View?.id === view.id
       ? undefined
       : view;
   }
 
-  public startT1Resize(
-    event: PointerEvent,
-    element: HTMLElement
-  ): void {
+  protected startT1Resize(event: PointerEvent, element: HTMLElement): void {
     const target = event.currentTarget as HTMLElement;
-
     target.setPointerCapture(event.pointerId);
 
     const startX = event.clientX;
@@ -98,12 +110,8 @@ export class Ide2 {
     target.addEventListener('pointerup', stop);
   }
 
-  public startT2Resize(
-    event: PointerEvent,
-    element: HTMLElement
-  ): void {
+  protected startT2Resize(event: PointerEvent, element: HTMLElement): void {
     const target = event.currentTarget as HTMLElement;
-
     target.setPointerCapture(event.pointerId);
 
     const startY = event.clientY;
@@ -142,5 +150,4 @@ export class Ide2 {
     target.addEventListener('pointermove', move);
     target.addEventListener('pointerup', stop);
   }
-  // ...
 }

@@ -1,5 +1,7 @@
 // import * as monaco from '@codingame/monaco-vscode-editor-api';
 
+import {Component, Type} from '@angular/core';
+
 export enum DiagnosticSeverity {
   WARNING = 1,
   ERROR = 2,
@@ -26,3 +28,10 @@ export interface SourceFile {
 }
 
 export type StdOutput = { id: number; text: string };
+
+export interface IdeWidget {
+  id: string;
+  icon: string;
+  label: string;
+  view: Type<any>;
+}
