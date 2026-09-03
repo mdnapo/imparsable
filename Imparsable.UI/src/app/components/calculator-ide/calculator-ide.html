@@ -1,1 +1,5 @@
-<app-ide [side]="side" [bottom]="bottom" [sideView]="side[0]" [bottomView]="bottom[0]"/>
+<app-ide
+  [side]="side" [sideView]="side[0]"
+  [bottom]="bottom" [bottomView]="bottom[0]"
+  (onInit)="init($event)"
+/>

@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -7,6 +7,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
 import {IdeWidget} from '../../app.models';
 import {NgComponentOutlet} from '@angular/common';
+import * as monaco from 'monaco-editor';
 
 @Component({
   selector: 'app-ide',
@@ -31,11 +32,8 @@ export class Ide {
   @Input() bottomView?: IdeWidget;
   protected bottomViewHeight = 200;
 
-  protected code = [
-    'let answer = 40 + 2;',
-    '',
-    'print(answer);',
-  ].join('\n');
+  @Output() onInit = new EventEmitter<monaco.editor.IStandaloneCodeEditor>();
+
 
   protected toggleSideView(view: IdeWidget): void {
     this.sideView = this.sideView?.id === view.id

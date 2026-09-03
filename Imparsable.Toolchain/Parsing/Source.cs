@@ -8,6 +8,7 @@ public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMar
 
     public int Offset => Start;
     public int Length => Position - Start;
+    public string Text => source;
 
     public int Line { get; set; } = 1;
     public int Column { get; set; } = 1;
