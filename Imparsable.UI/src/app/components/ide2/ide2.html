@@ -1,0 +1,119 @@
+<main
+  #ide
+  class="ide"
+  [class.t1-open]="t1View !== undefined"
+  [class.t2-open]="t2View !== undefined"
+  [style.--t1-width.px]="t1Width"
+  [style.--t2-height.px]="t2Height">
+
+  <aside class="activity-bar">
+    <div class="toolbar toolbar-top">
+      <button
+        mat-icon-button
+        [class.active]="t1View === 'explorer'"
+        (click)="toggleT1View('explorer')">
+        <mat-icon>folder</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        [class.active]="t1View === 'search'"
+        (click)="toggleT1View('search')">
+        <mat-icon>search</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        [class.active]="t1View === 'outline'"
+        (click)="toggleT1View('outline')">
+        <mat-icon>account_tree</mat-icon>
+      </button>
+    </div>
+
+    <div class="toolbar toolbar-bottom">
+      <button
+        mat-icon-button
+        [class.active]="t2View === 'problems'"
+        (click)="toggleT2View('problems')">
+        <mat-icon>error_outline</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        [class.active]="t2View === 'output'"
+        (click)="toggleT2View('output')">
+        <mat-icon>output</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        [class.active]="t2View === 'terminal'"
+        (click)="toggleT2View('terminal')">
+        <mat-icon>terminal</mat-icon>
+      </button>
+    </div>
+  </aside>
+
+  <section class="t1-window">
+    @switch (t1View) {
+      @case ('explorer') {
+        <div class="tool-window">
+          <div class="tool-window-header">Explorer</div>
+
+          <div class="file">
+            main.clc
+          </div>
+        </div>
+      }
+      @case ('search') {
+        <div class="tool-window">
+          <div class="tool-window-header">Search</div>
+        </div>
+      }
+      @case ('outline') {
+        <div class="tool-window">
+          <div class="tool-window-header">Outline</div>
+        </div>
+      }
+    }
+  </section>
+
+  <div class="vertical-resizer" (pointerdown)="startT1Resize($event, ide)"></div>
+
+  <main class="editor">
+    <div class="editor-tabs">
+      <div class="editor-tab">
+        main.clc
+      </div>
+    </div>
+
+    <div class="editor-content">
+      <ngx-monaco-editor class="monaco" [options]="editorOptions" [(ngModel)]="code"/>
+    </div>
+  </main>
+
+  <div class="horizontal-resizer" (pointerdown)="startT2Resize($event, ide)"></div>
+
+  <section class="t2-window">
+    @switch (t2View) {
+      @case ('problems') {
+        <div class="tool-window">
+          <div class="tool-window-header">Problems</div>
+          No problems.
+        </div>
+      }
+      @case ('output') {
+        <div class="tool-window">
+          <div class="tool-window-header">Output</div>
+          Ready.
+        </div>
+      }
+      @case ('terminal') {
+        <div class="tool-window">
+          <div class="tool-window-header">Terminal</div>
+          Terminal goes here later.
+        </div>
+      }
+    }
+  </section>
+</main>
