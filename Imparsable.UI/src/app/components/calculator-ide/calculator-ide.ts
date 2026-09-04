@@ -8,6 +8,7 @@ import {CalculatorContext} from '../../services/calculator-context';
 import {CalculatorProblems} from '../calculator-problems/calculator-problems';
 import {CalculatorDisassembler} from '../calculator-disassembler/calculator-disassembler';
 import {Subscription} from 'rxjs';
+import {CalculatorExplorer} from '../calculator-explorer/calculator-explorer';
 
 function getWebSocketUrl(path: string): string {
   const protocol: string = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -41,7 +42,8 @@ export class CalculatorIde implements OnDestroy {
   protected model?: editor.ITextModel;
 
   side: IdeWidget[] = [
-    {id: 'explorer', icon: 'folder', view: Explorer},
+    {id: 'explorer', icon: 'folder', view: CalculatorExplorer},
+    // {id: 'explorer', icon: 'folder', view: Explorer},
   ];
 
   bottom: IdeWidget[] = [
