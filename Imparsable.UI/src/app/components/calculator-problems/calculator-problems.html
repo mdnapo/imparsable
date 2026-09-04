@@ -1,0 +1,14 @@
+<!--suppress AngularForBlockNonIterableVar -->
+<main>
+  <mat-toolbar>
+    <div>Problems</div>
+    <!--    <button matIconButton class="example-icon" (click)="run()" aria-label="Example icon-button with share icon">-->
+    <!--      <mat-icon>play_arrow</mat-icon>-->
+    <!--    </button>-->
+  </mat-toolbar>
+  <section id="output">
+    @for (diagnostic of context.diagnostics | async; track diagnostic.marker) {
+      <code>{{ formatDiagnostic(diagnostic) }}</code><br/>
+    }
+  </section>
+</main>

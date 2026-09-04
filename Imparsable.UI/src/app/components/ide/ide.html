@@ -29,7 +29,7 @@
   @if (sideView !== undefined) {
     <section class="side-view-window">
       <div class="tool-window">
-        <div class="tool-window-header">{{ sideView?.label }}</div>
+<!--        <div class="tool-window-header">{{ sideView?.label }}</div>-->
         <ng-container *ngComponentOutlet="sideView!.view"/>
       </div>
     </section>
@@ -54,7 +54,6 @@
   @if (bottomView !== undefined) {
     <section class="bottom-view-window">
       <div class="tool-window">
-        <h4 class="tool-window-header">{{ bottomView?.label }}</h4>
         <ng-container *ngComponentOutlet="bottomView!.view"/>
       </div>
     </section>

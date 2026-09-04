@@ -18,18 +18,10 @@ export interface Diagnostic {
   severity: DiagnosticSeverity;
 }
 
-export interface SourceFile {
-  // uri: monaco.Uri;
-  name: string;
-  content: string;
-  languageId: string;
-}
-
 export type StdOutput = { id: number; text: string };
 
 export interface IdeWidget {
   id: string;
   icon: string;
-  label: string;
   view: Type<any>;
 }

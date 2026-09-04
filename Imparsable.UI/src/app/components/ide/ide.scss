@@ -16,7 +16,7 @@
   --activity-bar-width: 48px;
   --side-view-width: 240px;
   --bottom-view-height: 200px;
-  --resizer-size: 1px;
+  --resizer-size: 2px;
 
   display: grid;
 
@@ -157,12 +157,6 @@
   border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 5px;
   margin: 1px;
-}
-
-.tool-window-header {
-  margin: 0;
-  padding-left: 15px;
-  padding-top: 15px;
 }
 
 .editor {

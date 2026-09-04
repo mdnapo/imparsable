@@ -5,6 +5,8 @@ import {LanguageId} from '../../app.config.monaco';
 import {lsp, editor} from 'monaco-editor';
 import {CalculatorRunner} from '../calculator-runner/calculator-runner';
 import {CalculatorContext} from '../../services/calculator-context';
+import {CalculatorProblems} from '../calculator-problems/calculator-problems';
+import {CalculatorDisassembler} from '../calculator-disassembler/calculator-disassembler';
 
 const code: string = `const pi = 3.14;
 const radius = 4 / 2;
@@ -30,29 +32,19 @@ export class CalculatorIde implements OnDestroy {
   protected model?: editor.ITextModel;
 
   side: IdeWidget[] = [
-    {id: 'explorer', label: 'Explorer', icon: 'folder', view: Explorer},
-    // {id: 'search', label: 'Search', icon: 'search', view: Stub},
-    // {id: 'outline', label: 'Outline', icon: 'account_tree', view: Stub},
+    {id: 'explorer', icon: 'folder', view: Explorer},
   ];
+
   bottom: IdeWidget[] = [
-    {id: 'run', label: 'Run', icon: 'play_arrow', view: CalculatorRunner},
-    // {id: 'problems', label: 'Problems', icon: 'play_arrow', view: Stub},
-    // {id: 'output', label: 'Output', icon: 'output', view: Stub},
-    // {id: 'terminal', label: 'Terminal', icon: 'terminal', view: Stub},
+    {id: 'runner', icon: 'play_arrow', view: CalculatorRunner},
+    {id: 'disassembler', icon: 'data_array', view: CalculatorDisassembler},
+    {id: 'problems', icon: 'error', view: CalculatorProblems},
   ];
 
   async init(editor: editor.IStandaloneCodeEditor): Promise<void> {
     this.editor = editor;
     this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: "wss://localhost:5001/lsp/clc"});
     this.client = new window.monaco.lsp.MonacoLspClient(this.transport);
-
-    // this.model = window.monaco.editor.createModel(
-    //   code,
-    //   LanguageId.Calculator,
-    //   window.monaco.Uri.parse('file://workspace/test.clc')
-    // );
-    // editor.setModel(this.model);
-
 
     this.context.model.set(
       window.monaco.editor.createModel(
@@ -62,7 +54,6 @@ export class CalculatorIde implements OnDestroy {
       )
     );
     this.editor.setModel(this.context.model()!)
-    // window.monaco.editor.setModelLanguage(this.model, LanguageId.Calculator);
   }
 
   ngOnDestroy(): void {
@@ -79,7 +70,8 @@ export class CalculatorIde implements OnDestroy {
   selector: 'app-explorer',
   imports: [],
   template: `
-    <div>main.clc</div>`,
+    <h3>Explorer</h3>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;main.clc</div>`,
 })
 class Explorer {
 }

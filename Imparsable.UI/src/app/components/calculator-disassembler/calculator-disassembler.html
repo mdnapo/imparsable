@@ -1,14 +1,12 @@
 <!--suppress AngularForBlockNonIterableVar -->
 <main>
   <mat-toolbar>
-    <div>Runner</div>
+    <div>Disassembler</div>
     <button matIconButton class="example-icon" (click)="run()" aria-label="Example icon-button with share icon">
       <mat-icon>play_arrow</mat-icon>
     </button>
   </mat-toolbar>
   <section id="output">
-    @for (line of context.output | async; track line.id) {
-      <code>{{ line.text }}</code><br/>
-    }
+    <pre style="white-space: preserve">{{ this.context.disassembly | async }}</pre><br/>
   </section>
 </main>
