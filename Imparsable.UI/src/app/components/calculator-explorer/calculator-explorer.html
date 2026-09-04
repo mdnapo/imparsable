@@ -2,8 +2,8 @@
 <main>
   <h4 class="title">Explorer</h4>
   <section id="output">
-    @if (dataSource) {
-      <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
+    @if (context.dataSource) {
+      <mat-tree #tree [dataSource]="context.dataSource" [childrenAccessor]="childrenAccessor">
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [matTreeNodePaddingIndent]="15" class="tree-node">
           <span class="toggle-spacer"></span>
           <mat-icon class="node-icon">
@@ -18,7 +18,8 @@
                        [matTreeNodePaddingIndent]="15" matTreeNodeToggle
                        class="tree-node" [cdkTreeNodeTypeaheadLabel]="node.name">
 
-          <button matIconButton class="toggle-button" matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+          <button matIconButton disabled class="toggle-button" matTreeNodeToggle
+                  [attr.aria-label]="'Toggle ' + node.name">
             <mat-icon>{{ tree.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
           </button>
 

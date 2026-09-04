@@ -3,6 +3,8 @@ import {editor} from 'monaco-editor';
 import {BehaviorSubject} from 'rxjs';
 import {Diagnostic, DiagnosticSeverity, StdOutput} from '../app.models';
 import {Calculator} from "imp-wasm";
+import {IdeTree} from '../app.filesystem';
+import {readCalculatorWorkspace} from '../app.config.filesystem';
 
 type Callback<T> = (value: T) => void;
 
@@ -14,6 +16,7 @@ export class CalculatorContext implements OnDestroy {
   readonly diagnostics: BehaviorSubject<Diagnostic[]> = new BehaviorSubject([] as Diagnostic[]);
   readonly disassembly: BehaviorSubject<string> = new BehaviorSubject("");
   readonly failure: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  dataSource!: IdeTree;
 
   private readonly outputCallback: Callback<string> =
     (output: string) => this.onOutput(output);
@@ -28,6 +31,11 @@ export class CalculatorContext implements OnDestroy {
     Calculator.onStdOut.subscribe(this.outputCallback);
     Calculator.onDiagnosticPublished.subscribe(this.diagnosticsSubscription);
     Calculator.onDisassemble.subscribe(this.disassemblyCallback);
+
+    readCalculatorWorkspace()
+      .then(entries => {
+        this.dataSource = new IdeTree(entries, '/workspace');
+      });
   }
 
   ngOnDestroy(): void {

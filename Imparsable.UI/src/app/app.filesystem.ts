@@ -2,7 +2,7 @@ import type {editor} from 'monaco-editor';
 import type {Dirent} from '@zenfs/core';
 import {DataSource} from '@angular/cdk/table';
 import {CollectionViewer} from "@angular/cdk/collections";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, Observable, Observer, Subject, Subscription} from "rxjs";
 
 export abstract class IdeNode {
   protected constructor(readonly name: string, readonly path: string) {
@@ -25,22 +25,25 @@ export class IdeFile extends IdeNode {
   }
 }
 
-export class IdeTree implements DataSource<IdeNode> {
-  readonly root: IdeDirectory;
-  readonly collection: BehaviorSubject<readonly IdeNode[]> = new BehaviorSubject<readonly IdeNode[]>([]);
+export class IdeTree extends BehaviorSubject<readonly IdeNode[]> implements DataSource<IdeNode> {
+  private root!: IdeDirectory;
 
   constructor(entries: Dirent[] = [], rootPath: string = '') {
+    super([]);
+    this.load(entries, rootPath);
+  }
+
+  load(entries: Dirent[] = [], rootPath: string = '') {
     this.root = new IdeDirectory(this.getName(rootPath), rootPath);
     this.build(entries);
-    this.collection.next([this.root]);
+    this.next([this.root]);
   }
 
   connect(collectionViewer: CollectionViewer): Observable<readonly IdeNode[]> {
-    return this.collection;
+    return this;
   }
 
   disconnect(collectionViewer: CollectionViewer): void {
-
   }
 
   private build(entries: Dirent[]): void {
