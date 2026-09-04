@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy} from '@angular/core';
+import {Component, inject, OnDestroy, ViewChild} from '@angular/core';
 import {IdeWidget} from '../../app.models';
 import {Ide} from '../ide/ide';
 import {LanguageId} from '../../app.config.monaco';
@@ -7,6 +7,7 @@ import {CalculatorRunner} from '../calculator-runner/calculator-runner';
 import {CalculatorContext} from '../../services/calculator-context';
 import {CalculatorProblems} from '../calculator-problems/calculator-problems';
 import {CalculatorDisassembler} from '../calculator-disassembler/calculator-disassembler';
+import {Subscription} from 'rxjs';
 
 const code: string = `const pi = 3.14;
 const radius = 4 / 2;
@@ -25,10 +26,13 @@ for (var x = 0; x < 3; x += 1)
   styleUrl: './calculator-ide.scss',
 })
 export class CalculatorIde implements OnDestroy {
+  @ViewChild(Ide)
+  private ide!: Ide;
   private readonly context: CalculatorContext = inject(CalculatorContext);
   private editor?: editor.IStandaloneCodeEditor;
   private transport?: lsp.WebSocketTransport;
   private client?: lsp.MonacoLspClient;
+  private subscription: Subscription = new Subscription();
   protected model?: editor.ITextModel;
 
   side: IdeWidget[] = [
@@ -38,7 +42,7 @@ export class CalculatorIde implements OnDestroy {
   bottom: IdeWidget[] = [
     {id: 'runner', icon: 'play_arrow', view: CalculatorRunner},
     {id: 'disassembler', icon: 'data_array', view: CalculatorDisassembler},
-    {id: 'problems', icon: 'error', view: CalculatorProblems},
+    {id: 'problems', icon: 'error', view: CalculatorProblems, badge: () => this.context.errors()},
   ];
 
   async init(editor: editor.IStandaloneCodeEditor): Promise<void> {
@@ -53,13 +57,23 @@ export class CalculatorIde implements OnDestroy {
         window.monaco.Uri.parse('file://workspace/test.clc')
       )
     );
-    this.editor.setModel(this.context.model()!)
+
+    this.editor.setModel(this.context.model()!);
+
+    this.subscription.add(
+      this.context.failure.subscribe(failed => {
+        if (failed) {
+          this.ide.bottomView = this.bottom[2];
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
     this.transport?.close();
     this.model?.dispose();
     this.editor?.dispose();
+    this.subscription.unsubscribe();
 
     this.client = undefined;
     this.transport = undefined;

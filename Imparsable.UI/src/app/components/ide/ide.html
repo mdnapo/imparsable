@@ -19,7 +19,9 @@
       @for (view of bottom; track view.id) {
         <button mat-icon-button
                 [class.active]="bottomView?.id === view.id"
-                (click)="toggleBottomView(view)">
+                (click)="toggleBottomView(view)"
+                [matBadge]="view.badge?.()"
+                [matBadgeHidden]="view.badge === undefined || view.badge() === 0">
           <mat-icon>{{ view.icon }}</mat-icon>
         </button>
       }
@@ -29,7 +31,6 @@
   @if (sideView !== undefined) {
     <section class="side-view-window">
       <div class="tool-window">
-<!--        <div class="tool-window-header">{{ sideView?.label }}</div>-->
         <ng-container *ngComponentOutlet="sideView!.view"/>
       </div>
     </section>

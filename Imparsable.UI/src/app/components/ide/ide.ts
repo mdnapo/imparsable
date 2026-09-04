@@ -8,6 +8,7 @@ import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
 import {IdeWidget} from '../../app.models';
 import {NgComponentOutlet} from '@angular/common';
 import * as monaco from 'monaco-editor';
+import {MatBadge} from '@angular/material/badge';
 
 @Component({
   selector: 'app-ide',
@@ -19,6 +20,7 @@ import * as monaco from 'monaco-editor';
     MatToolbarModule,
     MonacoEditorModule,
     NgComponentOutlet,
+    MatBadge,
   ],
   templateUrl: './ide.html',
   styleUrl: './ide.scss',

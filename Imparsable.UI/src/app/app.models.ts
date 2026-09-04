@@ -24,4 +24,5 @@ export interface IdeWidget {
   id: string;
   icon: string;
   view: Type<any>;
+  badge?: () => number;
 }

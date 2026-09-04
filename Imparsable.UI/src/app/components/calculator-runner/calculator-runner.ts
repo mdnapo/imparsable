@@ -1,8 +1,7 @@
-import {AfterViewInit, Component, inject, OnDestroy} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {MatToolbar} from '@angular/material/toolbar';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
-import {Calculator} from "imp-wasm";
 import {AsyncPipe} from '@angular/common';
 import {CalculatorContext} from '../../services/calculator-context';
 
@@ -17,24 +16,6 @@ import {CalculatorContext} from '../../services/calculator-context';
   templateUrl: './calculator-runner.html',
   styleUrl: './calculator-runner.scss',
 })
-export class CalculatorRunner implements AfterViewInit, OnDestroy {
+export class CalculatorRunner {
   protected readonly context: CalculatorContext = inject(CalculatorContext);
-  private readonly outputCallback: (output: string) => void = (output: string) => this.onOutput(output);
-
-  ngAfterViewInit(): void {
-    Calculator.onStdOut.subscribe(this.outputCallback);
-  }
-
-  ngOnDestroy(): void {
-    Calculator.onStdOut.unsubscribe(this.outputCallback);
-  }
-
-  protected run() {
-    Calculator.execute(this.context.model()?.getValue()!);
-  }
-
-  private onOutput(output: string): void {
-    this.context.output.value.push({id: this.context.output.value.length, text: output});
-    this.context.output.next(this.context.output.value);
-  }
 }

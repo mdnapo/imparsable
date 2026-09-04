@@ -2,11 +2,13 @@
 <main>
   <mat-toolbar>
     <div>Disassembler</div>
-    <button matIconButton class="example-icon" (click)="run()" aria-label="Example icon-button with share icon">
+    <button matIconButton class="example-icon" (click)="context.disassemble()"
+            aria-label="Example icon-button with share icon">
       <mat-icon>play_arrow</mat-icon>
     </button>
   </mat-toolbar>
   <section id="output">
-    <pre style="white-space: preserve">{{ this.context.disassembly | async }}</pre><br/>
+    <pre style="white-space: preserve">{{ this.context.disassembly | async }}</pre>
+    <br/>
   </section>
 </main>
