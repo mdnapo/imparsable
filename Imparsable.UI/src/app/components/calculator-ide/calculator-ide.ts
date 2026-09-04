@@ -9,6 +9,11 @@ import {CalculatorProblems} from '../calculator-problems/calculator-problems';
 import {CalculatorDisassembler} from '../calculator-disassembler/calculator-disassembler';
 import {Subscription} from 'rxjs';
 
+function getWebSocketUrl(path: string): string {
+  const protocol: string = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}${path}`;
+}
+
 const code: string = `const pi = 3.14;
 const radius = 4 / 2;
 var area = 2 * pi * radius;
@@ -40,14 +45,14 @@ export class CalculatorIde implements OnDestroy {
   ];
 
   bottom: IdeWidget[] = [
-    {id: 'runner', icon: 'play_arrow', view: CalculatorRunner},
+    {id: 'runner', icon: 'terminal_2', view: CalculatorRunner},
     {id: 'disassembler', icon: 'data_array', view: CalculatorDisassembler},
     {id: 'problems', icon: 'error', view: CalculatorProblems, badge: () => this.context.errors()},
   ];
 
   async init(editor: editor.IStandaloneCodeEditor): Promise<void> {
     this.editor = editor;
-    this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: "wss://localhost:5001/lsp/clc"});
+    this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: getWebSocketUrl('/lsp/clc')});
     this.client = new window.monaco.lsp.MonacoLspClient(this.transport);
 
     this.context.model.set(

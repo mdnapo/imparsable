@@ -45,6 +45,7 @@ export class CalculatorContext implements OnDestroy {
   public run(): void {
     this.output.next([]);
     this.diagnostics.next([]);
+    this.errors.set(0);
     Calculator.execute(this.model()?.getValue()!);
   }
 
