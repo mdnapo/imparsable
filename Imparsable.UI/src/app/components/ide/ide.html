@@ -40,13 +40,18 @@
 
   <main class="editor">
     @if (model) {
-      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="ide-tabs">
         <mat-tab [label]="model.uri.path">
           <ng-template mat-tab-label>
-            <span>{{fileName(model)}}</span>
-            <button mat-icon-button (click)="closeFile(model)">
-              <mat-icon style="font-size: 15px" >close</mat-icon>
-            </button>
+            <div class="tab-label">
+              <mat-icon class="file-icon">description</mat-icon>
+              <span class="file-name">
+                {{ fileName(model) }}
+              </span>
+              <button class="close-button" type="button" (click)="$event.stopPropagation(); closeFile(model)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
           </ng-template>
         </mat-tab>
       </mat-tab-group>
