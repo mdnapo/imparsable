@@ -40,16 +40,16 @@
 
   <main class="editor">
     @if (model) {
-      <div class="editor-tabs">
-        <div class="editor-tab">
-          {{ model.uri.path }}
-          <!--          main.clc-->
-        </div>
-      </div>
-
-      <!--      <div class="editor-content">-->
-        <!--        <ngx-monaco-editor class="monaco" (onInit)="onInit.emit($event)"/>-->
-        <!--      </div>-->
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+        <mat-tab [label]="model.uri.path">
+          <ng-template mat-tab-label>
+            <span>{{fileName(model)}}</span>
+            <button mat-icon-button (click)="closeFile(model)">
+              <mat-icon style="font-size: 15px" >close</mat-icon>
+            </button>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
     }
 
     <div class="editor-content" [hidden]="model == null">

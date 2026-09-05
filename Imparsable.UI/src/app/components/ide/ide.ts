@@ -10,6 +10,7 @@ import {NgComponentOutlet} from '@angular/common';
 import {MatBadge} from '@angular/material/badge';
 import {editor} from 'monaco-editor';
 import * as monaco from 'monaco-editor';
+import * as path from '@zenfs/core/path';
 
 @Component({
   selector: 'app-ide',
@@ -131,5 +132,13 @@ export class Ide {
 
     target.addEventListener('pointermove', move);
     target.addEventListener('pointerup', stop);
+  }
+
+  protected closeFile(model: editor.ITextModel) {
+    console.log("Closing", model);
+  }
+
+  protected fileName(model: editor.ITextModel) {
+    return path.basename(model.uri.path);
   }
 }

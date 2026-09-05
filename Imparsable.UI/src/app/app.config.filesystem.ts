@@ -1,7 +1,6 @@
 import {configure, Dirent} from '@zenfs/core';
 import {mkdir, readdir, exists, writeFile} from '@zenfs/core/promises';
 import {IndexedDB} from '@zenfs/dom';
-import {IdeTree} from './app.filesystem';
 
 const workspaceRoot = '/workspace';
 const calculatorWorkspace = `${workspaceRoot}/calculator`;
@@ -25,23 +24,6 @@ export async function initializeFileSystem(): Promise<void> {
 
   if (!await exists(calculatorFile)) {
     await writeFile(calculatorFile, code);
-  }
-
-  const files = await readdir(calculatorWorkspace, {recursive: true, withFileTypes: true});
-  console.log(files);
-  console.log(new IdeTree(files, workspaceRoot));
-  for (let i = 0; i < files.length; i++) {
-    // const content = await readFile(`${calculatorWorkspace}/${files[i]}`);
-    // console.log(String(content));
-
-    // console.log(files[i]);
-
-    // console.log([
-    //   '/workspace',
-    //   '/workspace/calculator/test.clc',
-    //   '/workspace/calculator/test2.clc',
-    //   '/workspace/calculator',
-    // ].sort());
   }
 }
 
