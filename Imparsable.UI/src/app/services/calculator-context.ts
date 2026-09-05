@@ -1,18 +1,17 @@
 import {OnDestroy, Service, signal, WritableSignal} from '@angular/core';
-import {editor} from 'monaco-editor';
 import {BehaviorSubject} from 'rxjs';
 import {Diagnostic, DiagnosticSeverity, StdOutput} from '../app.models';
 import {Calculator} from "imp-wasm";
-import {IdeTree} from '../app.filesystem';
+import {IdeFile, IdeTree} from '../app.filesystem';
 import {readCalculatorWorkspace} from '../app.config.filesystem';
 
 type Callback<T> = (value: T) => void;
 
 @Service()
 export class CalculatorContext implements OnDestroy {
-  readonly fileSystem: WritableSignal<IdeTree> = signal(new IdeTree());
+  readonly files: WritableSignal<IdeTree> = signal(new IdeTree());
   readonly errors: WritableSignal<number> = signal(0);
-  readonly file: BehaviorSubject<editor.ITextModel | null> = new BehaviorSubject<editor.ITextModel | null>(null);
+  readonly file: BehaviorSubject<IdeFile | null> = new BehaviorSubject<IdeFile | null>(null);
   readonly output: BehaviorSubject<StdOutput[]> = new BehaviorSubject([] as StdOutput[]);
   readonly diagnostics: BehaviorSubject<Diagnostic[]> = new BehaviorSubject([] as Diagnostic[]);
   readonly disassembly: BehaviorSubject<string> = new BehaviorSubject("");
@@ -33,7 +32,7 @@ export class CalculatorContext implements OnDestroy {
     Calculator.onDisassemble.subscribe(this.disassemblyCallback);
 
     readCalculatorWorkspace()
-      .then(entries => this.fileSystem.set(this.fileSystem().load(entries, '/workspace')));
+      .then(entries => this.files.update(tree => tree.load(entries, '/workspace')));
   }
 
   ngOnDestroy(): void {
@@ -52,13 +51,13 @@ export class CalculatorContext implements OnDestroy {
     this.output.next([]);
     this.diagnostics.next([]);
     this.errors.set(0);
-    Calculator.execute(this.file.value!.getValue()!);
+    Calculator.execute(this.file.value!.getValue());
   }
 
   public disassemble(): void {
     this.output.next([]);
     this.diagnostics.next([]);
-    Calculator.disassemble(this.file.value!.getValue()!);
+    Calculator.disassemble(this.file.value!.getValue());
   }
 
   private notifyError() {
@@ -78,7 +77,14 @@ export class CalculatorContext implements OnDestroy {
     this.disassembly.next(output.trim());
   }
 
-  public setModel(file: editor.ITextModel | null): void {
+  public openFile(file: IdeFile): void {
     this.file.next(file);
+  }
+
+  public closeFile(file: IdeFile): void {
+    if (this.file.value === file) {
+      this.file.next(null);
+    }
+    file.dispose();
   }
 }

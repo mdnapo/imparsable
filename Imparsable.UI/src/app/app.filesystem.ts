@@ -19,7 +19,7 @@ export class IdeDirectory extends IdeNode {
 }
 
 export class IdeFile extends IdeNode {
-  private model?: editor.ITextModel;
+  private model?: editor.ITextModel | null;
 
   constructor(name: string, path: string) {
     super(name, path);
@@ -35,6 +35,15 @@ export class IdeFile extends IdeNode {
     );
 
     return this.model;
+  }
+
+  public getValue(): string {
+    return this.getModel().getValue();
+  }
+
+  public dispose(): void {
+    this.model?.dispose();
+    this.model = null;
   }
 }
 

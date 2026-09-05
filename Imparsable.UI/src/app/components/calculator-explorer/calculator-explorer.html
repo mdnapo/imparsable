@@ -2,10 +2,10 @@
 <main>
   <h4 class="title">Explorer</h4>
   <section id="output">
-    @if (context.fileSystem()) {
-      <mat-tree #tree [dataSource]="context.fileSystem()" [childrenAccessor]="childrenAccessor">
+    @if (context.files()) {
+      <mat-tree #tree [dataSource]="context.files()" [childrenAccessor]="childrenAccessor">
         <mat-tree-node class="tree-node" *matTreeNodeDef="let node" matTreeNodePadding
-                       [matTreeNodePaddingIndent]="15" (dblclick)="openFile(node)">
+                       [matTreeNodePaddingIndent]="15" (dblclick)="openFile($event, node)">
           <span class="toggle-spacer"></span>
           <mat-icon class="node-icon">
             description

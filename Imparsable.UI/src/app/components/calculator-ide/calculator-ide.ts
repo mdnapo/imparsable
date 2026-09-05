@@ -1,7 +1,6 @@
 import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IdeWidget} from '../../app.models';
 import {Ide} from '../ide/ide';
-import {LanguageId} from '../../app.config.monaco';
 import {lsp, editor} from 'monaco-editor';
 import {CalculatorRunner} from '../calculator-runner/calculator-runner';
 import {CalculatorContext} from '../../services/calculator-context';
@@ -15,16 +14,6 @@ function getWebSocketUrl(path: string): string {
   const protocol: string = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${protocol}//${window.location.host}${path}`;
 }
-
-const code: string = `const pi = 3.14;
-const radius = 4 / 2;
-var area = 2 * pi * radius;
-print "Area" + ': ' + area;
-print 1 + 2;
-
-for (var x = 0; x < 3; x += 1)
-    print x + 1;
-`;
 
 @Component({
   selector: 'app-calculator-ide',
@@ -68,7 +57,9 @@ export class CalculatorIde implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription.add(
       this.context.file.subscribe(file => {
-        this.editor?.setModel(file);
+        if (file !== null) {
+          this.editor?.setModel(file.getModel());
+        }
       })
     );
   }

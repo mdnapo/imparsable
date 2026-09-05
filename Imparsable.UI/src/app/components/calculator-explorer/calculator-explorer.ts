@@ -29,7 +29,8 @@ export class CalculatorExplorer {
   protected readonly hasChild =
     (_: number, node: IdeNode): boolean => node instanceof IdeDirectory;
 
-  protected openFile(node: IdeFile): void {
-    this.context.setModel(node.getModel());
+  protected openFile($event: MouseEvent, node: IdeFile): void {
+    $event.stopPropagation();
+    this.context.openFile(node);
   }
 }

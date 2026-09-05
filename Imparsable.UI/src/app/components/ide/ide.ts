@@ -9,8 +9,7 @@ import {IdeWidget} from '../../app.models';
 import {NgComponentOutlet} from '@angular/common';
 import {MatBadge} from '@angular/material/badge';
 import {editor} from 'monaco-editor';
-import * as monaco from 'monaco-editor';
-import * as path from '@zenfs/core/path';
+import {IdeFile} from '../../app.filesystem';
 
 @Component({
   selector: 'app-ide',
@@ -36,8 +35,9 @@ export class Ide {
   @Input() bottomView?: IdeWidget;
   protected bottomViewHeight = 300;
 
-  @Input() model: editor.ITextModel | null = null;
-  @Output() onInit = new EventEmitter<monaco.editor.IStandaloneCodeEditor>();
+  @Input() file: IdeFile | null = null;
+  @Output() onInit: EventEmitter<editor.IStandaloneCodeEditor> = new EventEmitter<editor.IStandaloneCodeEditor>();
+  @Output() onCloseFile: EventEmitter<IdeFile> = new EventEmitter<IdeFile>();
 
 
   protected toggleSideView(view: IdeWidget): void {
@@ -134,11 +134,8 @@ export class Ide {
     target.addEventListener('pointerup', stop);
   }
 
-  protected closeFile(model: editor.ITextModel) {
-    console.log("Closing", model);
-  }
-
-  protected fileName(model: editor.ITextModel) {
-    return path.basename(model.uri.path);
+  protected closeFile($event: PointerEvent, file: IdeFile): void {
+    $event.stopPropagation();
+    this.onCloseFile.emit(file);
   }
 }

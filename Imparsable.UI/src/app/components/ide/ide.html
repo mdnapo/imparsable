@@ -39,16 +39,16 @@
   <div class="vertical-resizer" (pointerdown)="startSideViewResize($event, ide)"></div>
 
   <main class="editor">
-    @if (model) {
+    @if (file) {
       <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="ide-tabs">
-        <mat-tab [label]="model.uri.path">
+        <mat-tab [label]="file.getModel().uri.path">
           <ng-template mat-tab-label>
             <div class="tab-label">
               <mat-icon class="file-icon">description</mat-icon>
               <span class="file-name">
-                {{ fileName(model) }}
+                {{ file.name }}
               </span>
-              <button class="close-button" type="button" (click)="$event.stopPropagation(); closeFile(model)">
+              <button class="close-button" type="button" (click)="closeFile($event, file)">
                 <mat-icon>close</mat-icon>
               </button>
             </div>
@@ -57,7 +57,7 @@
       </mat-tab-group>
     }
 
-    <div class="editor-content" [hidden]="model == null">
+    <div class="editor-content" [hidden]="file == null">
       <ngx-monaco-editor class="monaco" (onInit)="onInit.emit($event)"/>
     </div>
   </main>
