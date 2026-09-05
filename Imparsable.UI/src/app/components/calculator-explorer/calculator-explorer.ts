@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {MatIcon} from "@angular/material/icon";
 import {MatIconButton} from "@angular/material/button";
 import {CalculatorContext} from '../../services/calculator-context';
-import {IdeDirectory, IdeNode} from '../../app.filesystem';
+import {IdeDirectory, IdeFile, IdeNode} from '../../app.filesystem';
 import {MatTree, MatTreeNode, MatTreeNodeDef, MatTreeNodePadding, MatTreeNodeToggle} from '@angular/material/tree';
 
 @Component({
@@ -14,7 +14,7 @@ import {MatTree, MatTreeNode, MatTreeNodeDef, MatTreeNodePadding, MatTreeNodeTog
     MatTreeNode,
     MatTreeNodeDef,
     MatTreeNodeToggle,
-    MatTreeNodePadding
+    MatTreeNodePadding,
   ],
   templateUrl: './calculator-explorer.html',
   styleUrl: './calculator-explorer.scss',
@@ -28,4 +28,8 @@ export class CalculatorExplorer {
 
   protected readonly hasChild =
     (_: number, node: IdeNode): boolean => node instanceof IdeDirectory;
+
+  protected openFile(node: IdeFile): void {
+    this.context.setModel(node.getModel());
+  }
 }

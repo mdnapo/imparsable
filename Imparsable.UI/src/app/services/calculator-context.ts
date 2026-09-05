@@ -10,13 +10,13 @@ type Callback<T> = (value: T) => void;
 
 @Service()
 export class CalculatorContext implements OnDestroy {
-  readonly model: WritableSignal<editor.ITextModel | undefined> = signal(undefined);
+  readonly fileSystem: WritableSignal<IdeTree> = signal(new IdeTree());
   readonly errors: WritableSignal<number> = signal(0);
+  readonly file: BehaviorSubject<editor.ITextModel | null> = new BehaviorSubject<editor.ITextModel | null>(null);
   readonly output: BehaviorSubject<StdOutput[]> = new BehaviorSubject([] as StdOutput[]);
   readonly diagnostics: BehaviorSubject<Diagnostic[]> = new BehaviorSubject([] as Diagnostic[]);
   readonly disassembly: BehaviorSubject<string> = new BehaviorSubject("");
   readonly failure: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  dataSource!: IdeTree;
 
   private readonly outputCallback: Callback<string> =
     (output: string) => this.onOutput(output);
@@ -33,9 +33,7 @@ export class CalculatorContext implements OnDestroy {
     Calculator.onDisassemble.subscribe(this.disassemblyCallback);
 
     readCalculatorWorkspace()
-      .then(entries => {
-        this.dataSource = new IdeTree(entries, '/workspace');
-      });
+      .then(entries => this.fileSystem.set(this.fileSystem().load(entries, '/workspace')));
   }
 
   ngOnDestroy(): void {
@@ -54,13 +52,13 @@ export class CalculatorContext implements OnDestroy {
     this.output.next([]);
     this.diagnostics.next([]);
     this.errors.set(0);
-    Calculator.execute(this.model()?.getValue()!);
+    Calculator.execute(this.file.value!.getValue()!);
   }
 
   public disassemble(): void {
     this.output.next([]);
     this.diagnostics.next([]);
-    Calculator.disassemble(this.model()?.getValue()!);
+    Calculator.disassemble(this.file.value!.getValue()!);
   }
 
   private notifyError() {
@@ -78,5 +76,9 @@ export class CalculatorContext implements OnDestroy {
 
   private onDisassembly(output: string): void {
     this.disassembly.next(output.trim());
+  }
+
+  public setModel(file: editor.ITextModel | null): void {
+    this.file.next(file);
   }
 }

@@ -39,13 +39,20 @@
   <div class="vertical-resizer" (pointerdown)="startSideViewResize($event, ide)"></div>
 
   <main class="editor">
-    <div class="editor-tabs">
-      <div class="editor-tab">
-        main.clc
+    @if (model) {
+      <div class="editor-tabs">
+        <div class="editor-tab">
+          {{ model.uri.path }}
+          <!--          main.clc-->
+        </div>
       </div>
-    </div>
 
-    <div class="editor-content">
+      <!--      <div class="editor-content">-->
+        <!--        <ngx-monaco-editor class="monaco" (onInit)="onInit.emit($event)"/>-->
+        <!--      </div>-->
+    }
+
+    <div class="editor-content" [hidden]="model == null">
       <ngx-monaco-editor class="monaco" (onInit)="onInit.emit($event)"/>
     </div>
   </main>

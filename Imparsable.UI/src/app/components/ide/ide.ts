@@ -7,8 +7,9 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
 import {IdeWidget} from '../../app.models';
 import {NgComponentOutlet} from '@angular/common';
-import * as monaco from 'monaco-editor';
 import {MatBadge} from '@angular/material/badge';
+import {editor} from 'monaco-editor';
+import * as monaco from 'monaco-editor';
 
 @Component({
   selector: 'app-ide',
@@ -34,6 +35,7 @@ export class Ide {
   @Input() bottomView?: IdeWidget;
   protected bottomViewHeight = 300;
 
+  @Input() model: editor.ITextModel | null = null;
   @Output() onInit = new EventEmitter<monaco.editor.IStandaloneCodeEditor>();
 
 

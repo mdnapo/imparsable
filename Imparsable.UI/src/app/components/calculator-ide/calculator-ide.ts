@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IdeWidget} from '../../app.models';
 import {Ide} from '../ide/ide';
 import {LanguageId} from '../../app.config.monaco';
@@ -9,6 +9,7 @@ import {CalculatorProblems} from '../calculator-problems/calculator-problems';
 import {CalculatorDisassembler} from '../calculator-disassembler/calculator-disassembler';
 import {Subscription} from 'rxjs';
 import {CalculatorExplorer} from '../calculator-explorer/calculator-explorer';
+import {AsyncPipe} from '@angular/common';
 
 function getWebSocketUrl(path: string): string {
   const protocol: string = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -27,23 +28,21 @@ for (var x = 0; x < 3; x += 1)
 
 @Component({
   selector: 'app-calculator-ide',
-  imports: [Ide],
+  imports: [Ide, AsyncPipe],
   templateUrl: './calculator-ide.html',
   styleUrl: './calculator-ide.scss',
 })
-export class CalculatorIde implements OnDestroy {
+export class CalculatorIde implements OnInit, OnDestroy {
   @ViewChild(Ide)
   private ide!: Ide;
-  private readonly context: CalculatorContext = inject(CalculatorContext);
+  protected readonly context: CalculatorContext = inject(CalculatorContext);
   private editor?: editor.IStandaloneCodeEditor;
   private transport?: lsp.WebSocketTransport;
   private client?: lsp.MonacoLspClient;
   private subscription: Subscription = new Subscription();
-  protected model?: editor.ITextModel;
 
   side: IdeWidget[] = [
     {id: 'explorer', icon: 'folder', view: CalculatorExplorer},
-    // {id: 'explorer', icon: 'folder', view: Explorer},
   ];
 
   bottom: IdeWidget[] = [
@@ -57,16 +56,6 @@ export class CalculatorIde implements OnDestroy {
     this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: getWebSocketUrl('/lsp/clc')});
     this.client = new window.monaco.lsp.MonacoLspClient(this.transport);
 
-    this.context.model.set(
-      window.monaco.editor.createModel(
-        code,
-        LanguageId.Calculator,
-        window.monaco.Uri.parse('file://workspace/test.clc')
-      )
-    );
-
-    this.editor.setModel(this.context.model()!);
-
     this.subscription.add(
       this.context.failure.subscribe(failed => {
         if (failed) {
@@ -76,9 +65,16 @@ export class CalculatorIde implements OnDestroy {
     );
   }
 
+  ngOnInit(): void {
+    this.subscription.add(
+      this.context.file.subscribe(file => {
+        this.editor?.setModel(file);
+      })
+    );
+  }
+
   ngOnDestroy(): void {
     this.transport?.close();
-    this.model?.dispose();
     this.editor?.dispose();
     this.subscription.unsubscribe();
 
@@ -87,12 +83,3 @@ export class CalculatorIde implements OnDestroy {
   }
 }
 
-@Component({
-  selector: 'app-explorer',
-  imports: [],
-  template: `
-    <h3>Explorer</h3>
-    <div>&nbsp;&nbsp;&nbsp;&nbsp;main.clc</div>`,
-})
-class Explorer {
-}

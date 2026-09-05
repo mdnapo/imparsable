@@ -2,9 +2,10 @@
 <main>
   <h4 class="title">Explorer</h4>
   <section id="output">
-    @if (context.dataSource) {
-      <mat-tree #tree [dataSource]="context.dataSource" [childrenAccessor]="childrenAccessor">
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [matTreeNodePaddingIndent]="15" class="tree-node">
+    @if (context.fileSystem()) {
+      <mat-tree #tree [dataSource]="context.fileSystem()" [childrenAccessor]="childrenAccessor">
+        <mat-tree-node class="tree-node" *matTreeNodeDef="let node" matTreeNodePadding
+                       [matTreeNodePaddingIndent]="15" (dblclick)="openFile(node)">
           <span class="toggle-spacer"></span>
           <mat-icon class="node-icon">
             description

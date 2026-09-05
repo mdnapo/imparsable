@@ -1,8 +1,9 @@
-import type {editor} from 'monaco-editor';
-import type {Dirent} from '@zenfs/core';
+import {editor} from 'monaco-editor';
+import {Dirent, fs} from '@zenfs/core';
 import {DataSource} from '@angular/cdk/table';
 import {CollectionViewer} from "@angular/cdk/collections";
-import {BehaviorSubject, Observable, Observer, Subject, Subscription} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
+import {LanguageId} from './app.config.monaco';
 
 export abstract class IdeNode {
   protected constructor(readonly name: string, readonly path: string) {
@@ -18,10 +19,22 @@ export class IdeDirectory extends IdeNode {
 }
 
 export class IdeFile extends IdeNode {
-  model?: editor.ITextModel;
+  private model?: editor.ITextModel;
 
   constructor(name: string, path: string) {
     super(name, path);
+  }
+
+  public getModel(): editor.ITextModel {
+    if (this.model) return this.model;
+
+    this.model = window.monaco.editor.createModel(
+      String(fs.readFileSync(this.path)),
+      LanguageId.Calculator,
+      window.monaco.Uri.from({scheme: 'file', path: this.path})
+    );
+
+    return this.model;
   }
 }
 
@@ -33,10 +46,11 @@ export class IdeTree extends BehaviorSubject<readonly IdeNode[]> implements Data
     this.load(entries, rootPath);
   }
 
-  load(entries: Dirent[] = [], rootPath: string = '') {
+  load(entries: Dirent[] = [], rootPath: string = ''): IdeTree {
     this.root = new IdeDirectory(this.getName(rootPath), rootPath);
     this.build(entries);
     this.next([this.root]);
+    return this;
   }
 
   connect(collectionViewer: CollectionViewer): Observable<readonly IdeNode[]> {
@@ -80,9 +94,8 @@ export class IdeTree extends BehaviorSubject<readonly IdeNode[]> implements Data
   private ensureDirectory(path: string, directories: Map<string, IdeDirectory>): IdeDirectory {
     const existing = directories.get(path);
 
-    if (existing) {
+    if (existing)
       return existing;
-    }
 
     const parentPath = this.getDirectoryParent(path);
     const parent = this.ensureDirectory(parentPath, directories);

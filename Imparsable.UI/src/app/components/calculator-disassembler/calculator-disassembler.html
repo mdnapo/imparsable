@@ -2,8 +2,7 @@
 <main>
   <mat-toolbar>
     <div>Disassembler</div>
-    <button matIconButton class="example-icon" (click)="context.disassemble()"
-            aria-label="Example icon-button with share icon">
+    <button matIconButton (click)="context.disassemble()" [disabled]="!(context.file | async)">
       <mat-icon>play_arrow</mat-icon>
     </button>
   </mat-toolbar>
