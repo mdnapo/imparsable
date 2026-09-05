@@ -57,6 +57,7 @@ export class CalculatorContext implements OnDestroy {
   public disassemble(): void {
     this.output.next([]);
     this.diagnostics.next([]);
+    this.errors.set(0);
     Calculator.disassemble(this.file.value!.getValue());
   }
 

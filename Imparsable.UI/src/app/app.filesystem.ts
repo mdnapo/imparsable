@@ -1,9 +1,10 @@
-import {editor} from 'monaco-editor';
-import {Dirent, fs} from '@zenfs/core';
 import {DataSource} from '@angular/cdk/table';
 import {CollectionViewer} from "@angular/cdk/collections";
+import {editor, IDisposable} from 'monaco-editor';
 import {BehaviorSubject, Observable} from "rxjs";
-import {LanguageId} from './app.config.monaco';
+import {Dirent, fs} from '@zenfs/core';
+import * as path from "@zenfs/core/path"
+import {Signal, signal, WritableSignal} from '@angular/core';
 
 export abstract class IdeNode {
   protected constructor(readonly name: string, readonly path: string) {
@@ -20,19 +21,29 @@ export class IdeDirectory extends IdeNode {
 
 export class IdeFile extends IdeNode {
   private model?: editor.ITextModel | null;
+  private savedVersionId?: number | null;
+  private changeSubscription?: IDisposable | null;
+  private readonly _dirty: WritableSignal<boolean> = signal(false);
+  public readonly dirty: Signal<boolean> = this._dirty.asReadonly();
 
   constructor(name: string, path: string) {
     super(name, path);
   }
 
+  private updateDirty(): void {
+    this._dirty.set(this.model !== undefined && this.savedVersionId !== this.model?.getAlternativeVersionId());
+  }
+
   public getModel(): editor.ITextModel {
     if (this.model) return this.model;
 
-    this.model = window.monaco.editor.createModel(
-      String(fs.readFileSync(this.path)),
-      LanguageId.Calculator,
-      window.monaco.Uri.from({scheme: 'file', path: this.path})
-    );
+    const value = String(fs.readFileSync(this.path));
+    const extension = path.extname(this.path).replace('.', '');
+    const uri = window.monaco.Uri.from({scheme: 'file', path: this.path});
+
+    this.model = window.monaco.editor.createModel(value, extension, uri);
+    this.changeSubscription = this.model.onDidChangeContent(() => this.updateDirty());
+    this.savedVersionId = this.model.getAlternativeVersionId();
 
     return this.model;
   }
@@ -41,7 +52,17 @@ export class IdeFile extends IdeNode {
     return this.getModel().getValue();
   }
 
+  public async save(): Promise<void> {
+    if (!this.model || !this.dirty()) return;
+    await fs.promises.writeFile(this.path, this.model.getValue(), 'utf8');
+    this.savedVersionId = this.model.getAlternativeVersionId();
+    this.updateDirty();
+  }
+
   public dispose(): void {
+    this._dirty.set(false);
+    this.changeSubscription?.dispose();
+    this.savedVersionId = null;
     this.model?.dispose();
     this.model = null;
   }

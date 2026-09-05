@@ -1,7 +1,7 @@
 import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IdeWidget} from '../../app.models';
 import {Ide} from '../ide/ide';
-import {lsp, editor} from 'monaco-editor';
+import {lsp, editor, IDisposable} from 'monaco-editor';
 import {CalculatorRunner} from '../calculator-runner/calculator-runner';
 import {CalculatorContext} from '../../services/calculator-context';
 import {CalculatorProblems} from '../calculator-problems/calculator-problems';
@@ -29,6 +29,7 @@ export class CalculatorIde implements OnInit, OnDestroy {
   private transport?: lsp.WebSocketTransport;
   private client?: lsp.MonacoLspClient;
   private subscription: Subscription = new Subscription();
+  private saveSubscription?: IDisposable;
 
   side: IdeWidget[] = [
     {id: 'explorer', icon: 'folder', view: CalculatorExplorer},
@@ -45,11 +46,17 @@ export class CalculatorIde implements OnInit, OnDestroy {
     this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: getWebSocketUrl('/lsp/clc')});
     this.client = new window.monaco.lsp.MonacoLspClient(this.transport);
 
+    this.saveSubscription = this.editor.addAction({
+      id: 'save-file',
+      label: 'Save File',
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.KeyS],
+      run: async () => await this.context.file.value?.save()
+    });
+
     this.subscription.add(
       this.context.failure.subscribe(failed => {
-        if (failed) {
-          this.ide.bottomView = this.bottom[2];
-        }
+        if (!failed) return;
+        this.ide.bottomView = this.bottom[2];
       })
     );
   }
@@ -67,6 +74,7 @@ export class CalculatorIde implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.transport?.close();
     this.editor?.dispose();
+    this.saveSubscription?.dispose();
     this.subscription.unsubscribe();
 
     this.client = undefined;

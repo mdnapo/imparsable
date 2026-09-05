@@ -41,12 +41,12 @@
   <main class="editor">
     @if (file) {
       <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="ide-tabs">
-        <mat-tab [label]="file.getModel().uri.path">
+        <mat-tab>
           <ng-template mat-tab-label>
-            <div class="tab-label">
+            <div class="tab-label" [title]="file.path">
               <mat-icon class="file-icon">description</mat-icon>
               <span class="file-name">
-                {{ file.name }}
+                {{ file.dirty() ? '• ' : '' }}{{ file.name }}
               </span>
               <button class="close-button" type="button" (click)="closeFile($event, file)">
                 <mat-icon>close</mat-icon>
