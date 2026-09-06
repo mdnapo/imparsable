@@ -104,9 +104,7 @@ public abstract partial class VisitorSourceGenerator : IIncrementalGenerator
             }
 
             if (walker.ImplementingTypes.Count == 0)
-            {
-                return;
-            }
+                continue;
 
             var sb = new StringBuilder();
 
@@ -114,6 +112,7 @@ public abstract partial class VisitorSourceGenerator : IIncrementalGenerator
             var qualifiedVisitorName = interfaceSymbol.ContainingNamespace.IsGlobalNamespace
                 ? visitorName
                 : $"global::{interfaceSymbol.ContainingNamespace}.{visitorName}";
+            var namespaces = new HashSet<string>();
 
             foreach (var t in walker.ImplementingTypes)
             {
@@ -121,9 +120,7 @@ public abstract partial class VisitorSourceGenerator : IIncrementalGenerator
                 var nodeSymbol = ModelExtensions.GetDeclaredSymbol(nodeSemanticModel, t);
 
                 if (nodeSymbol is null)
-                {
                     continue;
-                }
 
                 var name = t.Identifier.ToFullString().Trim();
                 var nodeSb = new StringBuilder();
@@ -152,18 +149,19 @@ public abstract partial class VisitorSourceGenerator : IIncrementalGenerator
                 nodeSb.Append('}');
 
                 if (!nodeSymbol.ContainingNamespace.IsGlobalNamespace)
-                {
                     nodeSb.AppendLine("").Append("}");
-                }
 
                 context.AddSource(name + ".g.cs", nodeSb.ToString());
 
                 if (!nodeSymbol.ContainingNamespace.Equals(interfaceSymbol.ContainingNamespace,
                         SymbolEqualityComparer.Default))
                 {
-                    sb.Append("using ").Append(nodeSymbol.ContainingNamespace).AppendLine(";");
+                    namespaces.Add(nodeSymbol.ContainingNamespace.ToDisplayString());
                 }
             }
+
+            foreach (var @namespace in namespaces.OrderBy(x => x))
+                sb.Append("using ").Append(@namespace).AppendLine(";");
 
             var indentInterface = false;
 

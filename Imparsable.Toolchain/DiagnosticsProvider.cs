@@ -27,10 +27,10 @@ public class DiagnosticsProvider : IEnumerable<Diagnostic>, IDisposable
         Published.Invoke(diagnostic);
     }
 
-    public T Halt<T>(ISourceMarker marker, string message) where T : Exception
+    public Exception Halt<T>(ISourceMarker marker, string message, Func<string, T> factory) where T : Exception
     {
         Error(marker, message);
-        return (T)Activator.CreateInstance(typeof(T), message)!;
+        return factory(message);
     }
 
     public void Dispose()

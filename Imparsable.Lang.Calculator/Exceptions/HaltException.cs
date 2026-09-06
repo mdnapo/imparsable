@@ -1,3 +1,3 @@
 namespace Imparsable.Lang.Calculator.Exceptions;
 
-public sealed class HaltException : Exception;
+public sealed class HaltException(string message) : Exception(message);

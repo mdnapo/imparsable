@@ -72,7 +72,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
             return;
 
         if (operation.Conversion is not { } conversion)
-            throw Diagnostics.Halt<HaltException>(marker, $"Missing string conversion for type '{type}'.");
+            throw Diagnostics.Halt(marker, $"Missing string conversion for type '{type}'.", msg => new HaltException(msg));
 
         EmitToString(conversion);
     }
@@ -141,7 +141,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
         {
             SystemType.BOOL => StringConversion.BOOL,
             SystemType.NUMBER => StringConversion.NUMBER,
-            _ => throw Diagnostics.Halt<HaltException>(node.Token, $"Missing string conversion for type '{type}'.")
+            _ => throw Diagnostics.Halt(node.Token, $"Missing string conversion for type '{type}'.", msg => new HaltException(msg))
         };
 
         EmitToString(conversion);
@@ -178,7 +178,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
         {
             Token.MINUS => OpCode.NEGATE_NUM,
             Token.BANG => OpCode.NEGATE_BOOL,
-            _ => throw Diagnostics.Halt<HaltException>(node.Token, $"Unsupported operator '{text}' for binary expression.")
+            _ => throw Diagnostics.Halt(node.Token, $"Unsupported operator '{text}' for binary expression.", msg => new HaltException(msg))
         };
 
         EmitOpCode(op);
