@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -27,23 +27,34 @@ import {IdeFile} from '../../app.filesystem';
   styleUrl: './ide.scss',
 })
 export class Ide {
-  @Input() side: IdeWidget[] = [];
-  @Input() sideView?: IdeWidget;
+  private readonly changeDetector: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+  @Input() sideViews: IdeWidget[] = [];
+  protected sideView?: IdeWidget;
   protected sideViewWidth = 250;
 
-  @Input() bottom: IdeWidget[] = [];
-  @Input() bottomView?: IdeWidget;
+  @Input() bottomViews: IdeWidget[] = [];
+  protected bottomView?: IdeWidget;
   protected bottomViewHeight = 300;
 
   @Input() file: IdeFile | null = null;
   @Output() onInit: EventEmitter<editor.IStandaloneCodeEditor> = new EventEmitter<editor.IStandaloneCodeEditor>();
   @Output() onCloseFile: EventEmitter<IdeFile> = new EventEmitter<IdeFile>();
 
+  public setSideView(view: IdeWidget): void {
+    this.sideView = view;
+    this.changeDetector.markForCheck();
+  }
 
   protected toggleSideView(view: IdeWidget): void {
     this.sideView = this.sideView?.id === view.id
       ? undefined
       : view;
+  }
+
+  public setBottomView(view: IdeWidget): void {
+    this.bottomView = view;
+    this.changeDetector.markForCheck();
   }
 
   protected toggleBottomView(view: IdeWidget): void {
@@ -58,7 +69,6 @@ export class Ide {
 
     const startX = event.clientX;
     const startWidth = this.sideViewWidth;
-
     let nextWidth = startWidth;
     let frame = 0;
 
@@ -99,7 +109,6 @@ export class Ide {
 
     const startY = event.clientY;
     const startHeight = this.bottomViewHeight;
-
     let nextHeight = startHeight;
     let frame = 0;
 

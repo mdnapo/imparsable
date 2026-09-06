@@ -1,7 +1,7 @@
 <app-ide
   [file]="context.file | async"
-  [side]="side" [sideView]="side[0]"
-  [bottom]="bottom" [bottomView]="bottom[0]"
+  [sideViews]="side"
+  [bottomViews]="bottom"
   (onInit)="init($event)"
   (onCloseFile)="context.closeFile($event)"
 />

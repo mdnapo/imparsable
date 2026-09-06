@@ -2,7 +2,7 @@
 <main>
   <mat-toolbar>
     <div>Runner</div>
-    <button matIconButton (click)="context.run()" [disabled]="!(context.file | async)">
+    <button matIconButton (click)="context.execute()" [disabled]="!(context.file | async)">
       <mat-icon>play_arrow</mat-icon>
     </button>
   </mat-toolbar>

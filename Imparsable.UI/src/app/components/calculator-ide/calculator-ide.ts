@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IdeWidget} from '../../app.models';
 import {Ide} from '../ide/ide';
 import {lsp, editor, IDisposable} from 'monaco-editor';
@@ -19,24 +19,27 @@ function getWebSocketUrl(path: string): string {
   selector: 'app-calculator-ide',
   imports: [Ide, AsyncPipe],
   templateUrl: './calculator-ide.html',
-  styleUrl: './calculator-ide.scss',
+  styleUrl: './calculator-ide.scss'
 })
-export class CalculatorIde implements OnInit, OnDestroy {
+export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(Ide)
   private ide!: Ide;
   protected readonly context: CalculatorContext = inject(CalculatorContext);
   private editor?: editor.IStandaloneCodeEditor;
   private transport?: lsp.WebSocketTransport;
   private client?: lsp.MonacoLspClient;
-  private subscription: Subscription = new Subscription();
+  private subscriptions: Subscription = new Subscription();
+  private executeSubscription?: IDisposable;
+  private disassembleSubscription?: IDisposable;
+  private problemsSubscription?: IDisposable;
   private saveSubscription?: IDisposable;
 
-  side: IdeWidget[] = [
+  protected side: IdeWidget[] = [
     {id: 'explorer', icon: 'folder', view: CalculatorExplorer},
   ];
 
-  bottom: IdeWidget[] = [
-    {id: 'runner', icon: 'terminal_2', view: CalculatorRunner},
+  protected bottom: IdeWidget[] = [
+    {id: 'runner', alt: 'Execute', icon: 'terminal_2', view: CalculatorRunner},
     {id: 'disassembler', icon: 'data_array', view: CalculatorDisassembler},
     {id: 'problems', icon: 'error', view: CalculatorProblems, badge: () => this.context.errors()},
   ];
@@ -46,6 +49,27 @@ export class CalculatorIde implements OnInit, OnDestroy {
     this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: getWebSocketUrl('/lsp/clc')});
     this.client = new window.monaco.lsp.MonacoLspClient(this.transport);
 
+    this.executeSubscription = this.editor.addAction({
+      id: 'execute-file',
+      label: 'Execute File',
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyX],
+      run: () => this.context.execute()
+    });
+
+    this.problemsSubscription = this.editor.addAction({
+      id: 'open-problems',
+      label: 'Open Problems',
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyP],
+      run: () => this.ide.setBottomView(this.bottom[2])
+    });
+
+    this.disassembleSubscription = this.editor.addAction({
+      id: 'disassemble-file',
+      label: 'Disassemble File',
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyD],
+      run: () => this.context.disassemble()
+    });
+
     this.saveSubscription = this.editor.addAction({
       id: 'save-file',
       label: 'Save File',
@@ -53,29 +77,33 @@ export class CalculatorIde implements OnInit, OnDestroy {
       run: async () => await this.context.file.value?.save()
     });
 
-    this.subscription.add(
-      this.context.failure.subscribe(failed => {
-        if (!failed) return;
-        this.ide.bottomView = this.bottom[2];
+    this.subscriptions.add(this.context.executed.subscribe(() => this.ide.setBottomView(this.bottom[0])));
+    this.subscriptions.add(this.context.disassembled.subscribe(() => this.ide.setBottomView(this.bottom[1])));
+    this.subscriptions.add(this.context.failure.subscribe(() => this.ide.setBottomView(this.bottom[2])));
+  }
+
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.context.file.subscribe(file => {
+        if (file === null) return;
+        this.editor?.setModel(file.getModel());
       })
     );
   }
 
-  ngOnInit(): void {
-    this.subscription.add(
-      this.context.file.subscribe(file => {
-        if (file !== null) {
-          this.editor?.setModel(file.getModel());
-        }
-      })
-    );
+  ngAfterViewInit(): void {
+    this.ide.setSideView(this.side[0]);
+    this.ide.setBottomView(this.bottom[0]);
   }
 
   ngOnDestroy(): void {
     this.transport?.close();
     this.editor?.dispose();
     this.saveSubscription?.dispose();
-    this.subscription.unsubscribe();
+    this.executeSubscription?.dispose();
+    this.disassembleSubscription?.dispose();
+    this.problemsSubscription?.dispose();
+    this.subscriptions.unsubscribe();
 
     this.client = undefined;
     this.transport = undefined;

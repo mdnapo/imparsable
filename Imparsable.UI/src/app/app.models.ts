@@ -22,6 +22,7 @@ export type StdOutput = { id: number; text: string };
 
 export interface IdeWidget {
   id: string;
+  alt?: string;
   icon: string;
   view: Type<any>;
   badge?: () => number;

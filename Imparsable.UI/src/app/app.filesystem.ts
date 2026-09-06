@@ -124,8 +124,7 @@ export class IdeTree extends BehaviorSubject<readonly IdeNode[]> implements Data
   private ensureDirectory(path: string, directories: Map<string, IdeDirectory>): IdeDirectory {
     const existing = directories.get(path);
 
-    if (existing)
-      return existing;
+    if (existing) return existing;
 
     const parentPath = this.getDirectoryParent(path);
     const parent = this.ensureDirectory(parentPath, directories);

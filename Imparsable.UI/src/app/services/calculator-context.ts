@@ -1,6 +1,6 @@
 import {OnDestroy, Service, signal, WritableSignal} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
-import {Diagnostic, DiagnosticSeverity, StdOutput} from '../app.models';
+import {BehaviorSubject, Subject} from 'rxjs';
+import {Diagnostic, StdOutput} from '../app.models';
 import {Calculator} from "imp-wasm";
 import {IdeFile, IdeTree} from '../app.filesystem';
 import {readCalculatorWorkspace} from '../app.config.filesystem';
@@ -15,7 +15,9 @@ export class CalculatorContext implements OnDestroy {
   readonly output: BehaviorSubject<StdOutput[]> = new BehaviorSubject([] as StdOutput[]);
   readonly diagnostics: BehaviorSubject<Diagnostic[]> = new BehaviorSubject([] as Diagnostic[]);
   readonly disassembly: BehaviorSubject<string> = new BehaviorSubject("");
-  readonly failure: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  readonly failure: Subject<void> = new Subject<void>();
+  readonly executed: Subject<void> = new Subject<void>();
+  readonly disassembled: Subject<void> = new Subject<void>();
 
   private readonly outputCallback: Callback<string> =
     (output: string) => this.onOutput(output);
@@ -26,10 +28,17 @@ export class CalculatorContext implements OnDestroy {
   private readonly disassemblyCallback: Callback<string> =
     (output: string) => this.onDisassembly(output);
 
+  private readonly executedCallback: Callback<void> = () => this.executed.next();
+  private readonly disassembledCallback: Callback<void> = () => this.disassembled.next();
+  private readonly failedCallback: Callback<void> = () => this.failure.next();
+
   constructor() {
     Calculator.onStdOut.subscribe(this.outputCallback);
     Calculator.onDiagnosticPublished.subscribe(this.diagnosticsSubscription);
     Calculator.onDisassemble.subscribe(this.disassemblyCallback);
+    Calculator.onExecuted.subscribe(this.executedCallback);
+    Calculator.onDisassembled.subscribe(this.disassembledCallback);
+    Calculator.onFailure.subscribe(this.failedCallback);
 
     readCalculatorWorkspace()
       .then(entries => this.files.update(tree => tree.load(entries, '/workspace')));
@@ -39,15 +48,17 @@ export class CalculatorContext implements OnDestroy {
     Calculator.onStdOut.unsubscribe(this.outputCallback);
     Calculator.onDiagnosticPublished.unsubscribe(this.diagnosticsSubscription);
     Calculator.onDisassemble.unsubscribe(this.disassemblyCallback);
+    Calculator.onExecuted.unsubscribe(this.executedCallback);
+    Calculator.onDisassembled.unsubscribe(this.disassembledCallback);
+    Calculator.onFailure.unsubscribe(this.failedCallback);
   }
 
   private onDiagnosticPublished(diagnostic: Diagnostic): void {
     this.diagnostics.value.push(diagnostic);
     this.diagnostics.next(this.diagnostics.value.sort((l, r) => l.marker.column - r.marker.column));
-    this.notifyError();
   }
 
-  public run(): void {
+  public execute(): void {
     this.output.next([]);
     this.diagnostics.next([]);
     this.errors.set(0);
@@ -59,14 +70,6 @@ export class CalculatorContext implements OnDestroy {
     this.diagnostics.next([]);
     this.errors.set(0);
     Calculator.disassemble(this.file.value!.getValue());
-  }
-
-  private notifyError() {
-    const errors = this.diagnostics.value.filter(x => x.severity == DiagnosticSeverity.ERROR);
-    if (errors.length > 0) {
-      this.errors.set(errors.length);
-      this.failure.next(true);
-    }
   }
 
   private onOutput(output: string): void {

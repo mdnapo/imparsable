@@ -6,7 +6,7 @@
 
   <aside class="activity-bar">
     <div class="toolbar toolbar-top">
-      @for (view of side; track view.id) {
+      @for (view of sideViews; track view.id) {
         <button mat-icon-button
                 [class.active]="sideView?.id === view.id"
                 (click)="toggleSideView(view)">
@@ -16,7 +16,7 @@
     </div>
 
     <div class="toolbar toolbar-bottom">
-      @for (view of bottom; track view.id) {
+      @for (view of bottomViews; track view.id) {
         <button mat-icon-button
                 [class.active]="bottomView?.id === view.id"
                 (click)="toggleBottomView(view)"
