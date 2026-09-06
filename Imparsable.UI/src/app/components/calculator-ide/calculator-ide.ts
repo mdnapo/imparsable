@@ -38,7 +38,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   protected side: IdeWidget[] = [
     {
       id: 'explorer',
-      alt: 'Explorer (ctrl + shift + x)',
+      alt: 'Explorer (ctrl + shift + a)',
       icon: 'folder',
       view: CalculatorExplorer
     },
@@ -47,19 +47,19 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   protected bottom: IdeWidget[] = [
     {
       id: 'runner',
-      alt: 'Execute (ctrl + shift + a)',
+      alt: 'Execute (ctrl + shift + x)',
       icon: 'terminal_2',
       view: CalculatorRunner
     },
     {
       id: 'disassembler',
-      alt: 'Execute (ctrl + shift + d)',
+      alt: 'Disassemble (ctrl + shift + d)',
       icon: 'data_array',
       view: CalculatorDisassembler
     },
     {
       id: 'problems',
-      alt: 'Execute (ctrl + shift + q)',
+      alt: 'Problems (ctrl + shift + q)',
       icon: 'error',
       view: CalculatorProblems,
       badge: () => this.context.errors()
