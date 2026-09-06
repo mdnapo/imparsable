@@ -17,7 +17,8 @@
 
         <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding
                        [matTreeNodePaddingIndent]="15" matTreeNodeToggle
-                       class="tree-node" [cdkTreeNodeTypeaheadLabel]="node.name">
+                       class="tree-node" [cdkTreeNodeTypeaheadLabel]="node.name"
+                       (expandedChange)="onExpandedChange(node, $event)">
 
           <button matIconButton disabled class="toggle-button" matTreeNodeToggle
                   [attr.aria-label]="'Toggle ' + node.name">

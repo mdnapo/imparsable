@@ -7,15 +7,28 @@ import * as path from "@zenfs/core/path"
 import {Signal, signal, WritableSignal} from '@angular/core';
 
 export abstract class IdeNode {
-  protected constructor(readonly name: string, readonly path: string) {
+  protected constructor(public readonly name: string, public readonly path: string) {
   }
 }
 
 export class IdeDirectory extends IdeNode {
-  readonly children: IdeNode[] = [];
+  public readonly children: IdeNode[] = [];
+  private readonly _expanded: WritableSignal<boolean> = signal(false);
+  public readonly expanded: Signal<boolean> = this._expanded.asReadonly();
 
   constructor(name: string, path: string) {
     super(name, path);
+  }
+
+  public setExpanded(expanded: boolean): void {
+    this._expanded.set(expanded);
+  }
+
+  public traverse(handler: (node: IdeDirectory) => void): void {
+    handler(this);
+    this.children
+      .filter(x => x instanceof IdeDirectory)
+      .forEach(x => x.traverse(handler));
   }
 }
 

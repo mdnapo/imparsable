@@ -59,6 +59,8 @@ export class CalculatorContext implements OnDestroy {
   }
 
   public execute(): void {
+    if (this.file.value === null) return;
+
     this.output.next([]);
     this.diagnostics.next([]);
     this.errors.set(0);
@@ -66,6 +68,8 @@ export class CalculatorContext implements OnDestroy {
   }
 
   public disassemble(): void {
+    if (this.file.value === null) return;
+
     this.output.next([]);
     this.diagnostics.next([]);
     this.errors.set(0);
