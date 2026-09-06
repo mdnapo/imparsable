@@ -29,25 +29,54 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   private transport?: lsp.WebSocketTransport;
   private client?: lsp.MonacoLspClient;
   private subscriptions: Subscription = new Subscription();
+  private explorerSubscription?: IDisposable;
   private executeSubscription?: IDisposable;
   private disassembleSubscription?: IDisposable;
   private problemsSubscription?: IDisposable;
   private saveSubscription?: IDisposable;
 
   protected side: IdeWidget[] = [
-    {id: 'explorer', icon: 'folder', view: CalculatorExplorer},
+    {
+      id: 'explorer',
+      alt: 'Explorer (ctrl + shift + x)',
+      icon: 'folder',
+      view: CalculatorExplorer
+    },
   ];
 
   protected bottom: IdeWidget[] = [
-    {id: 'runner', alt: 'Execute', icon: 'terminal_2', view: CalculatorRunner},
-    {id: 'disassembler', icon: 'data_array', view: CalculatorDisassembler},
-    {id: 'problems', icon: 'error', view: CalculatorProblems, badge: () => this.context.errors()},
+    {
+      id: 'runner',
+      alt: 'Execute (ctrl + shift + a)',
+      icon: 'terminal_2',
+      view: CalculatorRunner
+    },
+    {
+      id: 'disassembler',
+      alt: 'Execute (ctrl + shift + d)',
+      icon: 'data_array',
+      view: CalculatorDisassembler
+    },
+    {
+      id: 'problems',
+      alt: 'Execute (ctrl + shift + q)',
+      icon: 'error',
+      view: CalculatorProblems,
+      badge: () => this.context.errors()
+    },
   ];
 
   async init(editor: editor.IStandaloneCodeEditor): Promise<void> {
     this.editor = editor;
     this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: getWebSocketUrl('/lsp/clc')});
     this.client = new window.monaco.lsp.MonacoLspClient(this.transport);
+
+    this.explorerSubscription = this.editor.addAction({
+      id: 'open-explorer',
+      label: 'Open explorer',
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyA],
+      run: () => this.ide.setSideView(this.side[0])
+    });
 
     this.executeSubscription = this.editor.addAction({
       id: 'execute-file',
@@ -59,7 +88,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
     this.problemsSubscription = this.editor.addAction({
       id: 'open-problems',
       label: 'Open Problems',
-      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyP],
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyQ],
       run: () => this.ide.setBottomView(this.bottom[2])
     });
 
@@ -99,6 +128,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.transport?.close();
     this.editor?.dispose();
+    this.explorerSubscription?.dispose();
     this.saveSubscription?.dispose();
     this.executeSubscription?.dispose();
     this.disassembleSubscription?.dispose();
