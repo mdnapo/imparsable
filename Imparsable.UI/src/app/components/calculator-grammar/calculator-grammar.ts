@@ -1,5 +1,8 @@
-import {Component, inject, OnInit, signal, WritableSignal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, WritableSignal} from '@angular/core';
 import {CalculatorService} from '../../../api/imparsable';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-antlr4';
+import 'prismjs/themes/prism.min.css';
 
 @Component({
   selector: 'app-calculator-grammar',
@@ -9,7 +12,11 @@ import {CalculatorService} from '../../../api/imparsable';
 })
 export class CalculatorGrammar implements OnInit {
   private readonly calc: CalculatorService = inject(CalculatorService);
-  protected grammar: WritableSignal<string> = signal('');
+  private grammar: WritableSignal<string> = signal('');
+
+  protected readonly highlighted = computed(() =>
+    Prism.highlight(this.grammar(), Prism.languages['antlr4'], 'antlr4')
+  );
 
   ngOnInit(): void {
     this.calc.grammar()
