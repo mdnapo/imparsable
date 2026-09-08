@@ -123,8 +123,6 @@ primaryExpression
     | NUMBER
     ;
 
-// Lexer rules
-
 CONST       : 'const';
 VAR         : 'var';
 PRINT       : 'print';

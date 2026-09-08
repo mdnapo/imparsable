@@ -2,7 +2,7 @@ import {Component, computed, inject, OnInit, signal, WritableSignal} from '@angu
 import {CalculatorService} from '../../../api/imparsable';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-antlr4';
-import 'prismjs/themes/prism.min.css';
+import 'prism-themes/themes/prism-vs.min.css';
 
 @Component({
   selector: 'app-calculator-grammar',
