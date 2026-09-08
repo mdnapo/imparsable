@@ -17,8 +17,8 @@ public abstract class LanguageServer(JsonRpcProvider rpc, IEnumerable<ILspMethod
         RequireHandler<IInitializeHandler>().Handle(parameters);
 
     [LspMethod(LspMethodName.Initialized)]
-    public void Initialized() =>
-        RequireHandler<IInitializedHandler>().Handle();
+    public async Task Initialized() =>
+        await RequireHandler<IInitializedHandler>().HandleAsync();
 
     [LspMethod(LspMethodName.TextDocumentDidOpen)]
     public async Task DidOpen(DidOpenTextDocumentParams parameters) =>

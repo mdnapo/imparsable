@@ -8,22 +8,7 @@ public class InitializeHandler : IInitializeHandler
 {
     public InitializeResult Handle(InitializeParams parameters) => new()
     {
-        Capabilities = new ServerCapabilities
-        {
-            TextDocumentSync = new TextDocumentSync(TextDocumentSyncKind.Full)
-            {
-                Options = new()
-                {
-                    Change = TextDocumentSyncKind.Full,
-                    OpenClose = true,
-                }
-            },
-            CompletionProvider = new CompletionRegistrationOptions.StaticOptions
-            {
-                ResolveProvider = false,
-                TriggerCharacters = new Container<string>("+", "-", "*", "/", ".")
-            }
-        },
-        ServerInfo = new ServerInfo()
+        ServerInfo = new ServerInfo(),
+        Capabilities = new ServerCapabilities()
     };
 }
