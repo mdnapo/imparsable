@@ -66,6 +66,9 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
 
   async init(editor: editor.IStandaloneCodeEditor): Promise<void> {
     this.editor = editor;
+
+    this.updateModel();
+
     await this.languageServer.connect(LanguageId.Calculator, '/lsp/clc');
 
     this.explorerSubscription = this.editor.addAction({
@@ -108,13 +111,17 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.add(this.context.failure.subscribe(() => this.ide.setBottomView(this.bottom[2])));
   }
 
+  private updateModel(): void {
+    const file = this.context.file.value;
+
+    if (!file || !this.editor)
+      return;
+
+    this.editor.setModel(file.getModel());
+  }
+
   ngOnInit(): void {
-    this.subscriptions.add(
-      this.context.file.subscribe(file => {
-        if (file === null) return;
-        this.editor?.setModel(file.getModel());
-      })
-    );
+    this.subscriptions.add(this.context.file.subscribe(file => this.updateModel()));
   }
 
   ngAfterViewInit(): void {

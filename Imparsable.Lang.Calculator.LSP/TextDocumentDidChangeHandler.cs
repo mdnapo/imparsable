@@ -10,10 +10,13 @@ public class TextDocumentDidChangeHandler(SyntaxBuffer buffer, JsonRpcProvider r
 {
     public async Task HandleAsync(DidChangeTextDocumentParams parameters)
     {
+        if (!IsCalculatorDocument(parameters.TextDocument))
+            return;
+
         var diagnostics = new DiagnosticsProvider();
         var uri = parameters.TextDocument.Uri.ToString();
         var source = buffer.GetBufferAsync(uri).Source.Text;
-        
+
         foreach (var change in parameters.ContentChanges)
             source = ApplyChange(source, change);
 
@@ -23,6 +26,9 @@ public class TextDocumentDidChangeHandler(SyntaxBuffer buffer, JsonRpcProvider r
 
         await rpc.Connection.NotifyWithParameterObjectAsync(LspMethodName.PublishDiagnostics, publishDiagnosticsParams);
     }
+
+    private static bool IsCalculatorDocument(TextDocumentIdentifier document) =>
+        document.Uri.Scheme == "file" && document.Uri.Path.EndsWith(Constants.FileExtension, StringComparison.OrdinalIgnoreCase);
 
     private static string ApplyChange(string text, TextDocumentContentChangeEvent change)
     {
