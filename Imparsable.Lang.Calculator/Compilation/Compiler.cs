@@ -13,6 +13,8 @@ namespace Imparsable.Lang.Calculator.Compilation;
 public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) : Compiler<OpCode>, ISyntaxVisitor
 {
     private static readonly NumericLiteralExpression ZeroValue = new() { Token = default, Value = 0 };
+    private readonly Dictionary<double, int> _numberConstants = [];
+    private readonly Dictionary<string, int> _stringConstants = [];
     private readonly Stack<List<int>> _elseJumps = [];
     private readonly Stack<List<int>> _breaks = [];
     private readonly Stack<List<int>> _continues = [];
@@ -58,6 +60,40 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
     {
         foreach (var _ in child)
             EmitOpCode(OpCode.POP);
+    }
+
+    private int AddNumberConstant(double value)
+    {
+        if (_numberConstants.TryGetValue(value, out var index))
+            return index;
+
+        using var buffer = ByteBuffer.Acquire(sizeof(double));
+        BinaryPrimitives.WriteDoubleLittleEndian(buffer.Span, value);
+
+        index = AddConstant(buffer.Span);
+        _numberConstants.Add(value, index);
+
+        return index;
+    }
+    
+    private int AddStringConstant(string value)
+    {
+        if (_stringConstants.TryGetValue(value, out var index))
+            return index;
+
+        var length = Encoding.UTF8.GetByteCount(value);
+        var size = sizeof(int) + length;
+
+        using var buffer = ByteBuffer.Acquire(size);
+        var span = buffer.Span;
+
+        BinaryPrimitives.WriteInt32LittleEndian(span[..sizeof(int)], length);
+        Encoding.UTF8.GetBytes(value, span[sizeof(int)..]);
+
+        index = AddConstant(span);
+        _stringConstants.Add(value, index);
+
+        return index;
     }
 
     private void EmitToString(StringConversion conversion)
@@ -120,13 +156,8 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
     public virtual void Visit(NumericLiteralExpression node)
     {
-        using var buffer = ByteBuffer.Acquire(sizeof(double));
-        var span = buffer.Span;
-
-        BinaryPrimitives.WriteDoubleLittleEndian(span, node.Value);
         EmitOpCode(OpCode.NUM_CONST);
-        var index = AddConstant(span);
-        EmitInt32(index);
+        EmitInt32(AddNumberConstant(node.Value));
     }
 
     private void PrintOperand(ISyntax node)
@@ -155,18 +186,9 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
 
     public virtual void Visit(StringLiteralExpression node)
     {
-        var @string = node.Value.Trim('\'', '"');
-        var length = @string.Length;
-        var size = sizeof(int) + length;
-        using var buffer = ByteBuffer.Acquire(size);
-        var span = buffer.Span;
-
-        BinaryPrimitives.WriteInt32LittleEndian(span[..sizeof(int)], length);
-        Encoding.UTF8.GetBytes(@string, span[sizeof(int)..]);
-
+        var value = node.Value.Trim('\'', '"');
         EmitOpCode(OpCode.STRING_CONST);
-        var index = AddConstant(span);
-        EmitInt32(index);
+        EmitInt32(AddStringConstant(value));
     }
 
     public virtual void Visit(UnaryExpression node)
