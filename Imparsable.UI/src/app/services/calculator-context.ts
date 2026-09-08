@@ -20,17 +20,17 @@ export class CalculatorContext implements OnDestroy {
   readonly disassembled: Subject<void> = new Subject<void>();
 
   private readonly outputCallback: Callback<string> =
-    (output: string) => this.onOutput(output);
+    (output: string): void => this.onOutput(output);
 
   private readonly diagnosticsSubscription: Callback<Diagnostic> =
-    (output: Diagnostic) => this.onDiagnosticPublished(output);
+    (output: Diagnostic): void => this.onDiagnosticPublished(output);
 
   private readonly disassemblyCallback: Callback<string> =
-    (output: string) => this.onDisassembly(output);
+    (output: string): void => this.onDisassembly(output);
 
-  private readonly executedCallback: Callback<void> = () => this.executed.next();
-  private readonly disassembledCallback: Callback<void> = () => this.disassembled.next();
-  private readonly failedCallback: Callback<void> = () => this.failure.next();
+  private readonly executedCallback: Callback<void> = (): void => this.executed.next();
+  private readonly disassembledCallback: Callback<void> = (): void => this.disassembled.next();
+  private readonly failedCallback: Callback<void> = (): void => this.failure.next();
 
   constructor() {
     Calculator.onStdOut.subscribe(this.outputCallback);

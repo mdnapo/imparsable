@@ -1,6 +1,6 @@
 import {DataSource} from '@angular/cdk/table';
 import {CollectionViewer} from "@angular/cdk/collections";
-import {editor, IDisposable} from 'monaco-editor';
+import type {editor, IDisposable} from 'monaco-editor';
 import {BehaviorSubject, Observable} from "rxjs";
 import {Dirent, fs} from '@zenfs/core';
 import * as path from "@zenfs/core/path"

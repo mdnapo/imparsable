@@ -8,7 +8,7 @@ import {MonacoEditorModule} from 'ngx-monaco-editor-v2';
 import {IdeWidget} from '../../app.models';
 import {NgComponentOutlet} from '@angular/common';
 import {MatBadge} from '@angular/material/badge';
-import {editor} from 'monaco-editor';
+import type {editor} from 'monaco-editor';
 import {IdeFile} from '../../app.filesystem';
 
 @Component({

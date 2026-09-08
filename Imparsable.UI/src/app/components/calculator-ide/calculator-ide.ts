@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IdeWidget} from '../../app.models';
 import {Ide} from '../ide/ide';
-import {lsp, editor, IDisposable} from 'monaco-editor';
+import type {editor, IDisposable} from 'monaco-editor';
 import {CalculatorRunner} from '../calculator-runner/calculator-runner';
 import {CalculatorContext} from '../../services/calculator-context';
 import {CalculatorProblems} from '../calculator-problems/calculator-problems';
@@ -9,11 +9,8 @@ import {CalculatorDisassembler} from '../calculator-disassembler/calculator-disa
 import {Subscription} from 'rxjs';
 import {CalculatorExplorer} from '../calculator-explorer/calculator-explorer';
 import {AsyncPipe} from '@angular/common';
-
-function getWebSocketUrl(path: string): string {
-  const protocol: string = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${protocol}//${window.location.host}${path}`;
-}
+import {LanguageServer} from '../../services/language-server';
+import {LanguageId} from '../../app.config.monaco';
 
 @Component({
   selector: 'app-calculator-ide',
@@ -22,18 +19,19 @@ function getWebSocketUrl(path: string): string {
   styleUrl: './calculator-ide.scss'
 })
 export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(Ide)
-  private ide!: Ide;
   protected readonly context: CalculatorContext = inject(CalculatorContext);
+  private readonly languageServer: LanguageServer = inject(LanguageServer);
+
   private editor?: editor.IStandaloneCodeEditor;
-  private transport?: lsp.WebSocketTransport;
-  private client?: lsp.MonacoLspClient;
   private subscriptions: Subscription = new Subscription();
   private explorerSubscription?: IDisposable;
   private executeSubscription?: IDisposable;
   private disassembleSubscription?: IDisposable;
   private problemsSubscription?: IDisposable;
   private saveSubscription?: IDisposable;
+
+  @ViewChild(Ide)
+  private ide!: Ide;
 
   protected side: IdeWidget[] = [
     {
@@ -68,8 +66,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
 
   async init(editor: editor.IStandaloneCodeEditor): Promise<void> {
     this.editor = editor;
-    this.transport = await window.monaco.lsp.WebSocketTransport.connectTo({address: getWebSocketUrl('/lsp/clc')});
-    this.client = new window.monaco.lsp.MonacoLspClient(this.transport);
+    await this.languageServer.connect(LanguageId.Calculator, '/lsp/clc');
 
     this.explorerSubscription = this.editor.addAction({
       id: 'open-explorer',
@@ -126,7 +123,6 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.transport?.close();
     this.editor?.dispose();
     this.explorerSubscription?.dispose();
     this.saveSubscription?.dispose();
@@ -134,9 +130,6 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
     this.disassembleSubscription?.dispose();
     this.problemsSubscription?.dispose();
     this.subscriptions.unsubscribe();
-
-    this.client = undefined;
-    this.transport = undefined;
   }
 }
 
