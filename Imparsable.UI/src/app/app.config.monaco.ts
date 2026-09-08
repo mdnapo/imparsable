@@ -4,7 +4,7 @@ export const LanguageId = {
   Calculator: 'clc'
 }
 
-export const DefaultOptions: NgxMonacoEditorConfig = {
+export const MonacoOptions: NgxMonacoEditorConfig = {
   defaultOptions: {
     theme: 'vscode',
     automaticLayout: true,

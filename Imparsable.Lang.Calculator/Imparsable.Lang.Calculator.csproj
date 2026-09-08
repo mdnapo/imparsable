@@ -11,4 +11,9 @@
         <ProjectReference Include="..\Imparsable.Toolchain.SourceGenerators\Imparsable.Toolchain.SourceGenerators.csproj" OutputItemType="Analyzer"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Calculator.g4" />
+      <EmbeddedResource Include="Calculator.g4" />
+    </ItemGroup>
+
 </Project>

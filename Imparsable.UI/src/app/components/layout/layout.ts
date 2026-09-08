@@ -42,5 +42,4 @@ export class Layout {
       : this.router.url.slice(0, queryParamsIndex);
     return baseUrl === url;
   }
-
 }

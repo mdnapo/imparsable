@@ -1,0 +1,44 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Imparsable.API | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/Calculator/grammar": {
+      "get": {
+        "tags": [
+          "Calculator"
+        ],
+        "operationId": "Grammar",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Calculator"
+    }
+  ]
+}
