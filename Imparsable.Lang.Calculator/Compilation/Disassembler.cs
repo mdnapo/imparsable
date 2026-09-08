@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 using Imparsable.Lang.Calculator.Exceptions;
 using Imparsable.Lang.Calculator.Parsing;
@@ -9,10 +10,11 @@ namespace Imparsable.Lang.Calculator.Compilation;
 
 public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider diagnostics) : Compiler(tree, diagnostics)
 {
+    private readonly Dictionary<int, string> _constants = [];
     private readonly List<Entry> _entries = [];
     private readonly Dictionary<int, Instruction> _jumps = [];
     private Instruction? _current;
-    private int Indent { get; set; }
+    private int Indent { get; set; } = 1;
 
     public static string? Disassemble(SyntaxTree tree, DiagnosticsProvider diagnostics) =>
         new Disassembler(tree, diagnostics).Disassemble();
@@ -25,8 +27,11 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
 
             var builder = new StringBuilder();
 
-            foreach (var entry in _entries)
-                entry.WriteTo(builder);
+            WriteConstants(builder);
+
+            builder.AppendLine();
+
+            WriteCode(builder);
 
             return builder.ToString();
         }
@@ -34,6 +39,28 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
         {
             return null;
         }
+    }
+
+    private void WriteConstants(StringBuilder builder)
+    {
+        if (_constants.Count == 0)
+            return;
+
+        builder.AppendLine("constants:");
+
+        foreach (var (offset, value) in _constants.OrderBy(x => x.Key))
+            builder.AppendLine($" {offset:000000} {value}");
+    }
+
+    private void WriteCode(StringBuilder builder)
+    {
+        if (_entries.Count == 0)
+            return;
+
+        builder.AppendLine("code:");
+
+        foreach (var entry in _entries)
+            entry.WriteTo(builder);
     }
 
     public override void EmitOpCode(OpCode op)
@@ -136,7 +163,9 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
             Constants.Span.Slice(offset, sizeof(double))
         );
 
-        return new ValueOperand($"{offset} ({value})");
+        _constants[offset] = value.ToString(CultureInfo.InvariantCulture);
+
+        return new ValueOperand($"(offset: {offset}, value: {value})");
     }
 
     private ValueOperand GetStringConstant(int offset)
@@ -146,7 +175,9 @@ public sealed partial class Disassembler(SyntaxTree tree, DiagnosticsProvider di
         var length = BinaryPrimitives.ReadInt32LittleEndian(span[..sizeof(int)]);
         var value = Encoding.UTF8.GetString(span.Slice(sizeof(int), length));
 
-        return new ValueOperand($"{offset} (\"{value}\")");
+        _constants[offset] = $"\"{value}\"";
+
+        return new ValueOperand($"(offset: {offset}, value: \"{value}\")");
     }
 
     private void AddLabel(string name, Action action)
