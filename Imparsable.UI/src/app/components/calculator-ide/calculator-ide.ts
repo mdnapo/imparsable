@@ -70,7 +70,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
 
     this.explorerSubscription = this.editor.addAction({
       id: 'open-explorer',
-      label: 'Open explorer',
+      label: 'Open Explorer',
       keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyA],
       run: () => this.ide.setSideView(this.side[0])
     });

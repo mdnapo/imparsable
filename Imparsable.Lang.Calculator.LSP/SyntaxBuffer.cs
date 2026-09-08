@@ -8,10 +8,10 @@ public class SyntaxBuffer
 {
     private readonly ConcurrentDictionary<string, SyntaxTree> _sources = [];
 
-    public void OpenAsync(string uri, string text, DiagnosticsProvider diagnostics) => 
+    public void OpenAsync(string uri, string text, DiagnosticsProvider diagnostics) =>
         _sources[uri] = SyntaxTree.Parse(text, diagnostics);
 
-    public void UpdateAsync(string uri, string text, DiagnosticsProvider diagnostics) => 
+    public void UpdateAsync(string uri, string text, DiagnosticsProvider diagnostics) =>
         _sources[uri] = SyntaxTree.Parse(text, diagnostics);
 
     public SyntaxTree GetBufferAsync(string uri) => _sources[uri];

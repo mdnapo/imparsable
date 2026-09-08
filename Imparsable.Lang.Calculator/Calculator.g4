@@ -1,9 +1,5 @@
 grammar Calculator;
 
-// --------------------
-// Parser rules
-// --------------------
-
 program
     : statement* EOF
     ;
@@ -12,89 +8,105 @@ statement
     : constStatement
     | varStatement
     | printStatement
-    | ifStatement
-    | whileStatement
+    | blockStatement
     | forStatement
-    | block
+    | whileStatement
+    | breakStatement
+    | continueStatement
+    | ifStatement
     | expressionStatement
     ;
 
 constStatement
-    : CONST IDENTIFIER ASSIGN expression SEMICOLON
+    : CONST IDENTIFIER EQUAL expression SEMICOLON
     ;
 
 varStatement
-    : VAR IDENTIFIER (ASSIGN expression)? SEMICOLON
+    : VAR IDENTIFIER (EQUAL expression)? SEMICOLON
     ;
 
 printStatement
     : PRINT expression SEMICOLON
     ;
 
-expressionStatement
-    : expression SEMICOLON
-    ;
-
-block
-    : LBRACE statement* RBRACE
-    ;
-
-ifStatement
-    : IF LPAREN expression RPAREN statement
-      (ELSE IF LPAREN expression RPAREN statement)*
-      (ELSE statement)?
-    ;
-
-whileStatement
-    : WHILE LPAREN expression RPAREN statement
+blockStatement
+    : LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 forStatement
-    : FOR LPAREN
-      forInitializer? SEMICOLON
-      expression? SEMICOLON
-      expression?
-      RPAREN
-      statement
+    : FOR LEFT_PARENTHESIS forInitializer expression? SEMICOLON expression? RIGHT_PARENTHESIS statement
     ;
 
 forInitializer
-    : varInitializer
-    | expression
+    : SEMICOLON
+    | varStatement
+    | expressionStatement
     ;
 
-varInitializer
-    : VAR IDENTIFIER (ASSIGN expression)?
+whileStatement
+    : WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
     ;
 
-// --------------------
-// Expressions
-// --------------------
+breakStatement
+    : BREAK SEMICOLON
+    ;
+
+continueStatement
+    : CONTINUE SEMICOLON
+    ;
+
+ifStatement
+    : IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
+      (ELSE IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement)*
+      (ELSE statement)?
+    ;
+
+expressionStatement
+    : expression SEMICOLON
+    ;
 
 expression
     : assignmentExpression
     ;
 
 assignmentExpression
-    : IDENTIFIER assignmentOperator assignmentExpression
-    | binaryExpression
+    : binaryExpression (assignmentOperator assignmentExpression)?
     ;
 
 assignmentOperator
-    : ASSIGN
-    | PLUS_ASSIGN
-    | MINUS_ASSIGN
-    | STAR_ASSIGN
-    | SLASH_ASSIGN
+    : EQUAL
+    | PLUS_EQUAL
+    | MINUS_EQUAL
+    | STAR_EQUAL
+    | SLASH_EQUAL
     ;
 
 binaryExpression
-    : binaryExpression (OR_OR) binaryExpression
-    | binaryExpression (AND_AND) binaryExpression
-    | binaryExpression (EQUAL_EQUAL | BANG_EQUAL |LESS | LESS_EQUAL | GREATER | GREATER_EQUAL) binaryExpression
-    | binaryExpression (PLUS | MINUS) binaryExpression
-    | binaryExpression (STAR | SLASH) binaryExpression
-    | unaryExpression
+    : logicalOrExpression
+    ;
+
+logicalOrExpression
+    : logicalAndExpression (OR_OR logicalAndExpression)*
+    ;
+
+logicalAndExpression
+    : equalityExpression (AND_AND equalityExpression)*
+    ;
+
+equalityExpression
+    : moduloExpression ((BANG_EQUAL | EQUAL_EQUAL | LOWER_THAN | LOWER_EQUAL | GREATER_THAN | GREATER_EQUAL) moduloExpression)*
+    ;
+
+moduloExpression
+    : additiveExpression (MODULO additiveExpression)*
+    ;
+
+additiveExpression
+    : multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
+    ;
+
+multiplicativeExpression
+    : unaryExpression ((STAR | SLASH) unaryExpression)*
     ;
 
 unaryExpression
@@ -103,145 +115,53 @@ unaryExpression
     ;
 
 primaryExpression
-    : NUMBER
+    : IDENTIFIER
+    | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     | STRING
     | TRUE
     | FALSE
-    | IDENTIFIER
-    | LPAREN expression RPAREN
+    | NUMBER
     ;
 
-// --------------------
 // Lexer rules
-// --------------------
 
-CONST
-    : 'const'
-    ;
+CONST       : 'const';
+VAR         : 'var';
+PRINT       : 'print';
+IF          : 'if';
+ELSE        : 'else';
+TRUE        : 'true';
+FALSE       : 'false';
+FOR         : 'for';
+WHILE       : 'while';
+BREAK       : 'break';
+CONTINUE    : 'continue';
 
-VAR
-    : 'var'
-    ;
+BANG_EQUAL     : '!=';
+EQUAL_EQUAL    : '==';
+GREATER_EQUAL  : '>=';
+LOWER_EQUAL    : '<=';
+OR_OR          : '||';
+AND_AND        : '&&';
+PLUS_EQUAL     : '+=';
+MINUS_EQUAL    : '-=';
+STAR_EQUAL     : '*=';
+SLASH_EQUAL    : '/=';
 
-PRINT
-    : 'print'
-    ;
-
-IF
-    : 'if'
-    ;
-
-ELSE
-    : 'else'
-    ;
-
-WHILE
-    : 'while'
-    ;
-
-FOR
-    : 'for'
-    ;
-
-TRUE
-    : 'true'
-    ;
-
-FALSE
-    : 'false'
-    ;
-
-PLUS_ASSIGN
-    : '+='
-    ;
-
-MINUS_ASSIGN
-    : '-='
-    ;
-
-STAR_ASSIGN
-    : '*='
-    ;
-
-SLASH_ASSIGN
-    : '/='
-    ;
-
-EQUAL_EQUAL
-    : '=='
-    ;
-
-BANG_EQUAL
-    : '!='
-    ;
-
-LESS_EQUAL
-    : '<='
-    ;
-    
-AND_AND
-    : '&&'
-    ;
-    
-OR_OR
-    : '||'
-    ;
-
-GREATER_EQUAL
-    : '>='
-    ;
-
-ASSIGN
-    : '='
-    ;
-
-PLUS
-    : '+'
-    ;
-
-MINUS
-    : '-'
-    ;
-
-STAR
-    : '*'
-    ;
-
-SLASH
-    : '/'
-    ;
-
-BANG
-    : '!'
-    ;
-
-LESS
-    : '<'
-    ;
-
-GREATER
-    : '>'
-    ;
-
-LPAREN
-    : '('
-    ;
-
-RPAREN
-    : ')'
-    ;
-
-LBRACE
-    : '{'
-    ;
-
-RBRACE
-    : '}'
-    ;
-
-SEMICOLON
-    : ';'
-    ;
+SEMICOLON          : ';';
+BANG               : '!';
+GREATER_THAN       : '>';
+LOWER_THAN         : '<';
+MODULO             : '%';
+PLUS               : '+';
+MINUS              : '-';
+STAR               : '*';
+SLASH              : '/';
+EQUAL               : '=';
+LEFT_PARENTHESIS    : '(';
+RIGHT_PARENTHESIS   : ')';
+LEFT_BRACE          : '{';
+RIGHT_BRACE         : '}';
 
 NUMBER
     : DIGIT+ ('.' DIGIT+)?
@@ -255,11 +175,20 @@ STRING
 IDENTIFIER
     : [a-zA-Z_] [a-zA-Z0-9_]*
     ;
+    
+WHITESPACE
+    : [ \t]+ -> skip
+    ;
+
+    
+NEWLINE
+    : '\r'? '\n' -> skip
+    ;
 
 fragment DIGIT
     : [0-9]
     ;
 
-WHITESPACE
-    : [ \t\r\n]+ -> skip
+UNEXPECTED
+    : .
     ;

@@ -53,7 +53,7 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
         {
             DocumentSelector = DocumentSelector,
             ResolveProvider = false,
-            TriggerCharacters = new Container<string>("+", "-", "*", "/", ".")
+            TriggerCharacters = new Container<string>("+", "-", "*", "/", "%")
         }
     };
 

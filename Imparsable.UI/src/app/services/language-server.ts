@@ -27,8 +27,6 @@ export class LanguageServer implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.connections.forEach((connection: Connection): void => {
-      connection.transport.dispose();
-    });
+    this.connections.forEach(x => x.transport.dispose());
   }
 }
