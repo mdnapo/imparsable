@@ -74,7 +74,7 @@ mat-nav-list mat-list-item {
 }
 
 .active-link {
-  background-color: var(--mat-sys-secondary);
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 60%, white);
 }
 
 .logout {

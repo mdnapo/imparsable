@@ -1,14 +1,24 @@
-<!--suppress AngularForBlockNonIterableVar -->
 <main>
   <mat-toolbar>
-    <div>Runner</div>
-    <button matIconButton (click)="context.execute()" [disabled]="!(context.file | async)">
+    <span class="title">Runner</span>
+
+    <span class="spacer"></span>
+
+    <button matIconButton class="run-button" aria-label="Run" title="Run"
+            (click)="context.execute()"
+            [disabled]="!(context.file | async)">
       <mat-icon>play_arrow</mat-icon>
     </button>
   </mat-toolbar>
+
   <section id="output">
     @for (line of context.output | async; track line.id) {
-      <code>{{ line.text }}</code><br/>
+      <div class="output-line">{{ line.text }}</div>
+    } @empty {
+      <div class="empty">
+        <mat-icon>terminal</mat-icon>
+        <span>Run the current file to see its output.</span>
+      </div>
     }
   </section>
 </main>

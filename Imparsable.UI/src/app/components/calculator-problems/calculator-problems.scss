@@ -1,21 +1,137 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
 main {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  background: var(--mat-sys-surface);
 
   mat-toolbar {
-    flex: 0 0 auto;
+    flex: 0 0 36px;
+    min-height: 36px;
+    height: 36px;
+    gap: 8px;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    background: var(--mat-sys-surface);
+  }
+
+  .title {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 10px;
+    line-height: 18px;
   }
 
   section#output {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-height: 0;
     overflow: auto;
   }
 
-  code {
-    padding-left: 15px;
+  .problem {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: 36px;
+    padding: 7px 12px;
+    border-bottom: 1px solid color-mix(
+      in srgb,
+      var(--mat-sys-outline-variant) 45%,
+      transparent
+    );
+
+    &:hover {
+      background: var(--mat-sys-surface-container-low);
+    }
+  }
+
+  .severity-icon {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    font-size: 16px;
+    line-height: 16px;
+  }
+
+  .severity-error {
+    color: var(--mat-sys-error);
+  }
+
+  .severity-warning {
+    color: color-mix(
+      in srgb,
+      var(--mat-sys-tertiary) 80%,
+      white
+    );
+  }
+
+  .severity-info {
+    color: var(--mat-sys-primary);
+  }
+
+  .problem-content {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .message {
+    flex: 1;
+    min-width: 0;
+    color: var(--mat-sys-on-surface);
+    font-family: var(--monaco-monospace-font, 'Consolas', 'Courier New', monospace), serif;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .location {
+    flex: 0 0 auto;
+    color: var(--mat-sys-on-surface-variant);
+    font-family: var(--monaco-monospace-font, 'Consolas', 'Courier New', monospace), system-ui;
+    font-size: 11px;
+    opacity: 0.7;
+  }
+
+  .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    color: var(--mat-sys-on-surface-variant);
+    opacity: 0.65;
+    font-size: 12px;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
   }
 }

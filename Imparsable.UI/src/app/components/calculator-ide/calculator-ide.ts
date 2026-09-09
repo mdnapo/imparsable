@@ -26,6 +26,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   private editor?: editor.IStandaloneCodeEditor;
   private subscriptions: Subscription = new Subscription();
   private explorerSubscription?: IDisposable;
+  private grammarSubscription?: IDisposable;
   private executeSubscription?: IDisposable;
   private disassembleSubscription?: IDisposable;
   private problemsSubscription?: IDisposable;
@@ -37,13 +38,13 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   protected side: IdeWidget[] = [
     {
       id: 'explorer',
-      alt: 'Explorer (ctrl + shift + a)',
+      alt: 'Explorer (ctrl + alt + f)',
       icon: 'folder',
       view: CalculatorExplorer
     },
     {
       id: 'grammar',
-      alt: 'Grammar (ctrl + shift + g)',
+      alt: 'Grammar (ctrl + alt + g)',
       icon: 'regular_expression',
       view: CalculatorGrammar
     },
@@ -81,8 +82,15 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
     this.explorerSubscription = this.editor.addAction({
       id: 'open-explorer',
       label: 'Open Explorer',
-      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyA],
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Alt | window.monaco.KeyCode.KeyF],
       run: () => this.ide.setSideView(this.side[0])
+    });
+
+    this.grammarSubscription = this.editor.addAction({
+      id: 'open-grammar',
+      label: 'Open Grammar',
+      keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Alt | window.monaco.KeyCode.KeyG],
+      run: () => this.ide.setSideView(this.side[1])
     });
 
     this.executeSubscription = this.editor.addAction({

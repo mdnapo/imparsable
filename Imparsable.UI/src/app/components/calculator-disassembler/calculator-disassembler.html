@@ -1,12 +1,31 @@
-<!--suppress AngularForBlockNonIterableVar -->
 <main>
   <mat-toolbar>
-    <div>Disassembler</div>
-    <button matIconButton (click)="context.disassemble()" [disabled]="!(context.file | async)">
+    <span class="title">Disassembler</span>
+
+    <span class="spacer"></span>
+
+    <button matIconButton class="action-button" aria-label="Disassemble" title="Disassemble"
+            (click)="context.disassemble()"
+            [disabled]="!(context.file | async)">
       <mat-icon>play_arrow</mat-icon>
     </button>
   </mat-toolbar>
+
   <section id="output">
-    <pre style="white-space: preserve">{{ context.disassembly | async }}</pre>
+    @if (context.disassembly | async; as disassembly) {
+      @if (disassembly) {
+        <pre>{{ disassembly }}</pre>
+      } @else {
+        <div class="empty">
+          <mat-icon>data_array</mat-icon>
+          <span>Disassemble the current file to inspect its bytecode.</span>
+        </div>
+      }
+    } @else {
+      <div class="empty">
+        <mat-icon>data_array</mat-icon>
+        <span>Disassemble the current file to inspect its bytecode.</span>
+      </div>
+    }
   </section>
 </main>

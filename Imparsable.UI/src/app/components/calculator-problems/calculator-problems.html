@@ -1,11 +1,36 @@
-<!--suppress AngularForBlockNonIterableVar -->
 <main>
   <mat-toolbar>
-    <div>Problems</div>
+    <span class="title">Problems</span>
+
+    @if (context.diagnostics | async; as diagnostics) {
+      @if (diagnostics.length > 0) {
+        <span class="count">{{ diagnostics.length }}</span>
+      }
+    }
   </mat-toolbar>
+
   <section id="output">
-    @for (diagnostic of context.diagnostics | async; track diagnostic.marker) {
-      <code>{{ formatDiagnostic(diagnostic) }}</code><br/>
+    @if (context.diagnostics | async; as diagnostics) {
+      @for (diagnostic of diagnostics; track diagnostic.marker) {
+        <div class="problem">
+          <mat-icon class="severity-icon" [class]="severityClass(diagnostic)">
+            {{ severityIcon(diagnostic) }}
+          </mat-icon>
+
+          <div class="problem-content">
+            <span class="message">{{ diagnostic.message }}</span>
+
+            <span class="location">
+              Ln {{ diagnostic.marker.line }}, Col {{ diagnostic.marker.column }}
+            </span>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty">
+          <mat-icon>check_circle</mat-icon>
+          <span>No problems detected.</span>
+        </div>
+      }
     }
   </section>
 </main>
