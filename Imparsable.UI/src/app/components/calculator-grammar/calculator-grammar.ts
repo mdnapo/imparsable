@@ -2,10 +2,13 @@ import {Component, computed, inject, OnInit, signal, WritableSignal} from '@angu
 import {CalculatorService} from '../../../api/imparsable';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-antlr4';
+import {MatToolbar} from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-calculator-grammar',
-  imports: [],
+  imports: [
+    MatToolbar
+  ],
   templateUrl: './calculator-grammar.html',
   styleUrl: './calculator-grammar.scss',
 })

@@ -1,3 +1,40 @@
+:host {
+  min-height: 0;
+  overflow: hidden;
+}
+
+main {
+  min-height: 0;
+  overflow: hidden;
+}
+
+mat-toolbar {
+  flex: 0 0 36px;
+  min-height: 36px;
+  height: 36px;
+  gap: 8px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+section#output {
+  //flex: 1 1 0;
+  //min-height: 0;
+  overflow: hidden;
+  font-family: var(--monaco-monospace-font, 'Consolas', 'Courier New', monospace), system-ui;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 pre {
   margin: 0;
 }

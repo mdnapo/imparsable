@@ -1,6 +1,7 @@
-<!--suppress AngularForBlockNonIterableVar -->
 <main>
-  <h4 class="title">Explorer</h4>
+  <mat-toolbar>
+    <span class="title">Explorer</span>
+  </mat-toolbar>
   <section id="output">
     @if (context.files()) {
       <mat-tree #tree [dataSource]="context.files()" [childrenAccessor]="childrenAccessor">
