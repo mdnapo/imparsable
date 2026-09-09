@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, signal, WritableSignal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -27,16 +27,14 @@ import {IdeFile} from '../../app.filesystem';
   styleUrl: './ide.scss',
 })
 export class Ide {
-  private readonly changeDetector: ChangeDetectorRef = inject(ChangeDetectorRef);
-
   @Input() sideViews: IdeWidget[] = [];
-  protected sideView?: IdeWidget;
+  protected sideView: WritableSignal<IdeWidget | undefined> = signal(undefined);
   protected sideViewWidth = 250;
   protected readonly sideViewMinWidth = 160;
   protected readonly sideViewMaxWidth = 800;
 
   @Input() bottomViews: IdeWidget[] = [];
-  protected bottomView?: IdeWidget;
+  protected bottomView: WritableSignal<IdeWidget | undefined> = signal(undefined);
   protected bottomViewHeight = 300;
   protected readonly bottomViewMinHeight = 100;
   protected readonly bottomViewMaxHeight = 600;
@@ -46,25 +44,19 @@ export class Ide {
   @Output() onCloseFile: EventEmitter<IdeFile> = new EventEmitter<IdeFile>();
 
   public setSideView(view: IdeWidget): void {
-    this.sideView = view;
-    this.changeDetector.markForCheck();
+    this.sideView.set(view);
   }
 
   protected toggleSideView(view: IdeWidget): void {
-    this.sideView = this.sideView?.id === view.id
-      ? undefined
-      : view;
+    this.sideView.update(current => current?.id === view.id ? undefined : view);
   }
 
   public setBottomView(view: IdeWidget): void {
-    this.bottomView = view;
-    this.changeDetector.markForCheck();
+    this.bottomView.set(view);
   }
 
   protected toggleBottomView(view: IdeWidget): void {
-    this.bottomView = this.bottomView?.id === view.id
-      ? undefined
-      : view;
+    this.bottomView.update(current => current?.id === view.id ? undefined : view);
   }
 
   protected startSideViewResize(event: PointerEvent, element: HTMLElement): void {

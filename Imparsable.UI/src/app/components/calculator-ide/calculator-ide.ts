@@ -147,6 +147,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.editor?.dispose();
     this.explorerSubscription?.dispose();
+    this.grammarSubscription?.dispose();
     this.saveSubscription?.dispose();
     this.executeSubscription?.dispose();
     this.disassembleSubscription?.dispose();

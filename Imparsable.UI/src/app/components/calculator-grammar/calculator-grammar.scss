@@ -1,11 +1,18 @@
 :host {
+  display: block;
+  height: 100%;
+  min-width: 0;
   min-height: 0;
-  overflow: hidden;
 }
 
 main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
   min-height: 0;
   overflow: hidden;
+  background: var(--mat-sys-surface);
 }
 
 mat-toolbar {
@@ -27,14 +34,21 @@ mat-toolbar {
 }
 
 section#output {
-  //flex: 1 1 0;
-  //min-height: 0;
-  overflow: hidden;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
   font-family: var(--monaco-monospace-font, 'Consolas', 'Courier New', monospace), system-ui;
   font-size: 13px;
   line-height: 1.5;
 }
 
-pre {
+pre[class*='language-'] {
+  width: max-content;
+  min-width: 100%;
   margin: 0;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  white-space: pre;
+  overflow: visible;
 }
