@@ -14,7 +14,7 @@ export class CalculatorGrammar implements OnInit {
   private readonly calc: CalculatorService = inject(CalculatorService);
   private grammar: WritableSignal<string> = signal('');
 
-  protected readonly highlighted = computed(() =>
+  protected readonly highlightedGrammar = computed(() =>
     Prism.highlight(this.grammar(), Prism.languages['antlr4'], 'antlr4')
   );
 

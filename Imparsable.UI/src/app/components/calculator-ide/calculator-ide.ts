@@ -11,6 +11,7 @@ import {CalculatorExplorer} from '../calculator-explorer/calculator-explorer';
 import {AsyncPipe} from '@angular/common';
 import {LanguageServer} from '../../services/language-server';
 import {LanguageId} from '../../app.config.monaco';
+import {CalculatorGrammar} from '../calculator-grammar/calculator-grammar';
 
 @Component({
   selector: 'app-calculator-ide',
@@ -39,6 +40,12 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
       alt: 'Explorer (ctrl + shift + a)',
       icon: 'folder',
       view: CalculatorExplorer
+    },
+    {
+      id: 'grammar',
+      alt: 'Grammar (ctrl + shift + g)',
+      icon: 'regular_expression',
+      view: CalculatorGrammar
     },
   ];
 

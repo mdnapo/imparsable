@@ -32,10 +32,14 @@ export class Ide {
   @Input() sideViews: IdeWidget[] = [];
   protected sideView?: IdeWidget;
   protected sideViewWidth = 250;
+  protected readonly sideViewMinWidth = 160;
+  protected readonly sideViewMaxWidth = 800;
 
   @Input() bottomViews: IdeWidget[] = [];
   protected bottomView?: IdeWidget;
   protected bottomViewHeight = 300;
+  protected readonly bottomViewMinHeight = 100;
+  protected readonly bottomViewMaxHeight = 600;
 
   @Input() file: IdeFile | null = null;
   @Output() onInit: EventEmitter<editor.IStandaloneCodeEditor> = new EventEmitter<editor.IStandaloneCodeEditor>();
@@ -74,8 +78,8 @@ export class Ide {
 
     const move = (event: PointerEvent): void => {
       nextWidth = Math.max(
-        160,
-        Math.min(600, startWidth + event.clientX - startX)
+        this.sideViewMinWidth,
+        Math.min(this.sideViewMaxWidth, startWidth + event.clientX - startX)
       );
 
       if (frame !== 0)
@@ -114,8 +118,8 @@ export class Ide {
 
     const move = (event: PointerEvent): void => {
       nextHeight = Math.max(
-        100,
-        Math.min(600, startHeight + startY - event.clientY)
+        this.bottomViewMinHeight,
+        Math.min(this.bottomViewMaxHeight, startHeight + startY - event.clientY)
       );
 
       if (frame !== 0)
