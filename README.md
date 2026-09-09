@@ -1,37 +1,275 @@
 # Imparsable
 
+Imparsable is an experimental language toolchain built to explore the implementation of parsers, compilers, virtual machines, and editor tooling from the ground up.
+
+The project started as an exercise in building a parser with proper Language Server Protocol support. It has since grown into a small end-to-end language platform: source code is parsed into a syntax tree, analyzed, compiled to bytecode, executed by a custom virtual machine, and exposed to browser-based tooling through WebAssembly and an LSP server.
+
+The repository includes a small calculator language as a reference implementation.
+
 ## Motivation
 
-Imparsable is a project to excercise my development skills by writing a parser, an LSP and a runtime for a toy language.
-Over the years I've written several toy languages, but I've never implemented decent editor support. I've added syntax highlighting in Monaco before and also some custom error reporting on the client side, but it
-always felt a bit hacky. So I've finally challenged myself to put my skills to the test and build a parsing toolkit with
-decent LSP support.
+Over the years I've built several toy languages, but editor support was usually an afterthought. Syntax highlighting and custom client-side diagnostics worked, but they never felt like a proper language-development experience.
+
+Imparsable is an attempt to build the whole pipeline instead:
+
+```text
+Source
+  ↓
+Lexer / Parser
+  ↓
+Syntax Tree
+  ↓
+Semantic Analysis
+  ↓
+Compiler
+  ↓
+Bytecode
+  ↓
+Virtual Machine
+```
+
+Alongside that pipeline, the project provides Language Server Protocol infrastructure so the same language implementation can power diagnostics, completions, and other editor features.
+
+The goal isn't to build a production programming language. It's to understand and experiment with the pieces involved in building one.
 
 ## Stack
 
-The backend is built using .NET 10 and the frontend is built on Angular 22.
+The project currently uses:
 
-## Parsing
+* .NET 10
+* ASP.NET Core
+* .NET WebAssembly
+* Angular 22
+* Monaco Editor
+* Language Server Protocol
+* WebSockets
+* StreamJsonRpc
+* OmniSharp LSP protocol models
+* ANTLR4 grammar definitions
+* .NET Aspire
 
-The parsing infrastructure is contained in the [Imparsable.Tools.Parsing](./Imparsable.Tools.Parsing) library, which is strongly
-inspired by the book [Crafting Interpreters by Bob Nystrom](https://craftinginterpreters.com/). The project
-[Imparsable.Lang.Calculator](./Imparsable.Lang.Calculator) is used to demonstrate how to build and use a parser based on
-the parsing library.
+## Toolchain
+
+`Imparsable.Toolchain` contains the reusable building blocks shared by language implementations.
+
+### Parsing
+
+The parsing infrastructure provides the primitives used to construct syntax trees and report source diagnostics.
+
+The design is strongly inspired by Bob Nystrom's [Crafting Interpreters](https://craftinginterpreters.com/), while adapting the concepts to C# and the goals of this project.
+
+The toolchain includes infrastructure for:
+
+* lexing
+* parsing
+* source locations
+* syntax trees
+* diagnostics
+* parser configuration
+* keywords and tokens
+
+`Imparsable.Lang.Calculator` provides a concrete implementation built on top of this infrastructure.
+
+### Compilation
+
+The toolchain also contains common compilation primitives, including byte buffers and compiled chunks.
+
+The calculator language builds on these primitives to compile its syntax tree into a compact bytecode representation.
+
+### Virtualization
+
+Runtime infrastructure includes reusable memory, stack, heap, and allocation abstractions.
+
+The calculator language provides its own virtual machine on top of these components and executes the bytecode produced by its compiler.
+
+## Calculator Language
+
+`Imparsable.Lang.Calculator` is the reference language used to exercise the complete toolchain.
+
+Despite the name, it has grown beyond a simple expression calculator. The language currently includes:
+
+* numeric, boolean, and string values
+* mutable variables and constants
+* arithmetic expressions
+* string concatenation and conversion
+* comparisons and equality
+* logical expressions
+* assignment and compound assignment
+* blocks and lexical scopes
+* `if` / `else if` / `else`
+* `while` loops
+* `for` loops
+* `break` and `continue`
+* printing
+
+For example:
+
+```text
+var value = 0;
+
+for (var i = 0; i < 10; i += 1) {
+    value += i;
+}
+
+if (value > 10) {
+    print "The value is " + value;
+}
+```
+
+The language implementation contains several distinct stages, including parsing, symbol resolution, type resolution, compilation, and execution.
+
+## Compiler
+
+The calculator compiler translates the resolved syntax tree into bytecode for the calculator virtual machine.
+
+The instruction set includes operations for:
+
+* local variable access
+* stack manipulation
+* arithmetic
+* string concatenation
+* boolean operations
+* comparisons
+* constants
+* conditional and unconditional jumps
+* conversions
+* output
+
+Constants are stored separately from the instruction stream and referenced by the generated bytecode.
+
+## Virtual Machine
+
+`Imparsable.Lang.Calculator.Virtualization` contains the runtime used to execute calculator bytecode.
+
+The VM implements its own stack and memory model and interprets the instruction stream emitted by the compiler.
+
+This keeps the complete execution pipeline within the project rather than translating calculator programs to another high-level language for execution.
+
+## Disassembler
+
+The calculator includes a bytecode disassembler for inspecting compiler output.
+
+For example, an instruction referencing a numeric constant may be displayed as:
+
+```text
+000520 NUM_CONST (index: 383, value: 0)
+```
+
+The disassembler resolves operands, constants, jumps, and labels to make generated bytecode easier to inspect while developing the compiler and virtual machine.
+
+It is available programmatically as well as through the CLI.
 
 ## Language Server Protocol
 
-The project [Imparsable.Tools.LSP](./Imparsable.Tools.LSP) contains a custom LSP server implementation. At the
-time of writing (august 2026) there are no well maintainted libraries that support websockets and integrate nicely with
-ASP.NET Core, so the choice was made to implement a custom solution. Given that LSP is a JSON-RPC based protocol, the
-implementation can be kept quite simple. The JSON-RPC connection is provided by
-the [SteamJsonRpc](https://www.nuget.org/packages/StreamJsonRpc/) library, while the LSP types are pulled
-from [OmniSharp.Extensions.LanguageServer.Shared](https://www.nuget.org/packages/OmniSharp.Extensions.LanguageServer.Shared).
-The project [Imparsable.Lang.Calculator.LSP](./Imparsable.Lang.Calculator.LSP) demonstrates the usage of the
-library.
+`Imparsable.Toolchain.LSP` contains the shared infrastructure for implementing language servers.
 
-## Calculator
+Rather than depending on a complete third-party LSP server framework, Imparsable implements the server layer directly. LSP is fundamentally a JSON-RPC protocol, which makes it possible to keep this layer relatively small while retaining control over transport and lifecycle behavior.
 
-The calculator project is meant to provide a concrete end to end example of a parser and LSP implementation. It's meant
-to be simple enough to implement in a relatively short period of time, but complete enough to demonstrate decently
-complex parser and compiler implementations. 
+JSON-RPC communication is provided by [StreamJsonRpc](https://www.nuget.org/packages/StreamJsonRpc/), while protocol types are provided by [OmniSharp.Extensions.LanguageServer.Shared](https://www.nuget.org/packages/OmniSharp.Extensions.LanguageServer.Shared).
 
+The infrastructure supports mapping LSP methods onto handlers and communicating with clients over WebSockets.
+
+`Imparsable.Lang.Calculator.LSP` implements the language server for the calculator language and currently provides document synchronization, diagnostics, and completion support.
+
+The calculator LSP uses document selectors so language features can be scoped to `.clc` files.
+
+## Browser / WebAssembly
+
+`Imparsable.Toolchain.Wasm` exposes parts of the .NET toolchain to the browser through WebAssembly.
+
+This allows the browser-based development environment to use the same underlying language implementation rather than maintaining a separate parser or runtime in TypeScript.
+
+The web application combines the WebAssembly toolchain with Monaco Editor and the calculator LSP to provide an IDE-like environment in the browser.
+
+## API
+
+`Imparsable.API` hosts the server-side HTTP and WebSocket infrastructure.
+
+Among other things, it exposes the calculator language server so Monaco can communicate with it using LSP over a WebSocket connection.
+
+OpenAPI support is also available during development.
+
+## CLI
+
+`Imparsable.CLI` provides command-line access to the language tooling.
+
+Calculator programs can be executed with:
+
+```text
+imp clc run --file <file>
+```
+
+or the shorter alias:
+
+```text
+imp clc r --file <file>
+```
+
+Compiler output can be inspected using the disassembler:
+
+```text
+imp clc disassemble --file <file>
+```
+
+or:
+
+```text
+imp clc d --file <file>
+```
+
+The CLI uses the same parser, compiler, diagnostics, disassembler, and virtual machine as the rest of the project.
+
+## Source Generators
+
+`Imparsable.Toolchain.SourceGenerators` contains Roslyn source generators used to remove repetitive implementation work from the toolchain.
+
+Source generator behavior is covered separately by `Imparsable.Toolchain.SourceGenerators.UnitTests`.
+
+## Tests
+
+The repository contains unit tests for the reusable toolchain and source generators.
+
+`Imparsable.Toolchain.UnitTests` covers areas including:
+
+* parsing
+* compilation
+* virtualization
+
+Additional tests exercise the source-generation infrastructure.
+
+## Project Structure
+
+```text
+Imparsable.Toolchain
+    Shared parsing, compilation, diagnostics and runtime infrastructure
+
+Imparsable.Toolchain.LSP
+    Shared Language Server Protocol infrastructure
+
+Imparsable.Toolchain.Wasm
+    Browser/WebAssembly integration
+
+Imparsable.Toolchain.SourceGenerators
+    Roslyn source generators
+
+Imparsable.Lang.Calculator
+    Calculator language, compiler, disassembler and virtual machine
+
+Imparsable.Lang.Calculator.LSP
+    Calculator language server
+
+Imparsable.CLI
+    Command-line tooling
+
+Imparsable.API
+    ASP.NET Core API and WebSocket host
+
+Imparsable.Aspire
+    .NET Aspire application orchestration
+```
+
+## Status
+
+Imparsable is an experimental project under active development.
+
+APIs, bytecode formats, language syntax, and project structure may change as the implementation evolves. The emphasis is on learning, experimentation, and building the individual pieces of a language toolchain rather than maintaining backwards compatibility.

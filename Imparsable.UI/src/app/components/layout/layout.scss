@@ -48,6 +48,11 @@ mat-sidenav-container {
   height: 100%;
 }
 
+mat-nav-list {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
 mat-nav-list mat-list-item {
   border-radius: 0;
 }

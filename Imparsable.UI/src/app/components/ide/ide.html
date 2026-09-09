@@ -9,6 +9,7 @@
       @for (view of sideViews; track view.id) {
         <button mat-icon-button [title]="view.alt"
                 [class.active]="sideView?.id === view.id"
+                class="small-icon-button"
                 (click)="toggleSideView(view)">
           <mat-icon>{{ view.icon }}</mat-icon>
         </button>
@@ -19,6 +20,7 @@
       @for (view of bottomViews; track view.id) {
         <button mat-icon-button [title]="view.alt"
                 [class.active]="bottomView?.id === view.id"
+                class="small-icon-button"
                 (click)="toggleBottomView(view)"
                 [matBadge]="view.badge?.()"
                 [matBadgeHidden]="view.badge === undefined || view.badge() === 0">
