@@ -10,6 +10,10 @@ public enum Token
     [NewLine<Token>]
     NEWLINE,
 
+    [SingleLineComment<Token>]
+    [MultiLineComment<Token>]
+    COMMENT,
+
     [Keyword]
     CONST,
 
@@ -36,10 +40,10 @@ public enum Token
 
     [Keyword]
     WHILE,
-    
+
     [Keyword]
     BREAK,
-    
+
     [Keyword]
     CONTINUE,
 

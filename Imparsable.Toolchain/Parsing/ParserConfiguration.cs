@@ -7,6 +7,16 @@ public class ParserConfiguration<TToken> where TToken : Enum
 {
     public static readonly IReadOnlyList<Keyword<TToken>> Keywords = GetKeywords();
     public static readonly ParserConfiguration<TToken> Default = new();
+    public static readonly TToken[] TriviaTokens =
+    [
+        .. new List<TToken?>([
+                GetValue<WhitespaceAttribute<TToken>>(),
+                GetValueOrNull<SingleLineCommentAttribute<TToken>>(),
+                GetValueOrNull<MultiLineCommentAttribute<TToken>>()
+            ])
+            .Where(x => x is not null)
+            .Cast<TToken>()
+    ];
 
     public int TabSize => 4;
 
@@ -31,6 +41,23 @@ public class ParserConfiguration<TToken> where TToken : Enum
 
             _ => throw new InvalidOperationException(
                 $"Enum '{typeof(TToken).FullName}' has multiple members tagged with [{typeof(TAttribute).Name}].")
+        };
+    }
+
+    // ReSharper disable once ReturnTypeCanBeNotNullable
+    private static TToken? GetValueOrNull<TAttribute>() where TAttribute : Attribute
+    {
+        var fields = typeof(TToken)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.IsDefined(typeof(TAttribute), inherit: false))
+            .ToArray();
+
+        return fields.Length switch
+        {
+            0 => (TToken)(object)null!,
+            1 => (TToken)fields[0].GetValue(null)!,
+            _ => throw new InvalidOperationException(
+                $"Enum '{typeof(TToken).FullName}' has multiple members tagged with [{typeof(TAttribute).Name}]."),
         };
     }
 
