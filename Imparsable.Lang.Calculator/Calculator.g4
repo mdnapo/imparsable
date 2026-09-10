@@ -178,9 +178,9 @@ WHITESPACE
     : [ \t]+ -> skip
     ;
 
-    
 NEWLINE
-    : '\r'? '\n' -> skip
+    : '\r\n'
+    | '\n'
     ;
 
 fragment DIGIT

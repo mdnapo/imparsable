@@ -48,6 +48,21 @@ public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMar
         return false;
     }
 
+    public bool CheckSequence(ReadOnlySpan<char> expected)
+    {
+        if (Position + expected.Length > Sequence.Length) return false;
+
+        for (var index = 0; index < expected.Length; index++)
+        {
+            if (Sequence[Position + index] != expected[index])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public bool Match(char expected)
     {
         if (Sequence[Position] != expected) return false;

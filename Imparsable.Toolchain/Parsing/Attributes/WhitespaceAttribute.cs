@@ -2,9 +2,6 @@ namespace Imparsable.Toolchain.Parsing.Attributes;
 
 public sealed class WhitespaceAttribute<TToken>(bool ignore = true) : LexerRuleAttribute<TToken> where TToken : Enum
 {
-    // ReSharper disable once StaticMemberInGenericType
-    private static readonly char[] WhitespaceOrCarriageReturn = [' ', '\r'];
-
     public override int Priority => 10;
 
     public override bool Match(Lexer<TToken>.Context context)
@@ -12,9 +9,9 @@ public sealed class WhitespaceAttribute<TToken>(bool ignore = true) : LexerRuleA
         var src = context.Source;
         int line = src.Line, column = src.Column;
 
-        if (src.MatchAny(WhitespaceOrCarriageReturn))
+        if (src.Match(' '))
         {
-            while (src.CheckAny(WhitespaceOrCarriageReturn) && !src.Ended())
+            while (src.Check(' ') && !src.Ended())
                 src.Advance();
 
             HandleIgnore(ignore, Type, context, src, line, column);

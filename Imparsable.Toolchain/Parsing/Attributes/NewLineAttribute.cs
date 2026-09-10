@@ -9,12 +9,14 @@ public sealed class NewLineAttribute<TToken>(bool ignore = true) : LexerRuleAttr
         var src = context.Source;
         int line = src.Line, column = src.Column;
 
-        if (!src.Match('\n')) return false;
+        if (!src.MatchSequence(Environment.NewLine)) return false;
 
         var lines = 1;
-        while (src.Check('\n') && !src.Ended())
+        while (src.CheckSequence(Environment.NewLine) && !src.Ended())
         {
-            src.Advance();
+            foreach (var _ in Environment.NewLine)
+                src.Advance();
+            
             lines++;
         }
 
