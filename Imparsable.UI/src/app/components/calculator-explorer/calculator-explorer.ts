@@ -4,7 +4,6 @@ import {MatIconButton} from "@angular/material/button";
 import {CalculatorContext} from '../../services/calculator-context';
 import {IdeDirectory, IdeFile, IdeNode} from '../../app.filesystem';
 import {MatTree, MatTreeNode, MatTreeNodeDef, MatTreeNodePadding, MatTreeNodeToggle} from '@angular/material/tree';
-import {AsyncPipe} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
 
 @Component({
@@ -17,7 +16,6 @@ import {MatToolbar} from '@angular/material/toolbar';
     MatTreeNodeDef,
     MatTreeNodeToggle,
     MatTreeNodePadding,
-    AsyncPipe,
     MatToolbar,
   ],
   templateUrl: './calculator-explorer.html',

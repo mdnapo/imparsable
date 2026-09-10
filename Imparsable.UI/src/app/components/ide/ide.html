@@ -1,6 +1,6 @@
 <main #ide class="ide"
-      [class.side-view-open]="sideView !== undefined"
-      [class.bottom-view-open]="bottomView !== undefined"
+      [class.side-view-open]="sideView() !== undefined"
+      [class.bottom-view-open]="bottomView() !== undefined"
       [style.--side-view-width.px]="sideViewWidth"
       [style.--bottom-view-height.px]="bottomViewHeight">
 
@@ -62,6 +62,13 @@
     <div class="editor-content" [hidden]="file == null">
       <ngx-monaco-editor class="monaco" (onInit)="onInit.emit($event)"/>
     </div>
+
+    @if (!file) {
+      <div class="empty">
+        <mat-icon>code</mat-icon>
+        <span>Open a file to start editing.</span>
+      </div>
+    }
   </main>
 
   <div class="horizontal-resizer" (pointerdown)="startBottomViewResize($event, ide)"></div>

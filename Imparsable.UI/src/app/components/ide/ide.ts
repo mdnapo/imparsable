@@ -44,7 +44,11 @@ export class Ide {
   @Output() onCloseFile: EventEmitter<IdeFile> = new EventEmitter<IdeFile>();
 
   public setSideView(view: IdeWidget): void {
-    this.sideView.set(view);
+    if (this.sideView()?.id === view.id) {
+      this.toggleSideView(view);
+    } else {
+      this.sideView.set(view);
+    }
   }
 
   protected toggleSideView(view: IdeWidget): void {
