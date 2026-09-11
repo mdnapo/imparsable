@@ -9,22 +9,6 @@ public class ParserContext<TToken>(
 {
     public DiagnosticsProvider Diagnostics { get; } = diagnostics;
     public Source Source { get; } = source;
-    protected List<Lexer<TToken>.Token> Trivia { get; } = [];
-
-    private void ParseTrivia() => EatAny(ParserConfiguration<TToken>.TriviaTokens);
-
-    public IEnumerable<Lexer<TToken>.Token> ExtractTrivia()
-    {
-        foreach (var token in Trivia)
-            yield return token;
-        Trivia.Clear();
-    }
-
-    public void EatAny(params TToken[] types)
-    {
-        while (MatchAny(types))
-            Trivia.Add(Previous());
-    }
 
     public bool CheckOffset(int offset, TToken type)
     {

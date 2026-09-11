@@ -1,8 +1,6 @@
-using Imparsable.Toolchain.Parsing.Interfaces;
-
 namespace Imparsable.Toolchain.Parsing;
 
-public class Source(string source) : Stream<char>(source.AsMemory()), ISourceMarker
+public class Source(string source) : Stream<char>(source.AsMemory())
 {
     public record struct Range(int Offset, int Length);
 

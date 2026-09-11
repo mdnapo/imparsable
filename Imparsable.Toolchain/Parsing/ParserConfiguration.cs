@@ -5,27 +5,28 @@ namespace Imparsable.Toolchain.Parsing;
 
 public class ParserConfiguration<TToken> where TToken : Enum
 {
-    public static readonly IReadOnlyList<Keyword<TToken>> Keywords = GetKeywords();
+    private readonly IReadOnlyList<Keyword<TToken>> _keywords = GetKeywords();
+
     public static readonly ParserConfiguration<TToken> Default = new();
-    public static readonly TToken[] TriviaTokens =
+
+    public readonly TToken[] TriviaTokens =
     [
         .. new List<TToken?>([
-                GetValue<WhitespaceAttribute<TToken>>(),
-                GetValueOrNull<SingleLineCommentAttribute<TToken>>(),
-                GetValueOrNull<MultiLineCommentAttribute<TToken>>()
+                GetToken<WhitespaceAttribute<TToken>>(),
+                GetToken<NewLineAttribute<TToken>>(),
+                .. GetTokens<SingleLineCommentAttribute<TToken>>(),
+                .. GetTokens<MultiLineCommentAttribute<TToken>>()
             ])
             .Where(x => x is not null)
             .Cast<TToken>()
     ];
 
+    public TToken Unexpected { get; } = GetToken<UnexpectedAttribute>();
+    public TToken Error { get; } = GetToken<ErrorAttribute>();
+    public TToken End { get; } = GetToken<EndAttribute>();
     public int TabSize => 4;
 
-    public TToken Unexpected { get; } = GetValue<UnexpectedAttribute>();
-    public TToken Error { get; } = GetValue<ErrorAttribute>();
-    public TToken End { get; } = GetValue<EndAttribute>();
-
-
-    private static TToken GetValue<TAttribute>() where TAttribute : Attribute
+    private static TToken GetToken<TAttribute>() where TAttribute : Attribute
     {
         var fields = typeof(TToken)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
@@ -34,37 +35,27 @@ public class ParserConfiguration<TToken> where TToken : Enum
 
         return fields.Length switch
         {
-            1 => (TToken)fields[0].GetValue(null)!,
-
-            0 => throw new InvalidOperationException(
-                $"Enum '{typeof(TToken).FullName}' has no member tagged with [{typeof(TAttribute).Name}]."),
-
-            _ => throw new InvalidOperationException(
-                $"Enum '{typeof(TToken).FullName}' has multiple members tagged with [{typeof(TAttribute).Name}].")
+            0 => throw new InvalidOperationException($"Enum '{typeof(TToken).FullName}' has no member tagged with [{typeof(TAttribute).Name}]."),
+            1 => (TToken)fields.First().GetValue(null)!,
+            _ => throw new InvalidOperationException($"Enum '{typeof(TToken).FullName}' has multiple members tagged with [{typeof(TAttribute).Name}].")
         };
     }
 
     // ReSharper disable once ReturnTypeCanBeNotNullable
-    private static TToken? GetValueOrNull<TAttribute>() where TAttribute : Attribute
+    private static IEnumerable<TToken> GetTokens<TAttribute>() where TAttribute : Attribute
     {
         var fields = typeof(TToken)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.IsDefined(typeof(TAttribute), inherit: false))
             .ToArray();
 
-        return fields.Length switch
-        {
-            0 => (TToken)(object)null!,
-            1 => (TToken)fields[0].GetValue(null)!,
-            _ => throw new InvalidOperationException(
-                $"Enum '{typeof(TToken).FullName}' has multiple members tagged with [{typeof(TAttribute).Name}]."),
-        };
+        return fields.Select(field => (TToken)field.GetValue(null)!);
     }
 
-    public static Keyword<TToken>? IsKeyword(string text) =>
-        Keywords.FirstOrDefault(keyword => keyword.Name.Equals(text));
+    public Keyword<TToken>? IsKeyword(string text) =>
+        _keywords.FirstOrDefault(keyword => keyword.Name.Equals(text));
 
-    public static IReadOnlyList<Keyword<TToken>> GetKeywords() =>
+    private static IReadOnlyList<Keyword<TToken>> GetKeywords() =>
     [
         .. typeof(TToken)
             .GetFields(BindingFlags.Public | BindingFlags.Static)

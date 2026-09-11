@@ -1,5 +1,6 @@
 using Imparsable.Toolchain.Parsing.Exceptions;
 using Imparsable.Toolchain.Parsing.Extensions;
+using Imparsable.Toolchain.Parsing.Interfaces;
 
 namespace Imparsable.Toolchain.Parsing;
 
@@ -18,7 +19,7 @@ public partial class Lexer<TToken>
 
             if (type.IsIdentifier<TToken>())
             {
-                type = ParserConfiguration<TToken>.IsKeyword(text) is { } keyword
+                type = Configuration.IsKeyword(text) is { } keyword
                     ? keyword.Type
                     : type;
             }
@@ -29,7 +30,7 @@ public partial class Lexer<TToken>
             Tokens.Add(new Token(type, offset, length, line, column));
         }
 
-        public void Halt(string message) => throw new SyntaxException(Source, message);
+        public void Halt(ISourceMarker marker, string message) => throw new SyntaxException(marker, message);
 
         public void MarkUnexpected()
         {

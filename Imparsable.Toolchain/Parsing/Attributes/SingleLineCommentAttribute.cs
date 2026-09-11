@@ -1,6 +1,6 @@
 namespace Imparsable.Toolchain.Parsing.Attributes;
 
-public sealed class NewLineAttribute<TToken> : LexerRuleAttribute<TToken> where TToken : Enum
+public sealed class SingleLineCommentAttribute<TToken> : LexerRuleAttribute<TToken> where TToken : Enum
 {
     public override int Priority => 20;
 
@@ -9,20 +9,13 @@ public sealed class NewLineAttribute<TToken> : LexerRuleAttribute<TToken> where 
         var src = context.Source;
         int line = src.Line, column = src.Column;
 
-        if (!src.MatchSequence(Environment.NewLine)) return false;
+        if (!src.MatchSequence("//")) return false;
 
-        var lines = 1;
-        while (src.CheckSequence(Environment.NewLine) && !src.Ended())
-        {
-            foreach (var _ in Environment.NewLine)
-                src.Advance();
-
-            lines++;
-        }
+        while (!src.CheckSequence(Environment.NewLine) && !src.Ended())
+            src.Advance();
 
         var range = src.Extract();
         context.AddToken(Type, range.Offset, range.Length, line, column);
-        context.Source.Line += lines;
         context.Source.Column = 1;
 
         return true;

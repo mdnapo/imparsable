@@ -3,13 +3,13 @@ namespace Imparsable.Toolchain.Parsing.Attributes;
 public sealed class SingleQuoteStringAttribute<TToken> : LexerRuleAttribute<TToken> where TToken : Enum
 {
     public override int Priority => 40;
-    
+
     public override bool Match(Lexer<TToken>.Context context)
     {
         if (!context.Source.Match('\'')) return false;
 
         var src = context.Source;
-        int line = src.Line, column = src.Column;
+        int offset = src.Offset, line = src.Line, column = src.Column;
 
         while (src.Peek() != '\'' && !src.Ended())
         {
@@ -25,11 +25,11 @@ public sealed class SingleQuoteStringAttribute<TToken> : LexerRuleAttribute<TTok
 
         if (src.Ended())
         {
-            context.Halt("Unterminated string.");
+            var marker = new SourceMarker(offset, src.Length, line, column);
+            context.Halt(marker, "Unterminated string.");
         }
 
-        // Include the closing quotation mark.
-        src.Advance();
+        src.Match('\'');
 
         var range = src.Extract();
         // range.Offset + 1 accounts for the leading quotation mark

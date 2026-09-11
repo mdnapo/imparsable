@@ -9,7 +9,8 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     where TSyntaxTree : SyntaxTree<TToken, TSyntax, TSyntaxTree>, new()
 {
     public Source Source { get; init; } = null!;
-    public List<Lexer<TToken>.Token> Tokens { get; private set; } = [];
+    public List<Lexer<TToken>.Token> Tokens { get;  } = [];
+    public List<Lexer<TToken>.Token> Trivia { get;  } = [];
     public List<TSyntax> Roots { get; } = [];
 
     private static TSyntaxTree Create(string source) => new() { Source = new Source(source) };
@@ -20,8 +21,10 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
         var tree = Create(source);
         var configuration = ParserConfiguration<TToken>.Default;
         var lexerContext = new Lexer<TToken>.Context(configuration, diagnostics, tree.Source);
-
-        tree.Tokens = Lexer<TToken>.Default.Execute(lexerContext);
+        
+        tree.Tokens.AddRange(Lexer<TToken>.Default.Execute(lexerContext));
+        tree.Trivia.AddRange(tree.Tokens.Where(token => configuration.TriviaTokens.Contains(token.Type)));
+        tree.Tokens.RemoveAll(token => configuration.TriviaTokens.Contains(token.Type));
 
         var parserContext = new ParserContext<TToken>(configuration, diagnostics, tree.Source, tree.Tokens);
 

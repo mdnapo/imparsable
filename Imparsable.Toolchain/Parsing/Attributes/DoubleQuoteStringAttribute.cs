@@ -9,7 +9,7 @@ public sealed class DoubleQuoteStringAttribute<TToken> : LexerRuleAttribute<TTok
         if (!context.Source.Match('"')) return false;
 
         var src = context.Source;
-        int line = src.Line, column = src.Column;
+        int offset = src.Offset, line = src.Line, column = src.Column;
 
         while (src.Peek() != '"' && !src.Ended())
         {
@@ -25,11 +25,11 @@ public sealed class DoubleQuoteStringAttribute<TToken> : LexerRuleAttribute<TTok
 
         if (src.Ended())
         {
-            context.Halt("Unterminated string.");
+            var marker = new SourceMarker(offset, src.Length, line, column);
+            context.Halt(marker, "Unterminated string.");
         }
 
-        // Include the closing quotation mark.
-        src.Advance();
+        src.Match('"');
 
         var range = src.Extract();
         context.AddToken(Type, range.Offset, range.Length, line, column);

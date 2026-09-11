@@ -1,6 +1,6 @@
 namespace Imparsable.Toolchain.Parsing.Attributes;
 
-public sealed class WhitespaceAttribute<TToken>(bool ignore = true) : LexerRuleAttribute<TToken> where TToken : Enum
+public sealed class WhitespaceAttribute<TToken> : LexerRuleAttribute<TToken> where TToken : Enum
 {
     public override int Priority => 10;
 
@@ -14,7 +14,7 @@ public sealed class WhitespaceAttribute<TToken>(bool ignore = true) : LexerRuleA
             while (src.Check(' ') && !src.Ended())
                 src.Advance();
 
-            HandleIgnore(ignore, Type, context, src, line, column);
+            Extract(context, src, line, column);
 
             return true;
         }
@@ -25,11 +25,17 @@ public sealed class WhitespaceAttribute<TToken>(bool ignore = true) : LexerRuleA
             do src.Column += context.Configuration.TabSize - 1;
             while (src.Match('\t') && !src.Ended());
 
-            HandleIgnore(ignore, Type, context, src, line, column);
+            Extract(context, src, line, column);
 
             return true;
         }
 
         return false;
+    }
+
+    private void Extract(Lexer<TToken>.Context context, Source src, int line, int column)
+    {
+        var range = src.Extract();
+        context.AddToken(Type, range.Offset, range.Length, line, column);
     }
 }
