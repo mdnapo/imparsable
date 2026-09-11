@@ -5,27 +5,28 @@ namespace Imparsable.Lang.Calculator.Parsing;
 
 public partial class VarStatement : ISyntax, ISymbol, IProduction
 {
-    public required Source Source { get; init; }
     public required Lexer<Token>.Token Token { get; init; }
     public required Lexer<Token>.Token Identifier { get; init; }
     public Lexer<Token>.Token? Assignment { get; init; }
     public ISyntax? Initializer { get; init; }
     public required Lexer<Token>.Token SemiColon { get; init; }
-    public string Symbol => Source.GetText(Identifier.Offset, Identifier.Length);
+    public required string Symbol { get; init; }
 
     public static ISyntax Parse(ParserContext<Token> context)
     {
         var token = context.Previous();
         var identifier = context.Consume(Parsing.Token.IDENTIFIER, "Expected an identifier.");
+        var symbol = context.Source.GetText(identifier.Offset, identifier.Length);
 
         if (context.Match(Parsing.Token.SEMICOLON))
         {
             return new VarStatement
             {
-                Source = context.Source,
+                // Source = context.Source,
                 Token = token,
                 Identifier = identifier,
-                SemiColon = context.Previous()
+                SemiColon = context.Previous(),
+                Symbol = symbol
             };
         }
 
@@ -35,12 +36,12 @@ public partial class VarStatement : ISyntax, ISymbol, IProduction
 
         return new VarStatement
         {
-            Source = context.Source,
             Token = token,
             Identifier = identifier,
             Assignment = assignment,
             Initializer = initializer,
-            SemiColon = semiColon
+            SemiColon = semiColon,
+            Symbol = symbol
         };
     }
 }

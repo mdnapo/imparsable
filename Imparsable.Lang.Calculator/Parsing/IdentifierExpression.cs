@@ -7,11 +7,18 @@ public partial class IdentifierExpression : ISyntax, IProduction, ISymbol
 {
     public required Source Source { get; init; }
     public required Lexer<Token>.Token Token { get; init; }
-    public string Symbol => Source.GetText(Token.Offset, Token.Length);
+    public required string Symbol { get; init; }
 
-    public static ISyntax Parse(ParserContext<Token> context) => new IdentifierExpression
+    public static ISyntax Parse(ParserContext<Token> context)
     {
-        Source = context.Source,
-        Token = context.Previous()
-    };
+        var token = context.Previous();
+        var symbol = context.Source.GetText(token.Offset, token.Length);
+
+        return new IdentifierExpression
+        {
+            Source = context.Source,
+            Token = context.Previous(),
+            Symbol = symbol
+        };
+    }
 }
