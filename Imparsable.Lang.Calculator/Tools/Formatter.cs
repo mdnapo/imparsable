@@ -1,4 +1,3 @@
-using System.Text;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain.Parsing;
@@ -7,159 +6,19 @@ namespace Imparsable.Lang.Calculator.Tools;
 
 public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 {
-    private const int MaxBlankLines = 2;
-    private const int MaxNewLines = MaxBlankLines + 1;
-    
-    private readonly TriviaStream _trivia = new(tree.Trivia);
-    private readonly StringBuilder _builder = new(tree.Source.Text.Length);
+    private readonly Writer _writer = new(tree);
     private readonly Stack<ISyntax> _blockContext = new();
-    public int Depth { get; set; }
 
-    private bool _pendingSpace;
-    private bool _pendingIndent;
-    private int _requiredNewLines;
-    private int _writtenNewLines;
-
-    private void Space() => _pendingSpace = true;
-    private void Indent() => _pendingIndent = true;
-
-    private void Write(Lexer<Token>.Token token)
+    private int Depth
     {
-        WriteTrivia(token);
-        FlushLayout();
-
-        _builder.Append(tree.Source.GetText(token.Offset, token.Length));
-
-        _writtenNewLines = 0;
-        _pendingIndent = false;
+        get => _writer.Depth;
+        set => _writer.Depth = value;
     }
 
-    private void WriteLine(Lexer<Token>.Token token)
-    {
-        Write(token);
-        _requiredNewLines = Math.Max(_requiredNewLines, 1);
-    }
-
-    private void FlushLayout()
-    {
-        if (_requiredNewLines > 0)
-        {
-            _pendingSpace = false;
-
-            EnsureNewLines(_requiredNewLines);
-            _requiredNewLines = 0;
-        }
-
-        if (_writtenNewLines > 0 || _builder.Length == 0)
-        {
-            _pendingSpace = false;
-
-            if (_pendingIndent)
-                _builder.Append('\t', Depth);
-        }
-        else if (_pendingSpace)
-        {
-            _builder.Append(' ');
-        }
-
-        _pendingSpace = false;
-    }
-
-    private void EnsureNewLines(int count)
-    {
-        _pendingSpace = false;
-
-        count = Math.Min(count, MaxNewLines);
-
-        while (_writtenNewLines < count)
-        {
-            _builder.Append(Environment.NewLine);
-            _writtenNewLines++;
-        }
-    }
-
-    private void WriteTrivia(Lexer<Token>.Token token)
-    {
-        foreach (var trivia in _trivia.Read(token))
-        {
-            if (trivia is null) continue;
-
-            switch (trivia.Value.Type)
-            {
-                case Token.COMMENT:
-                {
-                    WriteComment(trivia.Value);
-                    break;
-                }
-
-                case Token.NEWLINE:
-                {
-                    var count = trivia.Value.Length / Environment.NewLine.Length;
-
-                    EnsureNewLines(Math.Max(_requiredNewLines, count));
-
-                    _requiredNewLines = 0;
-
-                    break;
-                }
-
-                case Token.WHITESPACE:
-                {
-                    Space();
-                    break;
-                }
-            }
-        }
-    }
-
-    private void WriteComment(Lexer<Token>.Token token)
-    {
-        var text = tree.Source.GetText(token.Offset, token.Length);
-
-        if (_writtenNewLines > 0 || _builder.Length == 0)
-        {
-            _pendingSpace = false;
-
-            if (_pendingIndent)
-                _builder.Append('\t', Depth);
-        }
-        else if (_pendingSpace)
-        {
-            _builder.Append(' ');
-            _pendingSpace = false;
-        }
-
-        switch (text)
-        {
-            case ['/', '/', ..]:
-            {
-                _builder.Append(text);
-                _writtenNewLines = 0;
-
-                EnsureNewLines(Math.Max(_requiredNewLines, 1));
-
-                _requiredNewLines = 0;
-
-                break;
-            }
-
-            case ['/', '*', ..]:
-            {
-                _builder.Append(text);
-                _writtenNewLines = 0;
-                break;
-            }
-        }
-    }
-
-    private void Finish()
-    {
-        _pendingSpace = false;
-
-        EnsureNewLines(_requiredNewLines);
-
-        _requiredNewLines = 0;
-    }
+    private void Space() => _writer.Space();
+    private void Indent() => _writer.Indent();
+    private void Write(Lexer<Token>.Token token) => _writer.Write(token);
+    private void WriteLine(Lexer<Token>.Token token) => _writer.WriteLine(token);
 
     public static string Format(SyntaxTree tree)
     {
@@ -168,11 +27,9 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
         foreach (var root in tree.Roots)
             root.Accept(formatter);
 
-        formatter.Finish();
-
-        return formatter._builder.ToString();
+        return formatter._writer.Finish();
     }
-
+    
     public void Visit(AssignmentExpression node)
     {
         node.Target.Accept(this);
