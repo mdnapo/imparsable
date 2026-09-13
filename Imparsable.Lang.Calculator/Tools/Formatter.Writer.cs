@@ -79,40 +79,6 @@ public partial class Formatter
                 _writtenNewLines++;
             }
         }
-
-        // private void WriteTrivia(Lexer<Token>.Token token)
-        // {
-        //     foreach (var trivia in _trivia.Read(token))
-        //     {
-        //         if (trivia is null) continue;
-        //
-        //         switch (trivia.Value.Type)
-        //         {
-        //             case Token.COMMENT:
-        //             {
-        //                 WriteComment(trivia.Value);
-        //                 break;
-        //             }
-        //
-        //             case Token.NEWLINE:
-        //             {
-        //                 var count = trivia.Value.Length / Environment.NewLine.Length;
-        //             
-        //                 EnsureNewLines(Math.Max(_requiredNewLines, count));
-        //             
-        //                 _requiredNewLines = 0;
-        //             
-        //                 break;
-        //             }
-        //             
-        //             case Token.WHITESPACE:
-        //             {
-        //                 Space();
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
         
         private void WriteTrivia(Lexer<Token>.Token token)
         {
