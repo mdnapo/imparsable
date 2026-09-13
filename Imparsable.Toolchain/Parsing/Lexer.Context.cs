@@ -35,7 +35,7 @@ public partial class Lexer<TToken>
             }
             else
             {
-                Tokens.Add(new Token(type, offset, length, line, column));
+                Tokens.Add(token);
                 IndexTrivia(token);
             }
         }
