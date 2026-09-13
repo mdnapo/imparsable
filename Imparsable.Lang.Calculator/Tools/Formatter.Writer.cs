@@ -80,8 +80,44 @@ public partial class Formatter
             }
         }
 
+        // private void WriteTrivia(Lexer<Token>.Token token)
+        // {
+        //     foreach (var trivia in _trivia.Read(token))
+        //     {
+        //         if (trivia is null) continue;
+        //
+        //         switch (trivia.Value.Type)
+        //         {
+        //             case Token.COMMENT:
+        //             {
+        //                 WriteComment(trivia.Value);
+        //                 break;
+        //             }
+        //
+        //             case Token.NEWLINE:
+        //             {
+        //                 var count = trivia.Value.Length / Environment.NewLine.Length;
+        //             
+        //                 EnsureNewLines(Math.Max(_requiredNewLines, count));
+        //             
+        //                 _requiredNewLines = 0;
+        //             
+        //                 break;
+        //             }
+        //             
+        //             case Token.WHITESPACE:
+        //             {
+        //                 Space();
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // }
+        
         private void WriteTrivia(Lexer<Token>.Token token)
         {
+            var newLines = 0;
+
             foreach (var trivia in _trivia.Read(token))
             {
                 if (trivia is null) continue;
@@ -90,28 +126,39 @@ public partial class Formatter
                 {
                     case Token.COMMENT:
                     {
+                        FlushNewLines(ref newLines);
                         WriteComment(trivia.Value);
                         break;
                     }
 
                     case Token.NEWLINE:
                     {
-                        var count = trivia.Value.Length / Environment.NewLine.Length;
-                    
-                        EnsureNewLines(Math.Max(_requiredNewLines, count));
-                    
-                        _requiredNewLines = 0;
-                    
+                        newLines += trivia.Value.Length / Environment.NewLine.Length;
                         break;
                     }
-                    
+
                     case Token.WHITESPACE:
                     {
-                        Space();
+                        if (newLines == 0)
+                            Space();
+
                         break;
                     }
                 }
             }
+
+            FlushNewLines(ref newLines);
+        }
+
+        private void FlushNewLines(ref int count)
+        {
+            if (count == 0)
+                return;
+
+            EnsureNewLines(Math.Max(_requiredNewLines, count));
+
+            _requiredNewLines = 0;
+            count = 0;
         }
 
         private void WriteComment(Lexer<Token>.Token token)
