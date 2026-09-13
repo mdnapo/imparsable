@@ -8,6 +8,7 @@ public partial class Formatter
 {
     private sealed class Writer(SyntaxTree tree)
     {
+        private const int TabSize = 4;
         private const int MaxBlankLines = 2;
         private const int MaxNewLines = MaxBlankLines + 1;
 
@@ -23,6 +24,7 @@ public partial class Formatter
 
         public void Space() => _pendingSpace = true;
         public void Indent() => _pendingIndent = true;
+        public void NewLine() => _requiredNewLines = Math.Max(_requiredNewLines, 1);
 
         public void Write(Lexer<Token>.Token token)
         {
@@ -46,7 +48,6 @@ public partial class Formatter
             if (_requiredNewLines > 0)
             {
                 _pendingSpace = false;
-
                 EnsureNewLines(_requiredNewLines);
                 _requiredNewLines = 0;
             }
@@ -56,7 +57,7 @@ public partial class Formatter
                 _pendingSpace = false;
 
                 if (_pendingIndent)
-                    _builder.Append('\t', Depth);
+                    _builder.Append(' ', Depth * TabSize);
             }
             else if (_pendingSpace)
             {
@@ -96,14 +97,14 @@ public partial class Formatter
                     case Token.NEWLINE:
                     {
                         var count = trivia.Value.Length / Environment.NewLine.Length;
-
+                    
                         EnsureNewLines(Math.Max(_requiredNewLines, count));
-
+                    
                         _requiredNewLines = 0;
-
+                    
                         break;
                     }
-
+                    
                     case Token.WHITESPACE:
                     {
                         Space();
@@ -122,7 +123,7 @@ public partial class Formatter
                 _pendingSpace = false;
 
                 if (_pendingIndent)
-                    _builder.Append('\t', Depth);
+                    _builder.Append(' ', Depth * TabSize);
             }
             else if (_pendingSpace)
             {

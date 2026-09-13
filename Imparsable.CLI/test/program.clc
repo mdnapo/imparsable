@@ -5,7 +5,10 @@ const radius = 4 / /* Comment! */ 2;
 var area = 2 * pi * radius;
 var acc = "";
 print "Area" + ': ' + area;
-print 1 + 2;
+print 1 + 2; // Comms
+
+// Comm!
+
 
 
 for (var x = 0; x < 3; x += 1) {

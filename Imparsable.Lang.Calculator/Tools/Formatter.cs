@@ -17,6 +17,7 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 
     private void Space() => _writer.Space();
     private void Indent() => _writer.Indent();
+    private void NewLine() => _writer.NewLine();
     private void Write(Lexer<Token>.Token token) => _writer.Write(token);
     private void WriteLine(Lexer<Token>.Token token) => _writer.WriteLine(token);
 
@@ -29,7 +30,7 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 
         return formatter._writer.Finish();
     }
-    
+
     public void Visit(AssignmentExpression node)
     {
         node.Target.Accept(this);
@@ -70,7 +71,7 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
         Depth--;
         Indent();
 
-        WriteLine(node.RightBrace);
+        Write(node.RightBrace);
     }
 
     public void Visit(BoolLiteralExpression node) => Write(node.Token);
@@ -90,7 +91,6 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 
     public void Visit(ElseIfStatement node)
     {
-        Indent();
         Write(node.ElseKeyword);
         Space();
         Write(node.IfKeyword);
@@ -100,7 +100,12 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
         Write(node.RightParenthesis);
         Space();
         node.Body.Accept(this);
-        node.Next?.Accept(this);
+
+        if (node.Next is { } next)
+        {
+            Space();
+            next.Accept(this);
+        }
     }
 
     public void Visit(ExpressionStatement node)
@@ -121,7 +126,7 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 
         if (node.Initializer is not null)
         {
-            node.Initializer?.Accept(this);
+            node.Initializer.Accept(this);
         }
         else if (node.InitializerSemiColon is not null)
         {
@@ -142,6 +147,8 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 
         _blockContext.Pop();
         tree.SymbolRoot.Pop();
+
+        NewLine();
     }
 
     public void Visit(GroupingExpression node)
@@ -165,15 +172,22 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
         Write(node.RightParenthesis);
         Space();
         node.Body.Accept(this);
-        node.ElseIf?.Accept(this);
+
+        if (node.ElseIf is { } elseIf)
+        {
+            Space();
+            elseIf.Accept(this);
+        }
 
         if (node.Else is { } @else)
         {
-            Indent();
+            Space();
             Write(node.ElseKeyword!.Value);
             Space();
             @else.Accept(this);
         }
+
+        NewLine();
 
         _blockContext.Pop();
     }
@@ -238,6 +252,8 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
         node.Body.Accept(this);
 
         _blockContext.Pop();
+
+        NewLine();
     }
 
     public void Visit(BreakStatement node)
