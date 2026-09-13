@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         services
             .AddSingleton<Imp>()
             .AddSingleton<ISubCommandOf<Imp>, Imp.Calculator>()
+            .AddSingleton<ISubCommandOf<Imp.Calculator>, Imp.Calculator.Format>()
             .AddSingleton<ISubCommandOf<Imp.Calculator>, Imp.Calculator.Run>()
             .AddSingleton<ISubCommandOf<Imp.Calculator>, Imp.Calculator.Disassemble>()
             ;

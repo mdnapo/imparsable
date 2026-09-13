@@ -7,8 +7,8 @@ public partial class IfStatement : ISyntax, IProduction
 {
     public Lexer<Token>.Token Token => Keyword;
     public required Lexer<Token>.Token Keyword { get; init; }
-    public required Lexer<Token>.Token OpenParentheses { get; init; }
-    public required Lexer<Token>.Token CloseParentheses { get; init; }
+    public required Lexer<Token>.Token LeftParenthesis { get; init; }
+    public required Lexer<Token>.Token RightParenthesis { get; init; }
     public required ISyntax Condition { get; init; }
     public required ISyntax Body { get; init; }
     public ISyntax? ElseIf { get; init; }
@@ -31,9 +31,9 @@ public partial class IfStatement : ISyntax, IProduction
         return new IfStatement
         {
             Keyword = keyword,
-            OpenParentheses = leftParenthesis,
+            LeftParenthesis = leftParenthesis,
             Condition = condition,
-            CloseParentheses = rightParenthesis,
+            RightParenthesis = rightParenthesis,
             Body = body,
             ElseIf = elseIf,
             ElseKeyword = elseKeyword,

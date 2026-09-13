@@ -5,7 +5,6 @@ namespace Imparsable.Lang.Calculator.Parsing;
 
 public partial class IdentifierExpression : ISyntax, IProduction, ISymbol
 {
-    public required Source Source { get; init; }
     public required Lexer<Token>.Token Token { get; init; }
     public required string Symbol { get; init; }
 
@@ -16,7 +15,6 @@ public partial class IdentifierExpression : ISyntax, IProduction, ISymbol
 
         return new IdentifierExpression
         {
-            Source = context.Source,
             Token = context.Previous(),
             Symbol = symbol
         };

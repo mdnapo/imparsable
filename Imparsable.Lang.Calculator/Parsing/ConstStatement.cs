@@ -5,7 +5,8 @@ namespace Imparsable.Lang.Calculator.Parsing;
 
 public partial class ConstStatement : ISyntax, ISymbol, IProduction
 {
-    public required Lexer<Token>.Token Token { get; init; }
+    public Lexer<Token>.Token Token => Keyword;
+    public required Lexer<Token>.Token Keyword { get; init; }
     public required Lexer<Token>.Token Identifier { get; init; }
     public required Lexer<Token>.Token Assignment { get; init; }
     public required ISyntax Initializer { get; init; }
@@ -14,7 +15,7 @@ public partial class ConstStatement : ISyntax, ISymbol, IProduction
 
     public static ISyntax Parse(ParserContext<Token> context)
     {
-        var token = context.Previous();
+        var keyword = context.Previous();
         var identifier = context.Consume(Parsing.Token.IDENTIFIER, "Expected an identifier.");
         var assignment = context.Consume(Parsing.Token.EQUAL, "Expected '='.");
         var initializer = Expression.Parse(context);
@@ -23,7 +24,7 @@ public partial class ConstStatement : ISyntax, ISymbol, IProduction
 
         return new ConstStatement
         {
-            Token = token,
+            Keyword = keyword,
             Identifier = identifier,
             Assignment = assignment,
             Initializer = initializer,

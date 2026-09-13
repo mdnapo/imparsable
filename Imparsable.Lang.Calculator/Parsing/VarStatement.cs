@@ -5,7 +5,8 @@ namespace Imparsable.Lang.Calculator.Parsing;
 
 public partial class VarStatement : ISyntax, ISymbol, IProduction
 {
-    public required Lexer<Token>.Token Token { get; init; }
+    public Lexer<Token>.Token Token => Keyword;
+    public required Lexer<Token>.Token Keyword { get; init; }
     public required Lexer<Token>.Token Identifier { get; init; }
     public Lexer<Token>.Token? Assignment { get; init; }
     public ISyntax? Initializer { get; init; }
@@ -14,7 +15,7 @@ public partial class VarStatement : ISyntax, ISymbol, IProduction
 
     public static ISyntax Parse(ParserContext<Token> context)
     {
-        var token = context.Previous();
+        var keyword = context.Previous();
         var identifier = context.Consume(Parsing.Token.IDENTIFIER, "Expected an identifier.");
         var symbol = context.Source.GetText(identifier.Offset, identifier.Length);
 
@@ -22,8 +23,7 @@ public partial class VarStatement : ISyntax, ISymbol, IProduction
         {
             return new VarStatement
             {
-                // Source = context.Source,
-                Token = token,
+                Keyword = keyword,
                 Identifier = identifier,
                 SemiColon = context.Previous(),
                 Symbol = symbol
@@ -36,7 +36,7 @@ public partial class VarStatement : ISyntax, ISymbol, IProduction
 
         return new VarStatement
         {
-            Token = token,
+            Keyword = keyword,
             Identifier = identifier,
             Assignment = assignment,
             Initializer = initializer,

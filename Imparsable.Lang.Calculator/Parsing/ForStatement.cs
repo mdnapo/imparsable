@@ -9,7 +9,9 @@ public partial class ForStatement : SymbolTable, ISyntax, IProduction
     public required Lexer<Token>.Token Keyword { get; init; }
     public required Lexer<Token>.Token LeftParenthesis { get; init; }
     public ISyntax? Initializer { get; init; }
+    public Lexer<Token>.Token? InitializerSemiColon { get; init; }
     public required ISyntax Condition { get; init; }
+    public Lexer<Token>.Token ConditionSemiColon { get; init; }
     public ISyntax? Increment { get; init; }
     public required Lexer<Token>.Token RightParenthesis { get; init; }
     public required ISyntax Body { get; init; }
@@ -17,13 +19,14 @@ public partial class ForStatement : SymbolTable, ISyntax, IProduction
     public static ISyntax Parse(ParserContext<Token> context)
     {
         var keyword = context.Previous();
-
         var leftParenthesis = context.Consume(Parsing.Token.LEFT_PARENTHESIS, "Expected '(' after for.");
-
         ISyntax? initializer;
+        Lexer<Token>.Token? initializerSemiColon = null;
+
         if (context.Match(Parsing.Token.SEMICOLON))
         {
             initializer = null;
+            initializerSemiColon = context.Previous();
         }
         else if (context.Match(Parsing.Token.VAR))
         {
@@ -38,7 +41,7 @@ public partial class ForStatement : SymbolTable, ISyntax, IProduction
             ? new BoolLiteralExpression { Token = context.Current, Value = true }
             : Expression.Parse(context);
 
-        context.Consume(Parsing.Token.SEMICOLON, "Expected ';' after for loop condition.");
+        var conditionSemiColon = context.Consume(Parsing.Token.SEMICOLON, "Expected ';' after for loop condition.");
 
         var increment = !context.Check(Parsing.Token.RIGHT_PARENTHESIS)
             ? Expression.Parse(context)
@@ -58,7 +61,9 @@ public partial class ForStatement : SymbolTable, ISyntax, IProduction
             Keyword = keyword,
             LeftParenthesis = leftParenthesis,
             Initializer = initializer,
+            InitializerSemiColon = initializerSemiColon,
             Condition = condition,
+            ConditionSemiColon = conditionSemiColon,
             Increment = increment,
             RightParenthesis = rightParenthesis,
             Body = body

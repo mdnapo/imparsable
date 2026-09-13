@@ -8,7 +8,9 @@ public partial class ElseIfStatement : ISyntax, IProduction
     public Lexer<Token>.Token Token => ElseKeyword;
     public required Lexer<Token>.Token ElseKeyword { get; init; }
     public required Lexer<Token>.Token IfKeyword { get; init; }
+    public required Lexer<Token>.Token LeftParenthesis { get; init; }
     public required ISyntax Condition { get; init; }
+    public required Lexer<Token>.Token RightParenthesis { get; init; }
     public required ISyntax Body { get; init; }
     public ISyntax? Next { get; init; }
 
@@ -19,9 +21,9 @@ public partial class ElseIfStatement : ISyntax, IProduction
             var elseKeyword = context.Advance();
             var ifKeyword = context.Advance();
 
-            context.Consume(Parsing.Token.LEFT_PARENTHESIS, "Expected '(' after else if.");
+            var leftParenthesis = context.Consume(Parsing.Token.LEFT_PARENTHESIS, "Expected '(' after else if.");
             var condition = Expression.Parse(context);
-            context.Consume(Parsing.Token.RIGHT_PARENTHESIS, "Expected ')' after else if condition.");
+            var rightParenthesis = context.Consume(Parsing.Token.RIGHT_PARENTHESIS, "Expected ')' after else if condition.");
 
             var then = Statement.Parse(context);
             var next = Parse(context);
@@ -30,7 +32,9 @@ public partial class ElseIfStatement : ISyntax, IProduction
             {
                 ElseKeyword = elseKeyword,
                 IfKeyword = ifKeyword,
+                LeftParenthesis = leftParenthesis,
                 Condition = condition,
+                RightParenthesis = rightParenthesis,
                 Body = then,
                 Next = next
             };
