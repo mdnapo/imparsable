@@ -9,7 +9,7 @@ public class ParserConfiguration<TToken> where TToken : Enum
 
     public static readonly ParserConfiguration<TToken> Default = new();
 
-    public readonly TToken[] TriviaTokens =
+    public readonly IReadOnlyList<TToken> TriviaTokens =
     [
         .. new List<TToken?>([
                 GetToken<WhitespaceAttribute<TToken>>(),
@@ -54,6 +54,8 @@ public class ParserConfiguration<TToken> where TToken : Enum
 
     public Keyword<TToken>? IsKeyword(string text) =>
         _keywords.FirstOrDefault(keyword => keyword.Name.Equals(text));
+
+    public bool IsTrivia(TToken type) => TriviaTokens.Contains(type);
 
     private static IReadOnlyList<Keyword<TToken>> GetKeywords() =>
     [

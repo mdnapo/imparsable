@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Imparsable.Toolchain.Parsing.Exceptions;
 using Imparsable.Toolchain.Parsing.Interfaces;
 
@@ -8,23 +9,31 @@ public abstract class SyntaxTree<TToken, TSyntax, TSyntaxTree>
     where TSyntax : ISyntax<TToken>
     where TSyntaxTree : SyntaxTree<TToken, TSyntax, TSyntaxTree>, new()
 {
-    public Source Source { get; init; } = null!;
-    public List<Lexer<TToken>.Token> Tokens { get;  } = [];
-    public List<Lexer<TToken>.Token> Trivia { get;  } = [];
+    public Source Source { get; init; } = new(string.Empty);
+    public List<Lexer<TToken>.Token> Tokens { get; init; } = [];
+    public List<Lexer<TToken>.Token> Trivia { get; init; } = [];
+    public Dictionary<Lexer<TToken>.Token, Range> TriviaIndex { get; init; } = [];
     public List<TSyntax> Roots { get; } = [];
 
-    private static TSyntaxTree Create(string source) => new() { Source = new Source(source) };
+    public Span<Lexer<TToken>.Token> GetTrivia(Lexer<TToken>.Token token) =>
+        CollectionsMarshal.AsSpan(Trivia)[TriviaIndex.GetValueOrDefault(token)];
 
-    public static TSyntaxTree Parse<TProduction>(string source, DiagnosticsProvider diagnostics)
+    public static TSyntaxTree Parse<TProduction>(string text, DiagnosticsProvider diagnostics)
         where TProduction : IProduction<TToken, TSyntax>
     {
-        var tree = Create(source);
+        var source = new Source(text);
         var configuration = ParserConfiguration<TToken>.Default;
-        var lexerContext = new Lexer<TToken>.Context(configuration, diagnostics, tree.Source);
-        
-        tree.Tokens.AddRange(Lexer<TToken>.Default.Execute(lexerContext));
-        tree.Trivia.AddRange(tree.Tokens.Where(token => configuration.TriviaTokens.Contains(token.Type)));
-        tree.Tokens.RemoveAll(token => configuration.TriviaTokens.Contains(token.Type));
+        var lexerContext = new Lexer<TToken>.Context(configuration, diagnostics, source);
+
+        Lexer<TToken>.Default.Execute(lexerContext);
+
+        var tree = new TSyntaxTree
+        {
+            Source = source,
+            Tokens = lexerContext.Tokens,
+            Trivia = lexerContext.Trivia,
+            TriviaIndex = lexerContext.TriviaIndex
+        };
 
         var parserContext = new ParserContext<TToken>(configuration, diagnostics, tree.Source, tree.Tokens);
 

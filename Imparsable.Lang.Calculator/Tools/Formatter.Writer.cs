@@ -12,7 +12,6 @@ public partial class Formatter
         private const int MaxBlankLines = 2;
         private const int MaxNewLines = MaxBlankLines + 1;
 
-        private readonly TriviaStream _trivia = new(tree.Trivia);
         private readonly StringBuilder _builder = new(tree.Source.Text.Length);
 
         private bool _pendingSpace;
@@ -79,27 +78,28 @@ public partial class Formatter
                 _writtenNewLines++;
             }
         }
-        
+
         private void WriteTrivia(Lexer<Token>.Token token)
         {
+            if (tree.GetTrivia(token) is not { Length: > 0 } trivia)
+                return;
+
             var newLines = 0;
 
-            foreach (var trivia in _trivia.Read(token))
+            foreach (var value in trivia)
             {
-                if (trivia is null) continue;
-
-                switch (trivia.Value.Type)
+                switch (value.Type)
                 {
                     case Token.COMMENT:
                     {
                         FlushNewLines(ref newLines);
-                        WriteComment(trivia.Value);
+                        WriteComment(value);
                         break;
                     }
 
                     case Token.NEWLINE:
                     {
-                        newLines += trivia.Value.Length / Environment.NewLine.Length;
+                        newLines += value.Length / Environment.NewLine.Length;
                         break;
                     }
 

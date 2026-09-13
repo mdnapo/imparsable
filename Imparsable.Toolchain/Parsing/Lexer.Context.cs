@@ -12,8 +12,11 @@ public partial class Lexer<TToken>
         public Source Source { get; } = source;
         public DiagnosticsProvider Diagnostics { get; } = diagnostics;
         public List<Token> Tokens { get; } = [];
+        public List<Token> Trivia { get; } = [];
+        public Dictionary<Token, Range> TriviaIndex { get; } = [];
+        private int TriviaPointer { get; set; }
 
-        public void AddToken(TToken type, int offset, int length, int line = -1, int column = -1)
+        public void AddToken(TToken type, int offset, int length, int line, int column)
         {
             var text = Source.GetText(offset, length);
 
@@ -24,10 +27,17 @@ public partial class Lexer<TToken>
                     : type;
             }
 
-            line = line == -1 ? Source.Line : line;
-            column = column == -1 ? Source.Column : column;
+            var token = new Token(type, offset, length, line, column);
 
-            Tokens.Add(new Token(type, offset, length, line, column));
+            if (Configuration.IsTrivia(type))
+            {
+                Trivia.Add(token);
+            }
+            else
+            {
+                Tokens.Add(new Token(type, offset, length, line, column));
+                IndexTrivia(token);
+            }
         }
 
         public void Halt(ISourceMarker marker, string message) => throw new SyntaxException(marker, message);
@@ -49,6 +59,16 @@ public partial class Lexer<TToken>
         {
             var range = Source.Extract();
             AddToken(Configuration.End, range.Offset, range.Length, Source.Line, Source.Column);
+        }
+
+        private void IndexTrivia(Token token)
+        {
+            if (TriviaPointer == Trivia.Count) return;
+
+            var start = TriviaPointer;
+            var end = Trivia.Count - TriviaPointer;
+            TriviaIndex[token] = new Range(start, start + end);
+            TriviaPointer = Trivia.Count;
         }
     }
 }

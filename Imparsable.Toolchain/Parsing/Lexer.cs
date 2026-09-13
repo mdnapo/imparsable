@@ -10,7 +10,7 @@ public partial class Lexer<TToken> where TToken : Enum
     private static readonly IReadOnlyList<ILexerRule<TToken>> Rules = GetRules();
     public static Lexer<TToken> Default { get; } = new();
 
-    public List<Token> Execute(Context ctx)
+    public void Execute(Context ctx)
     {
         while (!ctx.Source.Ended())
         {
@@ -28,8 +28,6 @@ public partial class Lexer<TToken> where TToken : Enum
         }
 
         ctx.Complete();
-
-        return ctx.Tokens;
     }
 
     public static IReadOnlyList<LexerRuleAttribute<TToken>> GetRules() =>
