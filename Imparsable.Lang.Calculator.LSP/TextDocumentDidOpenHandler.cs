@@ -10,7 +10,7 @@ public class TextDocumentDidOpenHandler(SyntaxBuffer buffer, JsonRpcProvider rpc
 {
     public async Task HandleAsync(DidOpenTextDocumentParams parameters)
     {
-        if (!IsCalculatorDocument(parameters.TextDocument))
+        if (!parameters.TextDocument.IsCalculatorDocument())
             return;
 
         var diagnostics = new DiagnosticsProvider();
@@ -22,8 +22,4 @@ public class TextDocumentDidOpenHandler(SyntaxBuffer buffer, JsonRpcProvider rpc
 
         await rpc.Connection.NotifyWithParameterObjectAsync(LspMethodName.PublishDiagnostics, publishDiagnosticsParams);
     }
-
-    private static bool IsCalculatorDocument(TextDocumentItem document) =>
-        document is { Uri.Scheme: "file", LanguageId: Constants.LanguageId } &&
-        document.Uri.Path.EndsWith(Constants.FileExtension, StringComparison.OrdinalIgnoreCase);
 }

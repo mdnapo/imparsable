@@ -20,8 +20,6 @@ public class FormattingHandler(SyntaxBuffer buffer) : IFormattingHandler
         if (formatted == tree.Source.Text)
             return Task.FromResult(Array.Empty<TextEdit>());
 
-        var end = Regex.Count(tree.Source.Text, $"{Environment.NewLine}") - 1;
-
         return Task.FromResult(new TextEdit[]
         {
             new()

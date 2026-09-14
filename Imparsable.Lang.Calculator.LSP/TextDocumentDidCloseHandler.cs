@@ -1,3 +1,4 @@
+using Imparsable.Lang.Calculator.LSP.Extensions;
 using Imparsable.Toolchain.LSP.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -7,12 +8,9 @@ public class TextDocumentDidCloseHandler(SyntaxBuffer buffer) : ITextDocumentDid
 {
     public void Handle(DidCloseTextDocumentParams parameters)
     {
-        if (!IsCalculatorDocument(parameters.TextDocument))
+        if (!parameters.TextDocument.IsCalculatorDocument())
             return;
         
         buffer.CloseAsync(parameters.TextDocument.Uri.ToString());
     }
-    
-    private static bool IsCalculatorDocument(TextDocumentIdentifier document) =>
-        document.Uri.Scheme == "file" && document.Uri.Path.EndsWith(Constants.FileExtension, StringComparison.OrdinalIgnoreCase);
 }
