@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
             .AddKeyedScoped<ILspMethodHandler, TextDocumentDidChangeHandler>(nameof(CalculatorLanguageServer))
             .AddKeyedScoped<ILspMethodHandler, TextDocumentDidCloseHandler>(nameof(CalculatorLanguageServer))
             .AddKeyedScoped<ILspMethodHandler, CompletionHandler>(nameof(CalculatorLanguageServer))
+            .AddKeyedScoped<ILspMethodHandler, FormattingHandler>(nameof(CalculatorLanguageServer))
             ;
 
         return services;

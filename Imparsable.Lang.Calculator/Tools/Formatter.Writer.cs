@@ -6,9 +6,8 @@ namespace Imparsable.Lang.Calculator.Tools;
 
 public partial class Formatter
 {
-    private sealed class Writer(SyntaxTree tree)
+    private sealed class Writer(SyntaxTree tree, int tabSize)
     {
-        private const int TabSize = 4;
         private const int MaxBlankLines = 2;
         private const int MaxNewLines = MaxBlankLines + 1;
 
@@ -56,7 +55,7 @@ public partial class Formatter
                 _pendingSpace = false;
 
                 if (_pendingIndent)
-                    _builder.Append(' ', Depth * TabSize);
+                    _builder.Append(' ', Depth * tabSize);
             }
             else if (_pendingSpace)
             {
@@ -136,7 +135,7 @@ public partial class Formatter
                 _pendingSpace = false;
 
                 if (_pendingIndent)
-                    _builder.Append(' ', Depth * TabSize);
+                    _builder.Append(' ', Depth * tabSize);
             }
             else if (_pendingSpace)
             {

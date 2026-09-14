@@ -45,6 +45,16 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
         }
     };
 
+    private static readonly Registration TextDocumentFormatting = new()
+    {
+        Id = "calculator-document-formatting",
+        Method = "textDocument/formatting",
+        RegisterOptions = new DocumentFormattingRegistrationOptions
+        {
+            DocumentSelector = DocumentSelector
+        }
+    };
+
     private static readonly Registration TextDocumentCompletion = new()
     {
         Id = "calculator-completion",
@@ -67,7 +77,8 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
                     TextDocumentDidOpen,
                     TextDocumentDidChange,
                     TextDocumentDidClose,
-                    TextDocumentCompletion
+                    TextDocumentCompletion,
+                    TextDocumentFormatting
                 )
             }
         );

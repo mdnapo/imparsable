@@ -4,9 +4,9 @@ using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Tools;
 
-public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
+public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisitor
 {
-    private readonly Writer _writer = new(tree);
+    private readonly Writer _writer = new(tree, tabSize);
     private readonly Stack<ISyntax> _blockContext = new();
 
     private int Depth
@@ -21,9 +21,9 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
     private void Write(Lexer<Token>.Token token) => _writer.Write(token);
     private void WriteLine(Lexer<Token>.Token token) => _writer.WriteLine(token);
 
-    public static string Format(SyntaxTree tree)
+    public static string Format(SyntaxTree tree, int tabSize = 4)
     {
-        var formatter = new Formatter(tree);
+        var formatter = new Formatter(tree, tabSize);
 
         foreach (var root in tree.Roots)
             root.Accept(formatter);
@@ -143,6 +143,10 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 
         Write(node.RightParenthesis);
         Space();
+        
+        if (node.Body is not BlockStatement)
+            Indent();
+        
         node.Body.Accept(this);
 
         _blockContext.Pop();

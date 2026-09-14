@@ -35,4 +35,8 @@ public abstract class LanguageServer(JsonRpcProvider rpc, IEnumerable<ILspMethod
     [LspMethod(LspMethodName.TextDocumentCompletion)]
     public CompletionList Completion(CompletionParams parameters) =>
         RequireHandler<ICompletionHandler>().Handle(parameters);
+
+    [LspMethod(LspMethodName.TextDocumentFormatting)]
+    public async Task<TextEdit[]> Formatting(DocumentFormattingParams parameters) =>
+        await RequireHandler<IFormattingHandler>().HandleAsync(parameters);
 }
