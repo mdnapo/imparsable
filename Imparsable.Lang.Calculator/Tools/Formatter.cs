@@ -6,15 +6,18 @@ namespace Imparsable.Lang.Calculator.Tools;
 
 public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisitor
 {
-    private readonly Writer _writer = new(tree, tabSize);
+    // private readonly Writer _writer = new(tree, tabSize);
+    private readonly Document _writer = new(tree, tabSize);
     private readonly Stack<ISyntax> _blockContext = new();
 
-    private int Depth
-    {
-        get => _writer.Depth;
-        set => _writer.Depth = value;
-    }
+    // private int Depth
+    // {
+    //     get => _writer.Depth;
+    //     set => _writer.Depth = value;
+    // }
 
+    private void IncrementDepth() => _writer.IncrementDepth();
+    private void DecrementDepth() => _writer.DecrementDepth();
     private void Space() => _writer.Space();
     private void Indent() => _writer.Indent();
     private void NewLine() => _writer.NewLine();
@@ -28,7 +31,7 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
         foreach (var root in tree.Roots)
             root.Accept(formatter);
 
-        return formatter._writer.Finish();
+        return formatter._writer.ToString();
     }
 
     public void Visit(AssignmentExpression node)
@@ -51,7 +54,8 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
     public void Visit(BlockStatement node)
     {
-        Depth++;
+        // Depth++;
+        IncrementDepth();
 
         if (_blockContext.Count > 0 && _blockContext.Peek() is BlockStatement)
         {
@@ -68,7 +72,8 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
         _blockContext.Pop();
         tree.SymbolRoot.Pop();
 
-        Depth--;
+        // Depth--;
+        DecrementDepth();
         Indent();
 
         Write(node.RightBrace);
@@ -143,10 +148,10 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
         Write(node.RightParenthesis);
         Space();
-        
+
         if (node.Body is not BlockStatement)
             Indent();
-        
+
         node.Body.Accept(this);
 
         _blockContext.Pop();
