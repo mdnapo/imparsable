@@ -1,3 +1,4 @@
+using System.Collections;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Toolchain.Parsing;
 
@@ -30,6 +31,9 @@ public partial class Formatter
         public void Write(Lexer<Token>.Token token)
         {
             WriteTrivia(token);
+
+            if (token.Missing)
+                return;
 
             Add(tree.Source.GetText(token.Offset, token.Length));
         }
@@ -81,7 +85,7 @@ public partial class Formatter
 
                     case Token.WHITESPACE:
                     {
-                        if (split == Split.NONE)
+                        if (split == Split.NONE && token is not { Type: Token.SEMICOLON })
                             split = Split.SPACE;
 
                         break;
@@ -141,10 +145,10 @@ public partial class Formatter
             return split;
         }
 
-        private static Split Max(Split x, Split y) => x >= y ? x : y;
+        private static Split Max(Split left, Split right) => left >= right ? left : right;
 
         public IEnumerator<Chunk> GetEnumerator() => _chunks.GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

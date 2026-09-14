@@ -15,24 +15,45 @@ export const MonacoOptions: NgxMonacoEditorConfig = {
     fontSize: 14,
   },
   onMonacoLoad: () => {
-    window.monaco.languages.register({id: LanguageId.Calculator, extensions: [`.${LanguageId.Calculator}`]});
+    window.monaco.languages.register({
+      id: LanguageId.Calculator,
+      extensions: [`.${LanguageId.Calculator}`]
+    });
+
+    window.monaco.languages.setLanguageConfiguration(LanguageId.Calculator, {
+      comments: {
+        lineComment: '//',
+        blockComment: ['/*', '*/']
+      }
+    });
+
     window.monaco.languages.setMonarchTokensProvider(LanguageId.Calculator, {
       keywords: ['const', 'var', 'print', 'for', 'while', 'break', 'continue', 'true', 'false', 'if', 'else'],
       operators: ['%', '||', '&&', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '!', '<', '>', '!=', '==', '<=', '=>'],
       tokenizer: {
         root: [
+          // Comments
+          [/\/\/.*$/, 'comment'],
+          [/\/\*/, 'comment', '@comment'],
+
           // Keywords
           [/\b(?:const|var|print|for|while|break|continue|true|false|if|else)\b/, 'keyword'],
 
-          // Identifiers (quoted strings)
+          // Strings
           [/".*?"|'.*?'/, 'string'],
 
           // Symbols: :, ;
           [/;/, 'delimiter'],
 
-          // numbers
+          // Numbers
           [/\d*\.\d+/, 'number.float'],
           [/\d+/, 'number'],
+        ],
+
+        comment: [
+          [/[^\/*]+/, 'comment'],
+          [/\*\//, 'comment', '@pop'],
+          [/[\/*]/, 'comment']
         ]
       }
     });

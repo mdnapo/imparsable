@@ -96,24 +96,16 @@ public class ParserContext<TToken>(
         return Peek(-1);
     }
 
-    public Lexer<TToken>.Token ConsumeAny(TToken[] options, string message)
-    {
-        foreach (var option in options)
-        {
-            if (Check(option))
-            {
-                return Advance();
-            }
-        }
-
-        Diagnostics.Error(Current, message);
-        return Current with { Type = configuration.Error };
-    }
-
     public Lexer<TToken>.Token Consume(TToken type, string message)
     {
         if (Check(type)) return Advance();
-        Diagnostics.Error(Current, message);
-        return Current with { Type = configuration.Error };
+
+        var token = Current == default && Sequence.Length > 0
+            ? Sequence[^1]
+            : Current;
+
+        var marker = new SourceMarker(token.Offset, 0, token.Line, token.Column);
+        Diagnostics.Error(marker, message);
+        return token with { Type = type, Length = 0, Missing = true };
     }
 }

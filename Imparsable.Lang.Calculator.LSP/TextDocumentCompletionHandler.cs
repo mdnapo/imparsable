@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Imparsable.Lang.Calculator.LSP;
 
-public class CompletionHandler(SyntaxBuffer buffer) : ICompletionHandler
+public class TextDocumentCompletionHandler(SyntaxBuffer buffer) : ITextDocumentCompletionHandler
 {
     public CompletionList Handle(CompletionParams parameters)
     {

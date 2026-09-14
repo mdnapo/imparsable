@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Imparsable.Lang.Calculator.LSP.Extensions;
 using Imparsable.Lang.Calculator.Tools;
 using Imparsable.Toolchain.LSP.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -6,11 +7,11 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Imparsable.Lang.Calculator.LSP;
 
-public class FormattingHandler(SyntaxBuffer buffer) : IFormattingHandler
+public class TextDocumentFormattingHandler(SyntaxBuffer buffer) : ITextDocumentFormattingHandler
 {
     public Task<TextEdit[]> HandleAsync(DocumentFormattingParams parameters)
     {
-        if (!IsCalculatorDocument(parameters.TextDocument))
+        if (!parameters.TextDocument.IsCalculatorDocument())
             return Task.FromResult(Array.Empty<TextEdit>());
 
         var document = parameters.TextDocument;
@@ -27,14 +28,11 @@ public class FormattingHandler(SyntaxBuffer buffer) : IFormattingHandler
                 Range = new Range(
                     startLine: 0,
                     startCharacter: 0,
-                    endLine: Regex.Count(tree.Source.Text, $"{Environment.NewLine}") - 1,
-                    endCharacter: tree.Source.Text.Length - 1
+                    endLine: Regex.Count(tree.Source.Text, $"{Environment.NewLine}"),
+                    endCharacter: tree.Source.Text.Length
                 ),
                 NewText = formatted,
             }
         });
     }
-
-    private static bool IsCalculatorDocument(TextDocumentIdentifier document) =>
-        document.Uri.Scheme == "file" && document.Uri.Path.EndsWith(Constants.FileExtension, StringComparison.OrdinalIgnoreCase);
 }

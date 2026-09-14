@@ -20,6 +20,8 @@ public partial class Formatter
                 builder.Append(chunk.Text);
             }
 
+            builder.Append(Environment.NewLine);
+
             return builder.ToString();
         }
 
