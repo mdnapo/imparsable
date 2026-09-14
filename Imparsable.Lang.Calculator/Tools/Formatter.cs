@@ -4,34 +4,43 @@ using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Tools;
 
-public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisitor
+public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
 {
-    // private readonly Writer _writer = new(tree, tabSize);
-    private readonly Document _writer = new(tree, tabSize);
+    private readonly Document _document = new(tree);
     private readonly Stack<ISyntax> _blockContext = new();
 
-    // private int Depth
-    // {
-    //     get => _writer.Depth;
-    //     set => _writer.Depth = value;
-    // }
-
-    private void IncrementDepth() => _writer.IncrementDepth();
-    private void DecrementDepth() => _writer.DecrementDepth();
-    private void Space() => _writer.Space();
-    private void Indent() => _writer.Indent();
-    private void NewLine() => _writer.NewLine();
-    private void Write(Lexer<Token>.Token token) => _writer.Write(token);
-    private void WriteLine(Lexer<Token>.Token token) => _writer.WriteLine(token);
+    private void IncrementDepth() => _document.IncrementDepth();
+    private void DecrementDepth() => _document.DecrementDepth();
+    private void Space() => _document.Space();
+    private void NewLine() => _document.NewLine();
+    private void Write(Lexer<Token>.Token token) => _document.Write(token);
+    private void WriteLine(Lexer<Token>.Token token) => _document.WriteLine(token);
 
     public static string Format(SyntaxTree tree, int tabSize = 4)
     {
-        var formatter = new Formatter(tree, tabSize);
+        var formatter = new Formatter(tree);
 
         foreach (var root in tree.Roots)
             root.Accept(formatter);
 
-        return formatter._writer.ToString();
+        return new Renderer(tabSize).Render(formatter._document);
+    }
+
+    private void WriteBody(ISyntax body)
+    {
+        if (body is BlockStatement)
+        {
+            Space();
+            body.Accept(this);
+            return;
+        }
+
+        NewLine();
+        IncrementDepth();
+
+        body.Accept(this);
+
+        DecrementDepth();
     }
 
     public void Visit(AssignmentExpression node)
@@ -54,27 +63,21 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
     public void Visit(BlockStatement node)
     {
-        // Depth++;
-        IncrementDepth();
+        Write(node.LeftBrace);
+        NewLine();
 
-        if (_blockContext.Count > 0 && _blockContext.Peek() is BlockStatement)
-        {
-            Indent();
-        }
-
-        WriteLine(node.LeftBrace);
         tree.SymbolRoot.Push(node);
         _blockContext.Push(node);
+
+        IncrementDepth();
 
         foreach (var statement in node.Body)
             statement.Accept(this);
 
+        DecrementDepth();
+
         _blockContext.Pop();
         tree.SymbolRoot.Pop();
-
-        // Depth--;
-        DecrementDepth();
-        Indent();
 
         Write(node.RightBrace);
     }
@@ -83,7 +86,6 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
     public void Visit(ConstStatement node)
     {
-        Indent();
         Write(node.Keyword);
         Space();
         Write(node.Identifier);
@@ -103,8 +105,8 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
         Write(node.LeftParenthesis);
         node.Condition.Accept(this);
         Write(node.RightParenthesis);
-        Space();
-        node.Body.Accept(this);
+
+        WriteBody(node.Body);
 
         if (node.Next is { } next)
         {
@@ -115,17 +117,16 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
     public void Visit(ExpressionStatement node)
     {
-        Indent();
         node.Expression.Accept(this);
         WriteLine(node.SemiColon);
     }
 
     public void Visit(ForStatement node)
     {
-        Indent();
         Write(node.Keyword);
         Space();
         Write(node.LeftParenthesis);
+
         tree.SymbolRoot.Push(node);
         _blockContext.Push(node);
 
@@ -147,12 +148,8 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
         node.Increment?.Accept(this);
 
         Write(node.RightParenthesis);
-        Space();
 
-        if (node.Body is not BlockStatement)
-            Indent();
-
-        node.Body.Accept(this);
+        WriteBody(node.Body);
 
         _blockContext.Pop();
         tree.SymbolRoot.Pop();
@@ -173,14 +170,13 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
     {
         _blockContext.Push(node);
 
-        Indent();
         Write(node.Keyword);
         Space();
         Write(node.LeftParenthesis);
         node.Condition.Accept(this);
         Write(node.RightParenthesis);
-        Space();
-        node.Body.Accept(this);
+
+        WriteBody(node.Body);
 
         if (node.ElseIf is { } elseIf)
         {
@@ -192,8 +188,8 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
         {
             Space();
             Write(node.ElseKeyword!.Value);
-            Space();
-            @else.Accept(this);
+
+            WriteBody(@else);
         }
 
         NewLine();
@@ -205,7 +201,6 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
     public void Visit(PrintStatement node)
     {
-        Indent();
         Write(node.Keyword);
         Space();
         node.Expression.Accept(this);
@@ -222,11 +217,6 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
     public void Visit(VarStatement node)
     {
-        if (_blockContext.Count > 0 && _blockContext.Peek() is not ForStatement)
-        {
-            Indent();
-        }
-
         Write(node.Keyword);
         Space();
         Write(node.Identifier);
@@ -253,12 +243,13 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
     {
         _blockContext.Push(node);
 
-        Indent();
         Write(node.Keyword);
+        Space();
         Write(node.LeftParenthesis);
         node.Condition.Accept(this);
         Write(node.RightParenthesis);
-        node.Body.Accept(this);
+
+        WriteBody(node.Body);
 
         _blockContext.Pop();
 
@@ -267,14 +258,12 @@ public partial class Formatter(SyntaxTree tree, int tabSize = 4) : ISyntaxVisito
 
     public void Visit(BreakStatement node)
     {
-        Indent();
         Write(node.Keyword);
         WriteLine(node.SemiColon);
     }
 
     public void Visit(ContinueStatement node)
     {
-        Indent();
         Write(node.Keyword);
         WriteLine(node.SemiColon);
     }
