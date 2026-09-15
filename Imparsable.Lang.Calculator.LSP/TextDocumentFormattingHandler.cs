@@ -9,30 +9,29 @@ namespace Imparsable.Lang.Calculator.LSP;
 
 public class TextDocumentFormattingHandler(SyntaxBuffer buffer) : ITextDocumentFormattingHandler
 {
-    public Task<TextEdit[]> HandleAsync(DocumentFormattingParams parameters)
+    public TextEdit[] Handle(DocumentFormattingParams parameters)
     {
         if (!parameters.TextDocument.IsCalculatorDocument())
-            return Task.FromResult(Array.Empty<TextEdit>());
+            return [];
 
         var document = parameters.TextDocument;
         var tree = buffer.GetBufferAsync(document.Uri.ToString());
         var formatted = Formatter.Format(tree, parameters.Options.TabSize);
 
         if (formatted == tree.Source.Text)
-            return Task.FromResult(Array.Empty<TextEdit>());
+            return [];
 
-        return Task.FromResult(new TextEdit[]
+        var edit = new TextEdit
         {
-            new()
-            {
-                Range = new Range(
-                    startLine: 0,
-                    startCharacter: 0,
-                    endLine: Regex.Count(tree.Source.Text, $"{Environment.NewLine}"),
-                    endCharacter: tree.Source.Text.Length
-                ),
-                NewText = formatted,
-            }
-        });
+            Range = new Range(
+                startLine: 0,
+                startCharacter: 0,
+                endLine: Regex.Count(tree.Source.Text, $"{Environment.NewLine}"),
+                endCharacter: tree.Source.Text.Length
+            ),
+            NewText = formatted,
+        };
+
+        return [edit];
     }
 }

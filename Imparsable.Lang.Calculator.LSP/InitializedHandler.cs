@@ -17,7 +17,7 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
     private static readonly Registration TextDocumentDidOpen = new()
     {
         Id = "calculator-document-open",
-        Method = "textDocument/didOpen",
+        Method = LspMethodName.TextDocumentDidOpen,
         RegisterOptions = new TextDocumentOpenRegistrationOptions
         {
             DocumentSelector = DocumentSelector
@@ -27,7 +27,7 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
     private static readonly Registration TextDocumentDidChange = new()
     {
         Id = "calculator-document-change",
-        Method = "textDocument/didChange",
+        Method = LspMethodName.TextDocumentDidChange,
         RegisterOptions = new TextDocumentChangeRegistrationOptions
         {
             SyncKind = TextDocumentSyncKind.Incremental,
@@ -38,18 +38,8 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
     private static readonly Registration TextDocumentDidClose = new()
     {
         Id = "calculator-document-close",
-        Method = "textDocument/didClose",
+        Method = LspMethodName.TextDocumentDidClose,
         RegisterOptions = new TextDocumentCloseRegistrationOptions
-        {
-            DocumentSelector = DocumentSelector
-        }
-    };
-
-    private static readonly Registration TextDocumentFormatting = new()
-    {
-        Id = "calculator-document-formatting",
-        Method = "textDocument/formatting",
-        RegisterOptions = new DocumentFormattingRegistrationOptions
         {
             DocumentSelector = DocumentSelector
         }
@@ -58,12 +48,32 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
     private static readonly Registration TextDocumentCompletion = new()
     {
         Id = "calculator-completion",
-        Method = "textDocument/completion",
+        Method = LspMethodName.TextDocumentCompletion,
         RegisterOptions = new CompletionRegistrationOptions
         {
             DocumentSelector = DocumentSelector,
             ResolveProvider = false,
             TriggerCharacters = new Container<string>("+", "-", "*", "/", "%")
+        }
+    };
+
+    private static readonly Registration TextDocumentFormatting = new()
+    {
+        Id = "calculator-document-formatting",
+        Method = LspMethodName.TextDocumentFormatting,
+        RegisterOptions = new DocumentFormattingRegistrationOptions
+        {
+            DocumentSelector = DocumentSelector
+        }
+    };
+
+    private static readonly Registration TextDocumentHover = new()
+    {
+        Id = "calculator-hover",
+        Method = LspMethodName.TextDocumentHover,
+        RegisterOptions = new HoverRegistrationOptions
+        {
+            DocumentSelector = DocumentSelector,
         }
     };
 
@@ -78,7 +88,8 @@ public class InitializedHandler(JsonRpcProvider rpc) : IInitializedHandler
                     TextDocumentDidChange,
                     TextDocumentDidClose,
                     TextDocumentCompletion,
-                    TextDocumentFormatting
+                    TextDocumentFormatting,
+                    TextDocumentHover
                 )
             }
         );

@@ -4,5 +4,5 @@ namespace Imparsable.Toolchain.LSP.Interfaces;
 
 public interface ITextDocumentFormattingHandler : ILspMethodHandler
 {
-    public Task<TextEdit[]> HandleAsync(DocumentFormattingParams parameters);
+    public TextEdit[] Handle(DocumentFormattingParams parameters);
 }

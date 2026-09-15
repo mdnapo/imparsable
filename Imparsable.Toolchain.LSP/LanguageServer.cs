@@ -37,6 +37,10 @@ public abstract class LanguageServer(JsonRpcProvider rpc, IEnumerable<ILspMethod
         RequireHandler<ITextDocumentCompletionHandler>().Handle(parameters);
 
     [LspMethod(LspMethodName.TextDocumentFormatting)]
-    public async Task<TextEdit[]> Formatting(DocumentFormattingParams parameters) =>
-        await RequireHandler<ITextDocumentFormattingHandler>().HandleAsync(parameters);
+    public TextEdit[] Formatting(DocumentFormattingParams parameters) =>
+        RequireHandler<ITextDocumentFormattingHandler>().Handle(parameters);
+
+    [LspMethod(LspMethodName.TextDocumentHover)]
+    public Hover? Hover(HoverParams parameters) =>
+        RequireHandler<ITextDocumentHoverHandler>().Handle(parameters);
 }

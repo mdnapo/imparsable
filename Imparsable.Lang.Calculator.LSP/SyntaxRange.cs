@@ -1,3 +1,5 @@
+using Imparsable.Lang.Calculator.Parsing;
+using Imparsable.Toolchain.Parsing;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Imparsable.Lang.Calculator.LSP;
@@ -22,4 +24,25 @@ public readonly record struct SyntaxRange(int StartLine, int StartColumn, int En
         var character = position.Character + 1;
         return EndLine < line || EndLine == line && EndColumn < character;
     }
+
+    public static SyntaxRange From(Lexer<Token>.Token token) => new(
+        token.Line,
+        token.Column,
+        token.Line,
+        token.Column + token.Length
+    );
+
+    public static SyntaxRange From(Lexer<Token>.Token start, Lexer<Token>.Token end) => new(
+        start.Line,
+        start.Column,
+        end.Line,
+        end.Column + end.Length
+    );
+
+    public static SyntaxRange From(Lexer<Token>.Token start, SyntaxRange end) => new(
+        start.Line,
+        start.Column,
+        end.EndLine,
+        end.EndColumn
+    );
 };

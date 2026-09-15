@@ -1,150 +1,94 @@
-using System.Globalization;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Lang.Calculator.Parsing.Interfaces;
+using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.LSP;
 
-public class SyntaxRangeProvider : ISyntaxVisitor<SyntaxRange>
+public sealed class SyntaxRangeProvider : ISyntaxVisitor<SyntaxRange>
 {
-    public static readonly SyntaxRangeProvider Instance = new();
+    public static SyntaxRangeProvider Instance { get; } = new();
+
+    public SyntaxRange Visit(ISyntax syntax) => syntax.Accept(this);
 
     public SyntaxRange Visit(AssignmentExpression node) =>
-        node.Value.Accept(this) with
-        {
-            StartLine = node.Value.Token.Line,
-            StartColumn = node.Value.Token.Column
-        };
+        From(node.Target.Token, Visit(node.Value));
 
     public SyntaxRange Visit(BinaryExpression node) =>
-        node.RightOperand.Accept(this) with
-        {
-            StartLine = node.LeftOperand.Token.Line,
-            StartColumn = node.LeftOperand.Token.Column
-        };
+        From(node.LeftOperand.Token, Visit(node.RightOperand));
 
-    public SyntaxRange Visit(BlockStatement node) => new(
-        node.LeftBrace.Line,
-        node.LeftBrace.Column,
-        node.RightBrace.Line,
-        node.RightBrace.Column
-    );
+    public SyntaxRange Visit(BlockStatement node) =>
+        From(node.LeftBrace, node.RightBrace);
 
-    public SyntaxRange Visit(BoolLiteralExpression node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.Token.Line,
-        node.Token.Column + (node.Value ? 4 : 5)
-    );
+    public SyntaxRange Visit(BoolLiteralExpression node) =>
+        From(node.Token);
 
-    public SyntaxRange Visit(ConstStatement node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.SemiColon.Line,
-        node.SemiColon.Column
-    );
+    public SyntaxRange Visit(BreakStatement node) =>
+        From(node.Keyword, node.SemiColon);
 
-    public SyntaxRange Visit(ElseIfStatement node) =>
-        node.Body.Accept(this) with
-        {
-            StartLine = node.Token.Line,
-            StartColumn = node.Token.Column
-        };
+    public SyntaxRange Visit(ConstStatement node) =>
+        From(node.Keyword, node.SemiColon);
 
-    public SyntaxRange Visit(ExpressionStatement node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.SemiColon.Line,
-        node.SemiColon.Column
-    );
+    public SyntaxRange Visit(ContinueStatement node) =>
+        From(node.Keyword, node.SemiColon);
 
-    public SyntaxRange Visit(ForStatement node) =>
-        node.Body.Accept(this) with
-        {
-            StartLine = node.Token.Line,
-            StartColumn = node.Token.Column
-        };
+    public SyntaxRange Visit(ErrorNode node) =>
+        From(node.Token);
 
-    public SyntaxRange Visit(GroupingExpression node) => new(
-        node.LeftParenthesis.Line,
-        node.LeftParenthesis.Column,
-        node.RightParenthesis.Line,
-        node.RightParenthesis.Column
-    );
+    public SyntaxRange Visit(ExpressionStatement node) =>
+        From(node.Expression.Token, node.SemiColon);
 
-    public SyntaxRange Visit(IdentifierExpression node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.Token.Line,
-        node.Token.Column + node.Symbol.Length
-    );
+    public SyntaxRange Visit(GroupingExpression node) =>
+        From(node.LeftParenthesis, node.RightParenthesis);
 
-    public SyntaxRange Visit(IfStatement node) =>
-        node.Body.Accept(this) with
-        {
-            StartLine = node.Token.Line,
-            StartColumn = node.Token.Column
-        };
+    public SyntaxRange Visit(IdentifierExpression node) =>
+        From(node.Token);
 
-    public SyntaxRange Visit(NumericLiteralExpression node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.Token.Line,
-        node.Token.Column + node.Value.ToString(CultureInfo.InvariantCulture).Length
-    );
+    public SyntaxRange Visit(NumericLiteralExpression node) =>
+        From(node.Token);
 
-    public SyntaxRange Visit(PrintStatement node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.SemiColon.Line,
-        node.SemiColon.Column
-    );
+    public SyntaxRange Visit(PrintStatement node) =>
+        From(node.Keyword, node.SemiColon);
 
-    public SyntaxRange Visit(StringLiteralExpression node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.Token.Line,
-        node.Token.Column + node.Value.Length
-    );
+    public SyntaxRange Visit(StringLiteralExpression node) =>
+        From(node.Token);
 
     public SyntaxRange Visit(UnaryExpression node) =>
-        node.Operand.Accept(this) with
-        {
-            StartLine = node.Token.Line,
-            StartColumn = node.Token.Column
-        };
+        From(node.Op, Visit(node.Operand));
 
-    public SyntaxRange Visit(VarStatement node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.SemiColon.Line,
-        node.SemiColon.Column
-    );
+    public SyntaxRange Visit(VarStatement node) =>
+        From(node.Keyword, node.SemiColon);
 
     public SyntaxRange Visit(WhileStatement node) =>
-        node.Body.Accept(this) with
-        {
-            StartLine = node.Token.Line,
-            StartColumn = node.Token.Column
-        };
+        From(node.Keyword, Visit(node.Body));
 
-    public SyntaxRange Visit(BreakStatement node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.SemiColon.Line,
-        node.SemiColon.Column
-    );
+    public SyntaxRange Visit(ForStatement node) =>
+        From(node.Keyword, Visit(node.Body));
 
-    public SyntaxRange Visit(ContinueStatement node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.SemiColon.Line,
-        node.SemiColon.Column
-    );
+    public SyntaxRange Visit(ElseIfStatement node)
+    {
+        if (node.Next is not null)
+            return From(node.Token, Visit(node.Next));
 
-    public SyntaxRange Visit(ErrorNode node) => new(
-        node.Token.Line,
-        node.Token.Column,
-        node.Token.Line,
-        node.Token.Column
-    );
+        return From(node.Token, Visit(node.Body));
+    }
+
+    public SyntaxRange Visit(IfStatement node)
+    {
+        if (node.Else is not null)
+            return From(node.Keyword, Visit(node.Else));
+
+        if (node.ElseIf is not null)
+            return From(node.Keyword, Visit(node.ElseIf));
+
+        return From(node.Keyword, Visit(node.Body));
+    }
+
+    private static SyntaxRange From(Lexer<Token>.Token token) =>
+        SyntaxRange.From(token);
+
+    private static SyntaxRange From(Lexer<Token>.Token start, Lexer<Token>.Token end) =>
+        SyntaxRange.From(start, end);
+
+    private static SyntaxRange From(Lexer<Token>.Token start, SyntaxRange end) =>
+        SyntaxRange.From(start, end);
 }

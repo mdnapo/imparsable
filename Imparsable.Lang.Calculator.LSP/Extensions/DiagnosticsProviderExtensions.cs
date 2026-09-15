@@ -1,8 +1,6 @@
 using Imparsable.Toolchain;
-using Imparsable.Toolchain.Parsing.Interfaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Diagnostic = OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using ImparsableDiagnosticSeverity = Imparsable.Toolchain.DiagnosticSeverity;
 using OmnisharpDiagnosticSeverity = OmniSharp.Extensions.LanguageServer.Protocol.Models.DiagnosticSeverity;
 
@@ -25,11 +23,4 @@ public static class DiagnosticsProviderExtensions
             Message = diagnostic.Message,
         }))
     };
-
-    private static Range ToRange(this ISourceMarker marker) => new(
-        startLine: marker.Line - 1,
-        startCharacter: marker.Column - 1,
-        endLine: marker.Line - 1,
-        endCharacter: marker.Column + marker.Length - 1
-    );
 }

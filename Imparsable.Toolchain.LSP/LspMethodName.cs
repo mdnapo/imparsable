@@ -10,6 +10,7 @@ public static class LspMethodName
     public const string TextDocumentDidClose = "textDocument/didClose";
     public const string TextDocumentCompletion = "textDocument/completion";
     public const string TextDocumentFormatting = "textDocument/formatting";
+    public const string TextDocumentHover = "textDocument/hover";
     
     public const string PublishDiagnostics = "textDocument/publishDiagnostics";
 }
