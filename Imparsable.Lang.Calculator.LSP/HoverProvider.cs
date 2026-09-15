@@ -26,9 +26,6 @@ public class HoverProvider(SyntaxTree tree, Position position) : ISyntaxVisitor
 
         return provider.Hover;
     }
-    
-    private bool Contains(ISyntax syntax) =>
-        syntax.Accept(SyntaxRangeProvider.Instance).Contains(position);
 
     public void Visit(AssignmentExpression node)
     {
@@ -38,8 +35,6 @@ public class HoverProvider(SyntaxTree tree, Position position) : ISyntaxVisitor
 
     public void Visit(BinaryExpression node)
     {
-        if (!Contains(node)) return;
-        
         node.LeftOperand.Accept(this);
         node.RightOperand.Accept(this);
     }
@@ -72,7 +67,7 @@ public class HoverProvider(SyntaxTree tree, Position position) : ISyntaxVisitor
 
     public void Visit(ExpressionStatement node)
     {
-        if (!Contains(node)) return;
+        // if (!Contains(node)) return;
         
         node.Expression.Accept(this);
     }
@@ -89,12 +84,7 @@ public class HoverProvider(SyntaxTree tree, Position position) : ISyntaxVisitor
         SymbolRoot.Pop();
     }
 
-    public void Visit(GroupingExpression node)
-    {
-        if (!Contains(node)) return;
-
-        node.Expression.Accept(this);
-    }
+    public void Visit(GroupingExpression node) => node.Expression.Accept(this);
 
     public void Visit(IdentifierExpression node)
     {
@@ -133,12 +123,7 @@ public class HoverProvider(SyntaxTree tree, Position position) : ISyntaxVisitor
 
     public void Visit(NumericLiteralExpression node) { }
 
-    public void Visit(PrintStatement node)
-    {
-        if (!Contains(node)) return;
-        
-        node.Expression.Accept(this);
-    }
+    public void Visit(PrintStatement node) => node.Expression.Accept(this);
 
     public void Visit(StringLiteralExpression node) { }
 
