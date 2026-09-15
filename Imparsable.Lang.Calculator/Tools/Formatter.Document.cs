@@ -35,7 +35,7 @@ public partial class Formatter
             if (token.Missing)
                 return;
 
-            Add(tree.Source.GetText(token.Offset, token.Length));
+            Add(token);
         }
 
         public void WriteLine(Lexer<Token>.Token token)
@@ -69,6 +69,7 @@ public partial class Formatter
                     case Token.COMMENT:
                     {
                         ApplyCommentSplit(split);
+
                         split = Split.NONE;
 
                         WriteComment(value);
@@ -78,7 +79,6 @@ public partial class Formatter
                     case Token.NEWLINE:
                     {
                         var count = value.Length / Environment.NewLine.Length;
-
                         split = AddNewLines(split, count);
                         break;
                     }
@@ -87,7 +87,6 @@ public partial class Formatter
                     {
                         if (split == Split.NONE && token is not { Type: Token.SEMICOLON })
                             split = Split.SPACE;
-
                         break;
                     }
                 }
@@ -98,22 +97,22 @@ public partial class Formatter
 
         private void WriteComment(Lexer<Token>.Token token)
         {
-            var text = tree.Source.GetText(token.Offset, token.Length);
+            Add(token);
 
-            Add(text);
+            var text = tree.Source.GetTextSpan(token.Offset, token.Length);
 
             if (text is ['/', '/', ..])
                 NewLine();
         }
 
-        private void Add(string text)
+        private void Add(Lexer<Token>.Token token)
         {
             _chunks.Add(new Chunk(
-                Text: text,
+                Offset: token.Offset,
+                Length: token.Length,
                 SplitBefore: _split,
                 Depth: _depth
             ));
-
             _split = Split.NONE;
         }
 

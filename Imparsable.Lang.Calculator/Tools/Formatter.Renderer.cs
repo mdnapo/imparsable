@@ -1,10 +1,11 @@
 using System.Text;
+using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Tools;
 
 public partial class Formatter
 {
-    private sealed class Renderer(int tabSize)
+    private sealed class Renderer(Source source, int tabSize)
     {
         public string Render(Document document)
         {
@@ -17,7 +18,7 @@ public partial class Formatter
                 if (builder.Length == 0 || chunk.SplitBefore >= Split.LINE)
                     builder.Append(' ', chunk.Depth * tabSize);
 
-                builder.Append(chunk.Text);
+                builder.Append(source.GetTextSpan(chunk.Offset, chunk.Length));
             }
 
             builder.Append(Environment.NewLine);

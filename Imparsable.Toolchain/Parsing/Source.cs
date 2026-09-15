@@ -1,3 +1,5 @@
+using Imparsable.Toolchain.Parsing.Interfaces;
+
 namespace Imparsable.Toolchain.Parsing;
 
 public class Source(string source) : Stream<char>(source.AsMemory())
@@ -28,7 +30,10 @@ public class Source(string source) : Stream<char>(source.AsMemory())
         return range;
     }
 
-    public string GetText(int offset, int length) => source.Substring(offset, length);
+    public string GetText(int offset, int length) => Text.Substring(offset, length);
+
+    public ReadOnlySpan<char> GetTextSpan(int offset, int length) =>
+        Text.AsSpan(start: offset, length: length);
 
     public void Ignore()
     {

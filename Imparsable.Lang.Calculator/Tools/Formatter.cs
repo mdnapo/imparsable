@@ -23,7 +23,7 @@ public partial class Formatter(SyntaxTree tree) : ISyntaxVisitor
         foreach (var root in tree.Roots)
             root.Accept(formatter);
 
-        return new Renderer(tabSize).Render(formatter._document);
+        return new Renderer(tree.Source, tabSize).Render(formatter._document);
     }
 
     private void WriteBody(ISyntax body)

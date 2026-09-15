@@ -3,4 +3,5 @@ import {CalculatorIde} from './components/calculator-ide/calculator-ide';
 
 export const routes: Routes = [
   {path: "calculator", component: CalculatorIde},
+  {path: "**", redirectTo: "/calculator"},
 ];
