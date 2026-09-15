@@ -49,7 +49,7 @@ public class CompletionItemProvider(SyntaxTree tree, Position position) : ISynta
 
             Completions.Add(new CompletionItem
             {
-                Label = node.Symbol,
+                Label = tree.Source.GetText(node.Symbol),
                 Kind = CompletionItemKind.Constant,
             });
         }
@@ -99,7 +99,7 @@ public class CompletionItemProvider(SyntaxTree tree, Position position) : ISynta
 
         Completions.Add(new CompletionItem
         {
-            Label = node.Symbol,
+            Label = tree.Source.GetText(node.Symbol),
             Kind = CompletionItemKind.Variable,
         });
     }

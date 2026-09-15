@@ -52,8 +52,14 @@ public class ParserConfiguration<TToken> where TToken : Enum
         return fields.Select(field => (TToken)field.GetValue(null)!);
     }
 
-    public Keyword<TToken>? IsKeyword(string text) =>
-        _keywords.FirstOrDefault(keyword => keyword.Name.Equals(text));
+    public Keyword<TToken>? IsKeyword(ReadOnlySpan<char> text)
+    {
+        foreach (var keyword in _keywords)
+            if (keyword.Name.SequenceEqual(text))
+                return keyword;
+
+        return null;
+    }
 
     public bool IsTrivia(TToken type) => TriviaTokens.Contains(type);
 

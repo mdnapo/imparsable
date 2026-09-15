@@ -18,10 +18,9 @@ public partial class Lexer<TToken>
 
         public void AddToken(TToken type, int offset, int length, int line, int column)
         {
-            var text = Source.GetText(offset, length);
-
             if (type.IsIdentifier<TToken>())
             {
+                var text = Source.GetTextSpan(offset, length);
                 type = Configuration.IsKeyword(text) is { } keyword
                     ? keyword.Type
                     : type;
@@ -50,7 +49,7 @@ public partial class Lexer<TToken>
 
             var range = Source.Extract();
             var token = new Token(Configuration.Unexpected, range.Offset, range.Length, line, column);
-            var text = Source.GetText(range.Offset, range.Length);
+            var text = Source.GetTextSpan(range.Offset, range.Length);
 
             Diagnostics.Error(token, $"Unexpected token '{text}'.");
         }

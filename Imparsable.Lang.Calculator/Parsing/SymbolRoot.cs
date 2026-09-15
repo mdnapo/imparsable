@@ -1,4 +1,5 @@
 using Imparsable.Lang.Calculator.Parsing.Interfaces;
+using Imparsable.Toolchain.Parsing;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
@@ -10,7 +11,7 @@ public class SymbolRoot : SymbolTable
     public event Action<ISymbolTable, ISymbolTable> Pushed = delegate { };
     public event Action<ISymbolTable, ISymbolTable> Popped = delegate { };
 
-    public SymbolRoot() => _stack.Push(this);
+    public SymbolRoot(Source source) : base(source) => _stack.Push(this);
 
     public void Push(ISymbolTable child)
     {

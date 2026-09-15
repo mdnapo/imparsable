@@ -1,11 +1,14 @@
+using System.Collections;
 using Imparsable.Lang.Calculator.Parsing.Interfaces;
 using Imparsable.Toolchain.Parsing;
+using Imparsable.Toolchain.Parsing.Interfaces;
 
 namespace Imparsable.Lang.Calculator.Parsing;
 
-public partial class ForStatement : SymbolTable, ISyntax, IProduction
+public partial class ForStatement : ISyntax, ISymbolTable, IProduction
 {
     public Lexer<Token>.Token Token => Keyword;
+    public required ISymbolTable Symbols { get; init; }
     public required Lexer<Token>.Token Keyword { get; init; }
     public required Lexer<Token>.Token LeftParenthesis { get; init; }
     public ISyntax? Initializer { get; init; }
@@ -58,6 +61,7 @@ public partial class ForStatement : SymbolTable, ISyntax, IProduction
 
         return new ForStatement
         {
+            Symbols = new SymbolTable(context.Source),
             Keyword = keyword,
             LeftParenthesis = leftParenthesis,
             Initializer = initializer,
@@ -69,4 +73,24 @@ public partial class ForStatement : SymbolTable, ISyntax, IProduction
             Body = body
         };
     }
+
+    public IEnumerator<ISymbol> GetEnumerator() => Symbols.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Symbols).GetEnumerator();
+
+    public ISymbolTable? Parent
+    {
+        get => Symbols.Parent;
+        set => Symbols.Parent = value;
+    }
+
+    public int StackDepth => Symbols.StackDepth;
+
+    public void Add(ISymbol symbol) => Symbols.Add(symbol);
+
+    public ISymbol? Lookup(ISourceMarker symbol) => Symbols.Lookup(symbol);
+
+    public ISymbol? RecursiveLookup(ISourceMarker symbol) => Symbols.RecursiveLookup(symbol);
+
+    public int Offset(ISourceMarker symbol) => Symbols.Offset(symbol);
 }

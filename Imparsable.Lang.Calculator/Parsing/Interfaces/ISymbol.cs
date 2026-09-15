@@ -1,6 +1,8 @@
+using Imparsable.Toolchain.Parsing;
+
 namespace Imparsable.Lang.Calculator.Parsing.Interfaces;
 
 public interface ISymbol
 {
-    public string Symbol { get; }
+    Lexer<Token>.Token Symbol { get; }
 }

@@ -30,7 +30,14 @@ public class Source(string source) : Stream<char>(source.AsMemory())
         return range;
     }
 
-    public string GetText(int offset, int length) => Text.Substring(offset, length);
+    public string GetText(ISourceMarker marker) => 
+        Text.Substring(startIndex: marker.Offset, length: marker.Length);
+
+    public string GetText(int offset, int length) => 
+        Text.Substring(startIndex: offset, length: length);
+
+    public ReadOnlySpan<char> GetTextSpan(ISourceMarker marker) =>
+        Text.AsSpan(start: marker.Offset, length: marker.Length);
 
     public ReadOnlySpan<char> GetTextSpan(int offset, int length) =>
         Text.AsSpan(start: offset, length: length);

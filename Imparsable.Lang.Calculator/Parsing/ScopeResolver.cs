@@ -38,12 +38,12 @@ public class ScopeResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : I
 
         if (Symbols.Lookup(symbol.Symbol) is { } lookup)
         {
-            Diagnostics.Error(lookup.As<ISyntax>().Token, $"Duplicate declaration of '{lookup.Symbol}'.");
-            Diagnostics.Error(symbol.As<ISyntax>().Token, $"Duplicate declaration of '{lookup.Symbol}'.");
+            Diagnostics.Error(lookup.As<ISyntax>().Token, $"Duplicate declaration of '{tree.Source.GetTextSpan(lookup.Symbol)}'.");
+            Diagnostics.Error(symbol.As<ISyntax>().Token, $"Duplicate declaration of '{tree.Source.GetTextSpan(lookup.Symbol)}'.");
         }
         else if (Symbols.RecursiveLookup(symbol.Symbol) is not null)
         {
-            Diagnostics.Warning(syntax.Token, $"Symbol '{symbol.Symbol}' hides outer declaration.");
+            Diagnostics.Warning(syntax.Token, $"Symbol '{tree.Source.GetTextSpan(symbol.Symbol)}' hides outer declaration.");
         }
 
         Symbols.Add(symbol);
@@ -72,10 +72,13 @@ public class ScopeResolver(SyntaxTree tree, DiagnosticsProvider diagnostics) : I
     public void Visit(IdentifierExpression node)
     {
         if (Symbols.RecursiveLookup(node.Symbol) is not { } symbol)
-            Diagnostics.Error(node.Token, $"Variable '{node.Symbol}' has not been declared.");
-
+        {
+            Diagnostics.Error(node.Token, $"Variable '{tree.Source.GetTextSpan(node.Symbol)}' has not been declared.");
+        }
         else if (!_definitions.TryGetValue(symbol, out var defined) || !defined)
-            Diagnostics.Error(node.Token, $"Variable '{node.Symbol}' has not been defined.");
+        {
+            Diagnostics.Error(node.Token, $"Variable '{tree.Source.GetTextSpan(node.Symbol)}' has not been defined.");
+        }
     }
 
     public void Visit(NumericLiteralExpression node) { }
