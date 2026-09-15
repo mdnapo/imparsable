@@ -61,7 +61,8 @@ public class SourceTests
 
         // Act
         var range = source.Extract();
-        var text = source.GetText(range.Offset, range.Length);
+        var marker = new SourceMarker(range.Offset, range.Length, 1, 1);
+        var text = source.GetText(marker);
 
         // Assert
         var expected = HelloWorld.Substring(range.Offset, range.Length);

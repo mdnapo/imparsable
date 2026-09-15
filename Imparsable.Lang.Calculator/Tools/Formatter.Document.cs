@@ -99,7 +99,7 @@ public partial class Formatter
         {
             Add(token);
 
-            var text = tree.Source.GetTextSpan(token.Offset, token.Length);
+            var text = tree.Source.GetTextSpan(token);
 
             if (text is ['/', '/', ..])
                 NewLine();

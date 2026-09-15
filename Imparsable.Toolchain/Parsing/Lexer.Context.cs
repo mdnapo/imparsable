@@ -49,7 +49,7 @@ public partial class Lexer<TToken>
 
             var range = Source.Extract();
             var token = new Token(Configuration.Unexpected, range.Offset, range.Length, line, column);
-            var text = Source.GetTextSpan(range.Offset, range.Length);
+            var text = Source.GetTextSpan(token);
 
             Diagnostics.Error(token, $"Unexpected token '{text}'.");
         }

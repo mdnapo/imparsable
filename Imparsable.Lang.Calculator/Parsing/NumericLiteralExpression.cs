@@ -8,7 +8,7 @@ public partial class NumericLiteralExpression : LiteralExpr<double>, ISyntax, IP
     public static ISyntax Parse(ParserContext<Token> context)
     {
         var previous = context.Previous();
-        var text = context.Source.GetTextSpan(previous.Offset, previous.Length);
+        var text = context.Source.GetTextSpan(previous);
         return new NumericLiteralExpression
         {
             Token = previous,

@@ -28,7 +28,7 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
 
         if (resultType is SystemType.UNKNOWN)
         {
-            var op = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
+            var op = tree.Source.GetText(node.Operator);
             Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, leftType, rightType));
         }
 
@@ -131,7 +131,7 @@ public partial class TypeResolver(SyntaxTree tree, DiagnosticsProvider diagnosti
 
         if (resultType is SystemType.UNKNOWN)
         {
-            var op = tree.Source.GetText(node.Operator.Offset, node.Operator.Length);
+            var op = tree.Source.GetText(node.Operator);
             Diagnostics.Error(node.Operator, string.Format(IncompatibleOperandsErrorMessage, op, targetType, valueType));
         }
 

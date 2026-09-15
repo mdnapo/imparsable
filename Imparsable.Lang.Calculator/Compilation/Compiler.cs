@@ -194,7 +194,7 @@ public partial class Compiler(SyntaxTree tree, DiagnosticsProvider diagnostics) 
     public virtual void Visit(UnaryExpression node)
     {
         node.Operand.Accept(this);
-        var text = tree.Source.GetText(node.Token.Offset, node.Token.Length);
+        var text = tree.Source.GetTextSpan(node.Token);
 
         var op = node.Op.Type switch
         {
