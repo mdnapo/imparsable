@@ -12,6 +12,7 @@ import {AsyncPipe} from '@angular/common';
 import {LanguageServer} from '../../services/language-server';
 import {LanguageId} from '../../app.config.monaco';
 import {CalculatorGrammar} from '../calculator-grammar/calculator-grammar';
+import {CalculatorMemory} from '../calculator-memory/calculator-memory';
 
 @Component({
   selector: 'app-calculator-ide',
@@ -35,7 +36,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(Ide)
   private ide!: Ide;
 
-  protected side: IdeWidget[] = [
+  protected leftViews: IdeWidget[] = [
     {
       id: 'explorer',
       alt: 'Explorer (ctrl + alt + f)',
@@ -50,7 +51,16 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
     },
   ];
 
-  protected bottom: IdeWidget[] = [
+  protected rightViews: IdeWidget[] = [
+    {
+      id: 'memory',
+      alt: 'Memory (ctrl + alt + m)',
+      icon: 'monitor_heart',
+      view: CalculatorMemory
+    }
+  ];
+
+  protected bottomViews: IdeWidget[] = [
     {
       id: 'runner',
       alt: 'Execute (ctrl + shift + x)',
@@ -83,14 +93,14 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
       id: 'open-explorer',
       label: 'Open Explorer',
       keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Alt | window.monaco.KeyCode.KeyF],
-      run: () => this.ide.setSideView(this.side[0])
+      run: () => this.ide.setLeftView(this.leftViews[0])
     });
 
     this.grammarSubscription = this.editor.addAction({
       id: 'open-grammar',
       label: 'Open Grammar',
       keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Alt | window.monaco.KeyCode.KeyG],
-      run: () => this.ide.setSideView(this.side[1])
+      run: () => this.ide.setLeftView(this.leftViews[1])
     });
 
     this.executeSubscription = this.editor.addAction({
@@ -104,7 +114,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
       id: 'open-problems',
       label: 'Open Problems',
       keybindings: [window.monaco.KeyMod.CtrlCmd | window.monaco.KeyMod.Shift | window.monaco.KeyCode.KeyQ],
-      run: () => this.ide.setBottomView(this.bottom[2])
+      run: () => this.ide.setBottomView(this.bottomViews[2])
     });
 
     this.disassembleSubscription = this.editor.addAction({
@@ -121,9 +131,9 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
       run: async () => await this.context.file.value?.save()
     });
 
-    this.subscriptions.add(this.context.executed.subscribe(() => this.ide.setBottomView(this.bottom[0])));
-    this.subscriptions.add(this.context.disassembled.subscribe(() => this.ide.setBottomView(this.bottom[1])));
-    this.subscriptions.add(this.context.failure.subscribe(() => this.ide.setBottomView(this.bottom[2])));
+    this.subscriptions.add(this.context.executed.subscribe(() => this.ide.setBottomView(this.bottomViews[0])));
+    this.subscriptions.add(this.context.disassembled.subscribe(() => this.ide.setBottomView(this.bottomViews[1])));
+    this.subscriptions.add(this.context.failure.subscribe(() => this.ide.setBottomView(this.bottomViews[2])));
   }
 
   private updateModel(): void {
@@ -140,8 +150,9 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.ide.setSideView(this.side[0]);
-    this.ide.setBottomView(this.bottom[0]);
+    this.ide.setLeftView(this.leftViews[0]);
+    this.ide.setRightView(this.rightViews[0]);
+    this.ide.setBottomView(this.bottomViews[0]);
   }
 
   ngOnDestroy(): void {

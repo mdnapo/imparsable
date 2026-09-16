@@ -35,7 +35,8 @@
 
 .ide {
   --activity-bar-width: 48px;
-  --side-view-width: 240px;
+  --left-view-width: 240px;
+  --right-view-width: 240px;
   --bottom-view-height: 200px;
   --resizer-size: 2px;
 
@@ -45,7 +46,10 @@
     var(--activity-bar-width)
     0
     0
-    minmax(0, 1fr);
+    minmax(0, 1fr)
+    0
+    0
+    var(--activity-bar-width);
 
   grid-template-rows:
     minmax(0, 1fr)
@@ -57,12 +61,37 @@
   min-width: 0;
   min-height: 0;
 
-  &.side-view-open {
+  &.left-view-open {
     grid-template-columns:
       var(--activity-bar-width)
-      var(--side-view-width)
+      var(--left-view-width)
       var(--resizer-size)
-      minmax(0, 1fr);
+      minmax(0, 1fr)
+      0
+      0
+      var(--activity-bar-width);
+  }
+
+  &.right-view-open {
+    grid-template-columns:
+      var(--activity-bar-width)
+      0
+      0
+      minmax(0, 1fr)
+      var(--resizer-size)
+      var(--right-view-width)
+      var(--activity-bar-width);
+  }
+
+  &.left-view-open.right-view-open {
+    grid-template-columns:
+      var(--activity-bar-width)
+      var(--left-view-width)
+      var(--resizer-size)
+      minmax(0, 1fr)
+      var(--resizer-size)
+      var(--right-view-width)
+      var(--activity-bar-width);
   }
 
   &.bottom-view-open {
@@ -216,7 +245,7 @@
   }
 }
 
-.side-view-window {
+.left-view-window {
   display: flex;
   flex-direction: column;
   grid-column: 2;
@@ -315,4 +344,57 @@
     height: 18px;
     font-size: 18px;
   }
+}
+
+.right-view-resizer {
+  grid-column: 5;
+  grid-row: 1;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.right-view-window {
+  grid-column: 6;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 5px;
+  margin: 1px;
+}
+
+.right-activity-bar {
+  grid-column: 7;
+  grid-row: 1 / -1;
+
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 5px;
+
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 48px;
+      height: 48px;
+      border-radius: 0;
+
+      &.active {
+        color: var(--mat-sys-primary);
+        border-left: 2px solid var(--mat-sys-primary);
+      }
+    }
+  }
+
+  .toolbar-top {
+    flex: 1;
+    justify-content: flex-start;
+  }
+}
+
+.bottom-view-resizer,
+.bottom-view-window {
+  grid-column: 2 / 7;
 }

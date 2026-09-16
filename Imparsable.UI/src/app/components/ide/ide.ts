@@ -27,11 +27,17 @@ import {IdeFile} from '../../app.filesystem';
   styleUrl: './ide.scss',
 })
 export class Ide {
-  @Input() sideViews: IdeWidget[] = [];
-  protected sideView: WritableSignal<IdeWidget | undefined> = signal(undefined);
-  protected sideViewWidth = 250;
-  protected readonly sideViewMinWidth = 160;
-  protected readonly sideViewMaxWidth = 800;
+  @Input() leftViews: IdeWidget[] = [];
+  protected leftView: WritableSignal<IdeWidget | undefined> = signal(undefined);
+  protected leftViewWidth = 250;
+  protected readonly leftViewMinWidth = 160;
+  protected readonly leftViewMaxWidth = 800;
+
+  @Input() rightViews: IdeWidget[] = [];
+  protected rightView: WritableSignal<IdeWidget | undefined> = signal(undefined);
+  protected rightViewWidth = 250;
+  protected readonly rightViewMinWidth = 160;
+  protected readonly rightViewMaxWidth = 800;
 
   @Input() bottomViews: IdeWidget[] = [];
   protected bottomView: WritableSignal<IdeWidget | undefined> = signal(undefined);
@@ -43,16 +49,28 @@ export class Ide {
   @Output() onInit: EventEmitter<editor.IStandaloneCodeEditor> = new EventEmitter<editor.IStandaloneCodeEditor>();
   @Output() onCloseFile: EventEmitter<IdeFile> = new EventEmitter<IdeFile>();
 
-  public setSideView(view: IdeWidget): void {
-    if (this.sideView()?.id === view.id) {
-      this.toggleSideView(view);
+  public setLeftView(view: IdeWidget): void {
+    if (this.leftView()?.id === view.id) {
+      this.toggleLeftView(view);
     } else {
-      this.sideView.set(view);
+      this.leftView.set(view);
     }
   }
 
-  protected toggleSideView(view: IdeWidget): void {
-    this.sideView.update(current => current?.id === view.id ? undefined : view);
+  protected toggleLeftView(view: IdeWidget): void {
+    this.leftView.update(current => current?.id === view.id ? undefined : view);
+  }
+
+  public setRightView(view: IdeWidget): void {
+    if (this.rightView()?.id === view.id) {
+      this.toggleRightView(view);
+    } else {
+      this.rightView.set(view);
+    }
+  }
+
+  protected toggleRightView(view: IdeWidget): void {
+    this.rightView.update(current => current?.id === view.id ? undefined : view);
   }
 
   public setBottomView(view: IdeWidget): void {
@@ -63,26 +81,26 @@ export class Ide {
     this.bottomView.update(current => current?.id === view.id ? undefined : view);
   }
 
-  protected startSideViewResize(event: PointerEvent, element: HTMLElement): void {
+  protected startLeftViewResize(event: PointerEvent, element: HTMLElement): void {
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
 
     const startX = event.clientX;
-    const startWidth = this.sideViewWidth;
+    const startWidth = this.leftViewWidth;
     let nextWidth = startWidth;
     let frame = 0;
 
     const move = (event: PointerEvent): void => {
       nextWidth = Math.max(
-        this.sideViewMinWidth,
-        Math.min(this.sideViewMaxWidth, startWidth + event.clientX - startX)
+        this.leftViewMinWidth,
+        Math.min(this.leftViewMaxWidth, startWidth + event.clientX - startX)
       );
 
       if (frame !== 0)
         return;
 
       frame = requestAnimationFrame(() => {
-        element.style.setProperty('--side-view-width', `${nextWidth}px`);
+        element.style.setProperty('--left-view-width', `${nextWidth}px`);
         frame = 0;
       });
     };
@@ -91,10 +109,50 @@ export class Ide {
       if (frame !== 0)
         cancelAnimationFrame(frame);
 
-      this.sideViewWidth = nextWidth;
+      this.leftViewWidth = nextWidth;
 
       target.releasePointerCapture(event.pointerId);
 
+      target.removeEventListener('pointermove', move);
+      target.removeEventListener('pointerup', stop);
+    };
+
+    target.addEventListener('pointermove', move);
+    target.addEventListener('pointerup', stop);
+  }
+
+  protected startRightViewResize(event: PointerEvent, element: HTMLElement): void {
+    const target = event.currentTarget as HTMLElement;
+    target.setPointerCapture(event.pointerId);
+
+    const startX = event.clientX;
+    const startWidth = this.rightViewWidth;
+
+    let nextWidth = startWidth;
+    let frame = 0;
+
+    const move = (event: PointerEvent): void => {
+      nextWidth = Math.max(
+        this.rightViewMinWidth,
+        Math.min(this.rightViewMaxWidth, startWidth + startX - event.clientX)
+      );
+
+      if (frame !== 0)
+        return;
+
+      frame = requestAnimationFrame(() => {
+        element.style.setProperty('--right-view-width', `${nextWidth}px`);
+        frame = 0;
+      });
+    };
+
+    const stop = (): void => {
+      if (frame !== 0)
+        cancelAnimationFrame(frame);
+
+      this.rightViewWidth = nextWidth;
+
+      target.releasePointerCapture(event.pointerId);
       target.removeEventListener('pointermove', move);
       target.removeEventListener('pointerup', stop);
     };

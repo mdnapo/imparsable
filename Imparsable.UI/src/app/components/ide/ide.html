@@ -1,16 +1,18 @@
 <main #ide class="ide"
-      [class.side-view-open]="sideView() !== undefined"
+      [class.left-view-open]="leftView() !== undefined"
+      [class.right-view-open]="rightView() !== undefined"
       [class.bottom-view-open]="bottomView() !== undefined"
-      [style.--side-view-width.px]="sideViewWidth"
+      [style.--left-view-width.px]="leftViewWidth"
+      [style.--right-view-width.px]="rightViewWidth"
       [style.--bottom-view-height.px]="bottomViewHeight">
 
   <aside class="activity-bar">
     <div class="toolbar toolbar-top">
-      @for (view of sideViews; track view.id) {
+      @for (view of leftViews; track view.id) {
         <button mat-icon-button [title]="view.alt"
-                [class.active]="sideView()?.id === view.id"
+                [class.active]="leftView()?.id === view.id"
                 class="small-icon-button"
-                (click)="toggleSideView(view)">
+                (click)="toggleLeftView(view)">
           <mat-icon>{{ view.icon }}</mat-icon>
         </button>
       }
@@ -30,15 +32,15 @@
     </div>
   </aside>
 
-  @if (sideView() !== undefined) {
-    <section class="side-view-window">
+  @if (leftView() !== undefined) {
+    <section class="left-view-window">
       <div class="tool-window">
-        <ng-container *ngComponentOutlet="sideView()!.view"/>
+        <ng-container *ngComponentOutlet="leftView()!.view"/>
       </div>
     </section>
   }
 
-  <div class="vertical-resizer" (pointerdown)="startSideViewResize($event, ide)"></div>
+  <div class="vertical-resizer" (pointerdown)="startLeftViewResize($event, ide)"></div>
 
   <main class="editor">
     @if (file) {
@@ -70,6 +72,32 @@
       </div>
     }
   </main>
+
+  <div class="right-view-resizer"
+       (pointerdown)="startRightViewResize($event, ide)">
+  </div>
+
+  @if (rightView() !== undefined) {
+    <section class="right-view-window">
+      <div class="tool-window">
+        <ng-container *ngComponentOutlet="rightView()!.view"/>
+      </div>
+    </section>
+  }
+
+  <div class="right-activity-bar">
+    <div class="toolbar">
+      @for (view of rightViews; track view.id) {
+        <button mat-icon-button
+                [title]="view.alt"
+                [class.active]="rightView()?.id === view.id"
+                class="small-icon-button"
+                (click)="toggleRightView(view)">
+          <mat-icon>{{ view.icon }}</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
 
   <div class="horizontal-resizer" (pointerdown)="startBottomViewResize($event, ide)"></div>
 
