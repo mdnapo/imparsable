@@ -224,7 +224,7 @@
     align-items: stretch;
 
     button {
-      width: 48px;
+      width: auto;
       height: 48px;
       border-radius: 0;
 
@@ -365,6 +365,7 @@
 }
 
 .right-activity-bar {
+  margin: 1px;
   grid-column: 7;
   grid-row: 1 / -1;
 
@@ -377,7 +378,7 @@
     align-items: stretch;
 
     button {
-      width: 48px;
+      width: auto;
       height: 48px;
       border-radius: 0;
 
@@ -397,4 +398,9 @@
 .bottom-view-resizer,
 .bottom-view-window {
   grid-column: 2 / 7;
+}
+
+.activity-bar,
+.right-activity-bar {
+  overflow: hidden;
 }

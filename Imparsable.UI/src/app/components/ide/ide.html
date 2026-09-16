@@ -73,9 +73,7 @@
     }
   </main>
 
-  <div class="right-view-resizer"
-       (pointerdown)="startRightViewResize($event, ide)">
-  </div>
+  <div class="right-view-resizer" (pointerdown)="startRightViewResize($event, ide)"></div>
 
   @if (rightView() !== undefined) {
     <section class="right-view-window">
