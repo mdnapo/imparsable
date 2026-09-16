@@ -57,7 +57,7 @@ export class CalculatorIde implements OnInit, AfterViewInit, OnDestroy {
       alt: 'Memory (ctrl + alt + m)',
       icon: 'monitor_heart',
       view: CalculatorMemory
-    }
+    },
   ];
 
   protected bottomViews: IdeWidget[] = [

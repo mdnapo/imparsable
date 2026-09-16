@@ -3,5 +3,8 @@
     <span class="title">Memory</span>
   </mat-toolbar>
   <section id="output">
+    <div class="chart">
+      <canvas baseChart [data]="data" [options]="options" type="line"></canvas>
+    </div>
   </section>
 </main>

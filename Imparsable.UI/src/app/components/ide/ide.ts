@@ -35,7 +35,7 @@ export class Ide {
 
   @Input() rightViews: IdeWidget[] = [];
   protected rightView: WritableSignal<IdeWidget | undefined> = signal(undefined);
-  protected rightViewWidth = 250;
+  protected rightViewWidth = 500;
   protected readonly rightViewMinWidth = 160;
   protected readonly rightViewMaxWidth = 800;
 

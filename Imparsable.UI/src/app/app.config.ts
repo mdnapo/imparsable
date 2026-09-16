@@ -5,6 +5,7 @@ import {provideMonacoEditor} from 'ngx-monaco-editor-v2';
 import {MonacoOptions} from './app.config.monaco';
 import {provideHttpClient} from '@angular/common/http';
 import {provideDefaultClient} from '../api/imparsable';
+import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,6 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideDefaultClient({basePath: location.origin}),
-    provideMonacoEditor(MonacoOptions)
-  ]
+    provideMonacoEditor(MonacoOptions),
+    provideCharts(withDefaultRegisterables()),
+  ],
 };
