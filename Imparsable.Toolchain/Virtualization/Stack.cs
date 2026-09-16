@@ -2,14 +2,14 @@ using System.Runtime.InteropServices;
 
 namespace Imparsable.Toolchain.Virtualization;
 
-public sealed class Stack<TSlot>(Memory<byte> memory) where TSlot : unmanaged
+public sealed class Stack<TValue>(Memory<byte> memory) where TValue : unmanaged
 {
-    public Span<TSlot> Slots => MemoryMarshal.Cast<byte, TSlot>(memory.Span);
-    public Span<TSlot> ActiveSlots => MemoryMarshal.Cast<byte, TSlot>(memory.Span)[..Pointer];
+    public Span<TValue> Slots => MemoryMarshal.Cast<byte, TValue>(memory.Span);
+    public Span<TValue> ActiveSlots => MemoryMarshal.Cast<byte, TValue>(memory.Span)[..Pointer];
 
     private int Pointer { get; set; }
 
-    public void Push(TSlot value)
+    public void Push(TValue value)
     {
         if (Pointer >= Slots.Length)
             throw new StackOverflowException("A stack overflow occurred.");
@@ -17,7 +17,7 @@ public sealed class Stack<TSlot>(Memory<byte> memory) where TSlot : unmanaged
         Slots[Pointer++] = value;
     }
 
-    public TSlot Pop()
+    public TValue Pop()
     {
         if (Pointer == 0)
             throw new InvalidOperationException("Cannot pop an empty stack.");
@@ -29,7 +29,7 @@ public sealed class Stack<TSlot>(Memory<byte> memory) where TSlot : unmanaged
         return value;
     }
 
-    public ref TSlot Peek()
+    public ref TValue Peek()
     {
         if (Pointer == 0)
             throw new InvalidOperationException("Cannot peek an empty stack.");

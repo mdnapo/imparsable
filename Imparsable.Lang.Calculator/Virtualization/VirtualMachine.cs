@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Imparsable.Lang.Calculator.Compilation;
 using Imparsable.Toolchain.Compilation;
+using Imparsable.Toolchain.Extensions;
 
 namespace Imparsable.Lang.Calculator.Virtualization;
 
@@ -59,7 +60,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromNumber(left.Number + right.Number));
+                Memory.Stack.Push(StackValue.FromNumber(left.Number + right.Number));
                 break;
             }
 
@@ -67,7 +68,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromNumber(left.Number - right.Number));
+                Memory.Stack.Push(StackValue.FromNumber(left.Number - right.Number));
                 break;
             }
 
@@ -75,7 +76,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromNumber(left.Number * right.Number));
+                Memory.Stack.Push(StackValue.FromNumber(left.Number * right.Number));
                 break;
             }
 
@@ -83,7 +84,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromNumber(left.Number / right.Number));
+                Memory.Stack.Push(StackValue.FromNumber(left.Number / right.Number));
                 break;
             }
 
@@ -96,7 +97,7 @@ public class VirtualMachine : IDisposable
                 var lhs = Memory.StringHeap.GetValueUtf8(left.Reference);
                 var rhs = Memory.StringHeap.GetValueUtf8(right.Reference);
                 var handle = Memory.StringHeap.Allocate(lhs, rhs);
-                Memory.Stack.Push(StackSlot.FromString(handle));
+                Memory.Stack.Push(StackValue.FromString(handle));
                 break;
             }
 
@@ -104,7 +105,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromBool(left.Bool || right.Bool));
+                Memory.Stack.Push(StackValue.FromBool(left.Bool || right.Bool));
                 break;
             }
 
@@ -112,7 +113,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromBool(left.Bool && right.Bool));
+                Memory.Stack.Push(StackValue.FromBool(left.Bool && right.Bool));
                 break;
             }
 
@@ -120,7 +121,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromNumber(left.Number % right.Number));
+                Memory.Stack.Push(StackValue.FromNumber(left.Number % right.Number));
                 break;
             }
 
@@ -133,17 +134,17 @@ public class VirtualMachine : IDisposable
                 switch (equality)
                 {
                     case EqualityType.BOOL:
-                        Memory.Stack.Push(StackSlot.FromBool(left.Bool == right.Bool));
+                        Memory.Stack.Push(StackValue.FromBool(left.Bool == right.Bool));
                         break;
 
                     case EqualityType.NUMBER:
-                        Memory.Stack.Push(StackSlot.FromBool(Math.Abs(left.Number - right.Number) < 0.01));
+                        Memory.Stack.Push(StackValue.FromBool(Math.Abs(left.Number - right.Number) < 0.01));
                         break;
 
                     case EqualityType.STRING:
                         var lhs = Memory.StringHeap.GetValueUtf8(left.Reference);
                         var rhs = Memory.StringHeap.GetValueUtf8(right.Reference);
-                        Memory.Stack.Push(StackSlot.FromBool(lhs.SequenceEqual(rhs)));
+                        Memory.Stack.Push(StackValue.FromBool(lhs.SequenceEqual(rhs)));
                         break;
 
                     default:
@@ -162,17 +163,17 @@ public class VirtualMachine : IDisposable
                 switch (equality)
                 {
                     case EqualityType.BOOL:
-                        Memory.Stack.Push(StackSlot.FromBool(!left.Bool == right.Bool));
+                        Memory.Stack.Push(StackValue.FromBool(!left.Bool == right.Bool));
                         break;
 
                     case EqualityType.NUMBER:
-                        Memory.Stack.Push(StackSlot.FromBool(!(Math.Abs(left.Number - right.Number) < 0.01)));
+                        Memory.Stack.Push(StackValue.FromBool(!(Math.Abs(left.Number - right.Number) < 0.01)));
                         break;
 
                     case EqualityType.STRING:
                         var lhs = Memory.StringHeap.GetValueUtf8(left.Reference);
                         var rhs = Memory.StringHeap.GetValueUtf8(right.Reference);
-                        Memory.Stack.Push(StackSlot.FromBool(!lhs.SequenceEqual(rhs)));
+                        Memory.Stack.Push(StackValue.FromBool(!lhs.SequenceEqual(rhs)));
                         break;
 
                     default:
@@ -186,7 +187,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromBool(left.Number < right.Number));
+                Memory.Stack.Push(StackValue.FromBool(left.Number < right.Number));
                 break;
             }
 
@@ -194,7 +195,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromBool(left.Number <= right.Number));
+                Memory.Stack.Push(StackValue.FromBool(left.Number <= right.Number));
                 break;
             }
 
@@ -202,7 +203,7 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromBool(left.Number > right.Number));
+                Memory.Stack.Push(StackValue.FromBool(left.Number > right.Number));
                 break;
             }
 
@@ -210,14 +211,14 @@ public class VirtualMachine : IDisposable
             {
                 var right = Memory.Stack.Pop();
                 var left = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromBool(left.Number >= right.Number));
+                Memory.Stack.Push(StackValue.FromBool(left.Number >= right.Number));
                 break;
             }
 
             case OpCode.BOOL_CONST:
             {
                 var value = ReadByte<BoolValue>(ref ip, ref chunk);
-                Memory.Stack.Push(StackSlot.FromBool(Unsafe.As<BoolValue, bool>(ref value)));
+                Memory.Stack.Push(StackValue.FromBool(Unsafe.As<BoolValue, bool>(ref value)));
                 break;
             }
 
@@ -226,7 +227,7 @@ public class VirtualMachine : IDisposable
                 var constantIndex = ReadInt32(ref ip, ref chunk);
                 var constant = chunk.Constants[constantIndex..(constantIndex + sizeof(double))];
                 var value = BinaryPrimitives.ReadDoubleLittleEndian(constant);
-                Memory.Stack.Push(StackSlot.FromNumber(value));
+                Memory.Stack.Push(StackValue.FromNumber(value));
                 break;
             }
 
@@ -239,21 +240,21 @@ public class VirtualMachine : IDisposable
                 var length = BinaryPrimitives.ReadInt32LittleEndian(chunk.Constants[index..header]);
                 var value = chunk.Constants[header..(header + length)];
                 var handle = Memory.StringHeap.Allocate(value);
-                Memory.Stack.Push(StackSlot.FromString(handle));
+                Memory.Stack.Push(StackValue.FromString(handle));
                 break;
             }
 
             case OpCode.NEGATE_BOOL:
             {
                 var value = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromBool(!value.Bool));
+                Memory.Stack.Push(StackValue.FromBool(!value.Bool));
                 break;
             }
 
             case OpCode.NEGATE_NUM:
             {
                 var value = Memory.Stack.Pop();
-                Memory.Stack.Push(StackSlot.FromNumber(-value.Number));
+                Memory.Stack.Push(StackValue.FromNumber(-value.Number));
                 break;
             }
 
@@ -289,7 +290,7 @@ public class VirtualMachine : IDisposable
                 };
 
                 var handle = Memory.StringHeap.Allocate(@string);
-                Memory.Stack.Push(StackSlot.FromString(handle));
+                Memory.Stack.Push(StackValue.FromString(handle));
                 break;
             }
 
@@ -308,7 +309,7 @@ public class VirtualMachine : IDisposable
 
     public void Dispose()
     {
-        foreach (var @delegate in StdOut.GetInvocationList())
-            StdOut -= @delegate as Action<string>;
+        StdOut.Clear();
+        Memory.Dispose();
     }
 }

@@ -2,6 +2,7 @@ using Imparsable.Lang.Calculator.Compilation;
 using Imparsable.Lang.Calculator.Parsing;
 using Imparsable.Lang.Calculator.Virtualization;
 using Imparsable.Toolchain;
+using Imparsable.Toolchain.Extensions;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable once InconsistentNaming
@@ -9,8 +10,11 @@ public class Calculator : IDisposable
 {
     public event Action<Diagnostic> OnDiagnosticPublished = delegate { };
     public event Action<string> OnStdOut = delegate { };
-    public event Action<string> OnDisassemble = delegate { };
+    public event Action<int> OnAllocated = delegate { };
+    public event Action<int> OnReclaimed = delegate { };
+    public event Action<int> OnCompressed = delegate { };
     public event Action OnExecuted = delegate { };
+    public event Action<string> OnDisassemble = delegate { };
     public event Action OnDisassembled = delegate { };
     public event Action OnFailure = delegate { };
 
@@ -28,6 +32,9 @@ public class Calculator : IDisposable
 
         using var vm = new VirtualMachine();
         vm.StdOut += OnStdOut;
+        vm.Memory.Heap.Allocated += OnAllocated;
+        vm.Memory.Heap.Reclaimed += OnReclaimed;
+        vm.Memory.Heap.Compressed += OnCompressed;
         vm.Execute(chunk);
         OnExecuted.Invoke();
     }
@@ -50,22 +57,14 @@ public class Calculator : IDisposable
 
     public void Dispose()
     {
-        foreach (var @delegate in OnDiagnosticPublished.GetInvocationList())
-            OnDiagnosticPublished -= @delegate as Action<Diagnostic>;
-
-        foreach (var @delegate in OnStdOut.GetInvocationList())
-            OnStdOut -= @delegate as Action<string>;
-
-        foreach (var @delegate in OnDisassemble.GetInvocationList())
-            OnDisassemble -= @delegate as Action<string>;
-
-        foreach (var @delegate in OnExecuted.GetInvocationList())
-            OnExecuted -= @delegate as Action;
-
-        foreach (var @delegate in OnDisassembled.GetInvocationList())
-            OnDisassembled -= @delegate as Action;
-
-        foreach (var @delegate in OnFailure.GetInvocationList())
-            OnFailure -= @delegate as Action;
+        OnDiagnosticPublished.Clear();
+        OnStdOut.Clear();
+        OnAllocated.Clear();
+        OnReclaimed.Clear();
+        OnCompressed.Clear();
+        OnExecuted.Clear();
+        OnDisassemble.Clear();
+        OnDisassembled.Clear();
+        OnFailure.Clear();
     }
 }

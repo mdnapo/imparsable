@@ -8,7 +8,7 @@ public class HeapTests
     public void Heap_Initializes_Correctly()
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
 
         // Assert
         Assert.Equal(0, heap.Allocations.Length);
@@ -18,7 +18,7 @@ public class HeapTests
     public void Heap_Allocate_Correctly_Allocates()
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
 
         // Act
         var handle = heap.Allocate(8, new Allocation());
@@ -42,7 +42,7 @@ public class HeapTests
     public void Heap_Allocate_Throws_ArgumentOutOfRangeException(int size)
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
 
         // Act & assert
         Assert.Throws<ArgumentOutOfRangeException>(() => heap.Allocate(size, new Allocation()));
@@ -52,7 +52,7 @@ public class HeapTests
     public void Heap_GetEntry_Correctly_Returns_Bytes()
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
         var handle = heap.Allocate(8, new Allocation());
 
         // Act
@@ -68,7 +68,7 @@ public class HeapTests
     public void Heap_GetEntry_Throws_ArgumentOutOfRangeException(int handle)
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
         heap.Allocate(8, new Allocation());
 
         // Act & assert
@@ -79,7 +79,7 @@ public class HeapTests
     public void Heap_Reclaim_Correctly_Reclaims_Unmarked_Allocations()
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
         var unmarked = heap.Allocate(8, new Allocation());
         ref var unmarkedAllocation = ref heap.GetEntry(unmarked);
 
@@ -97,7 +97,7 @@ public class HeapTests
     public void Heap_Reclaim_Correctly_Unmarks_Marked_Allocations()
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
         var marked = heap.Allocate(8, new Allocation());
         ref var markedAllocation = ref heap.GetEntry(marked);
         markedAllocation.IsMarked = true;
@@ -116,7 +116,7 @@ public class HeapTests
     public void Heap_Compress_Correctly_Compresses_Allocations()
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
 
         var alloc1 = heap.Allocate(8, new Allocation());
         ref var alloc1Ref = ref heap.GetEntry(alloc1);
@@ -143,7 +143,7 @@ public class HeapTests
     public void Heap_GetCompressionMap_Correctly_Builds_CompressionMap()
     {
         // Arrange
-        var heap = new Heap<Allocation>(new byte[512]);
+        using var heap = new Heap<Allocation>(new byte[512]);
         var alloc1 = heap.Allocate(8, new Allocation());
         ref var alloc1Ref = ref heap.GetEntry(alloc1);
         alloc1Ref.IsMarked = true;

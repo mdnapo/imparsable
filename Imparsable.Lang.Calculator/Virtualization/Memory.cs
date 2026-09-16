@@ -2,7 +2,7 @@ using Imparsable.Toolchain.Virtualization;
 
 namespace Imparsable.Lang.Calculator.Virtualization;
 
-public class Memory : Memory<StackSlot, Allocation>
+public class Memory : Memory<StackValue, Allocation>
 {
     public StringHeap StringHeap { get; }
 

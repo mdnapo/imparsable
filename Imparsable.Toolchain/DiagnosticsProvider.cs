@@ -1,4 +1,5 @@
 using System.Collections;
+using Imparsable.Toolchain.Extensions;
 using Imparsable.Toolchain.Parsing.Interfaces;
 
 namespace Imparsable.Toolchain;
@@ -35,7 +36,6 @@ public class DiagnosticsProvider : IEnumerable<Diagnostic>, IDisposable
 
     public void Dispose()
     {
-        foreach (var @delegate in Published.GetInvocationList())
-            Published -= @delegate as Action<Diagnostic>;
+        Published.Clear();
     }
 }

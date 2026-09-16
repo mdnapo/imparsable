@@ -17,6 +17,9 @@ export class CalculatorContext implements OnDestroy {
   readonly disassembly: BehaviorSubject<string> = new BehaviorSubject("");
   readonly failure: Subject<void> = new Subject<void>();
   readonly executed: Subject<void> = new Subject<void>();
+  readonly allocated: Subject<number> = new Subject<number>();
+  readonly reclaimed: Subject<number> = new Subject<number>();
+  readonly compressed: Subject<number> = new Subject<number>();
   readonly disassembled: Subject<void> = new Subject<void>();
 
   private readonly outputCallback: Callback<string> =
@@ -29,6 +32,9 @@ export class CalculatorContext implements OnDestroy {
     (output: string): void => this.onDisassembly(output);
 
   private readonly executedCallback: Callback<void> = (): void => this.executed.next();
+  private readonly allocatedCallback: Callback<number> = (value: number): void => this.allocated.next(value);
+  private readonly reclaimedCallback: Callback<number> = (value: number): void => this.reclaimed.next(value);
+  private readonly compressedCallback: Callback<number> = (value: number): void => this.compressed.next(value);
   private readonly disassembledCallback: Callback<void> = (): void => this.disassembled.next();
   private readonly failedCallback: Callback<void> = (): void => this.failure.next();
 
@@ -36,6 +42,9 @@ export class CalculatorContext implements OnDestroy {
     Calculator.onStdOut.subscribe(this.outputCallback);
     Calculator.onDiagnosticPublished.subscribe(this.diagnosticsSubscription);
     Calculator.onDisassemble.subscribe(this.disassemblyCallback);
+    Calculator.onAllocated.subscribe(this.allocatedCallback);
+    Calculator.onReclaimed.subscribe(this.reclaimedCallback);
+    Calculator.onCompressed.subscribe(this.compressedCallback);
     Calculator.onExecuted.subscribe(this.executedCallback);
     Calculator.onDisassembled.subscribe(this.disassembledCallback);
     Calculator.onFailure.subscribe(this.failedCallback);
@@ -48,6 +57,9 @@ export class CalculatorContext implements OnDestroy {
     Calculator.onStdOut.unsubscribe(this.outputCallback);
     Calculator.onDiagnosticPublished.unsubscribe(this.diagnosticsSubscription);
     Calculator.onDisassemble.unsubscribe(this.disassemblyCallback);
+    Calculator.onAllocated.unsubscribe(this.allocatedCallback);
+    Calculator.onReclaimed.unsubscribe(this.reclaimedCallback);
+    Calculator.onCompressed.unsubscribe(this.compressedCallback);
     Calculator.onExecuted.unsubscribe(this.executedCallback);
     Calculator.onDisassembled.unsubscribe(this.disassembledCallback);
     Calculator.onFailure.unsubscribe(this.failedCallback);

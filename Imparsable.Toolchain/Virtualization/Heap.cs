@@ -3,13 +3,16 @@ using Imparsable.Toolchain.Extensions;
 
 namespace Imparsable.Toolchain.Virtualization;
 
-public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAllocation : unmanaged, IAllocation
+public sealed partial class Heap<TAllocation>(Memory<byte> memory) : IDisposable where TAllocation : unmanaged, IAllocation
 {
     private const int Alignment = sizeof(long);
     private readonly List<TAllocation> _allocations = new(128);
     private readonly System.Collections.Generic.Stack<int> _reclaimed = new(128);
 
     public Span<TAllocation> Allocations => _allocations.Span;
+    public event Action<int> Allocated = delegate { };
+    public event Action<int> Reclaimed = delegate { };
+    public event Action<int> Compressed = delegate { };
     public int Pointer { get; private set; }
 
     public int Allocate(int size, TAllocation entry)
@@ -27,8 +30,8 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
         entry.IsMarked = false;
 
         var handle = AllocateHandle(ref entry);
-
         Pointer += size;
+        Allocated.Invoke(size);
 
         return handle;
     }
@@ -61,11 +64,14 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
 
     public void Reclaim()
     {
+        var reclaimed = 0;
+
         for (var index = 0; index < Allocations.Length; index++)
         {
             ref var allocation = ref Allocations[index];
             if (!allocation.IsMarked)
             {
+                reclaimed += allocation.Size;
                 Reclaim(index, ref allocation);
             }
             else
@@ -73,6 +79,8 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
                 allocation.IsMarked = false;
             }
         }
+
+        Reclaimed.Invoke(reclaimed);
     }
 
     private void Reclaim(int handle, ref TAllocation allocation)
@@ -88,6 +96,7 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
         var allocations = Allocations;
         var map = ArrayPool<CompressionIndex>.Shared.Rent(allocations.Length);
         var count = GetCompressionMap(allocations, ref map);
+        var start = Pointer;
 
         try
         {
@@ -104,6 +113,8 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
             }
 
             Pointer = destination;
+            var compressed = start - Pointer;
+            Compressed.Invoke(compressed);
         }
         finally
         {
@@ -139,4 +150,11 @@ public sealed partial class Heap<TAllocation>(Memory<byte> memory) where TAlloca
     }
 
     private static int Align(int size) => (size + Alignment - 1) & ~(Alignment - 1);
+
+    public void Dispose()
+    {
+        Allocated.Clear();
+        Reclaimed.Clear();
+        Compressed.Clear();
+    }
 }
