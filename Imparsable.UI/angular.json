@@ -11,7 +11,7 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
-          "path": "src/app/components"
+          "path": "src/app"
         },
         "@schematics/angular:guard": {
           "path": "src/app/guards",
@@ -22,10 +22,10 @@
           "functional": false
         },
         "@schematics/angular:service": {
-          "path": "src/app/services"
+          "path": "src/app"
         },
         "@schematics/angular:directive": {
-          "path": "src/app/directives"
+          "path": "src/app"
         }
       },
       "root": "",

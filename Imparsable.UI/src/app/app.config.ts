@@ -2,10 +2,10 @@ import {ApplicationConfig, provideBrowserGlobalErrorListeners} from '@angular/co
 import {provideRouter} from '@angular/router';
 import {routes} from './app.routes';
 import {provideMonacoEditor} from 'ngx-monaco-editor-v2';
-import {MonacoOptions} from './app.config.monaco';
 import {provideHttpClient} from '@angular/common/http';
-import {provideDefaultClient} from '../api/imparsable';
 import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
+import {provideDefaultClient} from '@api/imparsable';
+import {MonacoOptions} from '@config/monaco';
 
 export const appConfig: ApplicationConfig = {
   providers: [

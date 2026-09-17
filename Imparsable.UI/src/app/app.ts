@@ -1,7 +1,7 @@
 import {Component, ChangeDetectionStrategy, OnInit, inject} from '@angular/core';
-import {Layout} from './components/layout/layout';
 import {RouterOutlet} from '@angular/router';
 import {MatIconRegistry} from '@angular/material/icon';
+import {Layout} from '@shared/components/layout/layout';
 
 @Component({
   selector: 'app-root',

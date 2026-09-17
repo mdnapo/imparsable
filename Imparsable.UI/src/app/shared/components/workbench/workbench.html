@@ -1,0 +1,79 @@
+<main #workbench class="workbench"
+      [class.left-open]="leftView() !== undefined"
+      [class.right-open]="rightView() !== undefined"
+      [class.bottom-open]="bottomView() !== undefined"
+      [style.--left-view-width.px]="leftViewWidth"
+      [style.--right-view-width.px]="rightViewWidth"
+      [style.--bottom-view-height.px]="bottomViewHeight">
+
+  <aside class="activity-bar left-activity-bar">
+    <app-workbench-activity-bar
+      [primary]="leftViews"
+      [secondary]="bottomViews"
+      [activePrimary]="leftView()"
+      [activeSecondary]="bottomView()"
+      (primarySelected)="toggleLeftView($event)"
+      (secondarySelected)="toggleBottomView($event)"
+    />
+  </aside>
+
+  @if (leftView(); as view) {
+    <section class="view left-view">
+      <ng-container *ngComponentOutlet="view.view"/>
+    </section>
+  }
+
+  <div class="resizer left-resizer"
+       [workbenchResize]="workbench"
+       resizeProperty="--left-view-width"
+       resizeAxis="x"
+       [resizeDirection]="1"
+       [(resizeValue)]="leftViewWidth"
+       [resizeMin]="leftViewMinWidth"
+       [resizeMax]="leftViewMaxWidth">
+  </div>
+
+  <main class="editor">
+    <ng-content select="[workbenchEditor]"/>
+  </main>
+
+  <div class="resizer right-resizer"
+       [workbenchResize]="workbench"
+       resizeProperty="--right-view-width"
+       resizeAxis="x"
+       [resizeDirection]="-1"
+       [(resizeValue)]="rightViewWidth"
+       [resizeMin]="rightViewMinWidth"
+       [resizeMax]="rightViewMaxWidth">
+  </div>
+
+  @if (rightView(); as view) {
+    <section class="view right-view">
+      <ng-container *ngComponentOutlet="view.view"/>
+    </section>
+  }
+
+  <aside class="activity-bar right-activity-bar">
+    <app-workbench-activity-bar
+      [primary]="rightViews"
+      [activePrimary]="rightView()"
+      (primarySelected)="toggleRightView($event)"
+    />
+  </aside>
+
+  <div class="resizer bottom-resizer"
+       [workbenchResize]="workbench"
+       resizeProperty="--bottom-view-height"
+       resizeAxis="y"
+       [resizeDirection]="-1"
+       [(resizeValue)]="bottomViewHeight"
+       [resizeMin]="bottomViewMinHeight"
+       [resizeMax]="bottomViewMaxHeight">
+  </div>
+
+  @if (bottomView(); as view) {
+    <section class="view bottom-view">
+      <ng-container *ngComponentOutlet="view.view"/>
+    </section>
+  }
+</main>

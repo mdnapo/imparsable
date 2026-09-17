@@ -1,0 +1,12 @@
+<app-workbench
+  [leftViews]="leftViews"
+  [rightViews]="rightViews"
+  [bottomViews]="bottomViews">
+
+  <app-workbench-editor workbenchEditor
+    [file]="context.file | async"
+    (initialized)="init($event)"
+    (closed)="context.closeFile($event)"
+  />
+
+</app-workbench>

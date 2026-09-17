@@ -1,0 +1,13 @@
+<main>
+  <mat-toolbar>
+    <span class="title">{{ title }}</span>
+
+    <div class="actions">
+      <ng-content select="[actions]"/>
+    </div>
+  </mat-toolbar>
+
+  <section class="content">
+    <ng-content/>
+  </section>
+</main>

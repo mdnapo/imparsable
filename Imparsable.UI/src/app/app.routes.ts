@@ -1,7 +1,7 @@
 import {Routes} from '@angular/router';
-import {CalculatorIde} from './components/calculator-ide/calculator-ide';
+import {Ide} from '@calculator/components/ide/ide';
 
 export const routes: Routes = [
-  {path: "calculator", component: CalculatorIde},
+  {path: "calculator", component: Ide},
   {path: "**", redirectTo: "/calculator"},
 ];

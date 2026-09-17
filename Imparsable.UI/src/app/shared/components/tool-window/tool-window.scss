@@ -1,0 +1,205 @@
+//:host {
+//  display: block;
+//  width: 100%;
+//  height: 100%;
+//  min-width: 0;
+//  min-height: 0;
+//}
+//
+//:host ::ng-deep {
+//  [actions].mat-mdc-icon-button {
+//    --mdc-icon-button-state-layer-size: 26px;
+//
+//    width: 28px;
+//    height: 28px;
+//    padding: 0;
+//    border-radius: 4px;
+//
+//    mat-icon {
+//      width: 18px;
+//      height: 18px;
+//      font-size: 18px;
+//      line-height: 12px;
+//    }
+//  }
+//}
+//
+//main {
+//  display: flex;
+//  flex-direction: column;
+//  width: 100%;
+//  height: 100%;
+//  min-width: 0;
+//  min-height: 0;
+//  overflow: hidden;
+//  background: var(--mat-sys-surface);
+//}
+//
+//mat-toolbar {
+//  flex: 0 0 36px;
+//  min-height: 36px;
+//  height: 36px;
+//  gap: 8px;
+//  padding: 0 8px 0 12px;
+//  border-bottom: 1px solid var(--mat-sys-outline-variant);
+//  background: var(--mat-sys-surface);
+//}
+//
+//.title {
+//  font-size: 12px;
+//  font-weight: 500;
+//  text-transform: uppercase;
+//  letter-spacing: 0.04em;
+//  color: var(--mat-sys-on-surface-variant);
+//}
+//
+//.actions {
+//  display: flex;
+//  align-items: center;
+//  gap: 4px;
+//  margin-left: auto;
+//
+//  &:empty {
+//    display: none;
+//  }
+//}
+//
+//.content {
+//  flex: 1 1 0;
+//  min-width: 0;
+//  min-height: 0;
+//  overflow: auto;
+//}
+
+
+//:host {
+//  display: block;
+//  width: 100%;
+//  height: 100%;
+//  min-width: 0;
+//  min-height: 0;
+//}
+//
+//main {
+//  display: grid;
+//  grid-template-rows: 36px minmax(0, 1fr);
+//
+//  width: 100%;
+//  height: 100%;
+//  min-width: 0;
+//  min-height: 0;
+//  overflow: hidden;
+//
+//  background: var(--mat-sys-surface);
+//}
+//
+//mat-toolbar {
+//  min-width: 0;
+//  min-height: 36px;
+//  height: 36px;
+//  gap: 8px;
+//  padding: 0 8px 0 12px;
+//
+//  border-bottom: 1px solid var(--mat-sys-outline-variant);
+//  background: var(--mat-sys-surface);
+//}
+//
+//.title {
+//  overflow: hidden;
+//  text-overflow: ellipsis;
+//  white-space: nowrap;
+//
+//  font-size: 12px;
+//  font-weight: 500;
+//  text-transform: uppercase;
+//  letter-spacing: 0.04em;
+//
+//  color: var(--mat-sys-on-surface-variant);
+//}
+//
+//.actions {
+//  display: flex;
+//  align-items: center;
+//  gap: 4px;
+//  margin-left: auto;
+//
+//  &:empty {
+//    display: none;
+//  }
+//}
+//
+//.content {
+//  position: relative;
+//
+//  width: 100%;
+//  height: 100%;
+//  min-width: 0;
+//  min-height: 0;
+//
+//  overflow: hidden;
+//}
+
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+main {
+  display: grid;
+  grid-template-rows: 36px minmax(0, 1fr);
+
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+
+  background: var(--mat-sys-surface);
+}
+
+mat-toolbar {
+  min-width: 0;
+  min-height: 36px;
+  height: 36px;
+  gap: 8px;
+  padding: 0 8px 0 12px;
+
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}

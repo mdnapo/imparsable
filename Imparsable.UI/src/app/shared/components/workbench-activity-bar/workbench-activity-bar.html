@@ -1,0 +1,27 @@
+<div class="toolbar toolbar-primary">
+  @for (view of primary; track view.id) {
+    <button mat-icon-button
+            class="activity-button"
+            [title]="view.title"
+            [class.active]="activePrimary?.id === view.id"
+            [matBadge]="view.badge?.()"
+            [matBadgeHidden]="view.badge === undefined || view.badge() === 0"
+            (click)="primarySelected.emit(view)">
+      <mat-icon>{{ view.icon }}</mat-icon>
+    </button>
+  }
+</div>
+
+<div class="toolbar toolbar-secondary">
+  @for (view of secondary; track view.id) {
+    <button mat-icon-button
+            class="activity-button"
+            [title]="view.title"
+            [class.active]="activeSecondary?.id === view.id"
+            [matBadge]="view.badge?.()"
+            [matBadgeHidden]="view.badge === undefined || view.badge() === 0"
+            (click)="secondarySelected.emit(view)">
+      <mat-icon>{{ view.icon }}</mat-icon>
+    </button>
+  }
+</div>

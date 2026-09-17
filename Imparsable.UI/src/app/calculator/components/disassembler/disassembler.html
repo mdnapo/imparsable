@@ -1,0 +1,27 @@
+<app-tool-window title="Disassembler">
+  <button actions
+          matIconButton
+          class="action-button"
+          aria-label="Disassemble"
+          title="Disassemble"
+          [disabled]="!(context.file | async)"
+          (click)="context.disassemble()">
+    <mat-icon>play_arrow</mat-icon>
+  </button>
+
+  @if (context.disassembly | async; as disassembly) {
+    @if (disassembly) {
+      <pre>{{ disassembly }}</pre>
+    } @else {
+      <div class="empty">
+        <mat-icon>data_array</mat-icon>
+        <span>Disassemble the current file to inspect its bytecode.</span>
+      </div>
+    }
+  } @else {
+    <div class="empty">
+      <mat-icon>data_array</mat-icon>
+      <span>Disassemble the current file to inspect its bytecode.</span>
+    </div>
+  }
+</app-tool-window>
