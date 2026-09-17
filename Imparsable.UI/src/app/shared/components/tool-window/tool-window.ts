@@ -10,5 +10,5 @@ import {MatToolbar} from '@angular/material/toolbar';
   styleUrl: './tool-window.scss'
 })
 export class ToolWindow {
-  @Input({required: true}) title!: string;
+  @Input({required: true}) label!: string;
 }
