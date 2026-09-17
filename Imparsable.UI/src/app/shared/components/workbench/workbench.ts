@@ -35,16 +35,31 @@ export class Workbench {
   protected readonly bottomViewMinHeight = 100;
   protected readonly bottomViewMaxHeight = 600;
 
-  public setLeftView(view: WorkbenchView): void {
-    this.leftView.set(view);
+  public setLeftView(view: WorkbenchView, toggle: boolean = false): void {
+    if (this.leftView()?.id === view.id) {
+      if (!toggle) return;
+      this.toggleLeftView(view);
+    } else {
+      this.leftView.set(view);
+    }
   }
 
-  public setRightView(view: WorkbenchView): void {
-    this.rightView.set(view);
+  public setRightView(view: WorkbenchView, toggle: boolean = false): void {
+    if (this.rightView()?.id === view.id) {
+      if (!toggle) return;
+      this.toggleRightView(view);
+    } else {
+      this.rightView.set(view);
+    }
   }
 
-  public setBottomView(view: WorkbenchView): void {
-    this.bottomView.set(view);
+  public setBottomView(view: WorkbenchView, toggle: boolean = false): void {
+    if (this.bottomView()?.id === view.id) {
+      if (!toggle) return;
+      this.toggleBottomView(view);
+    } else {
+      this.bottomView.set(view);
+    }
   }
 
   protected toggleLeftView(view: WorkbenchView): void {

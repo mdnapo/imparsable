@@ -5,7 +5,7 @@
 
   <app-workbench-editor workbenchEditor
     [file]="context.file | async"
-    (initialized)="init($event)"
+    (initialized)="workbenchService.setEditor($event)"
     (closed)="context.closeFile($event)"
   />
 

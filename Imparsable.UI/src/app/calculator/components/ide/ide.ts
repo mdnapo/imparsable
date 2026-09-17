@@ -3,7 +3,7 @@ import {AsyncPipe} from "@angular/common";
 import {Workbench} from "@shared/components/workbench/workbench";
 import {WorkbenchEditor} from "@shared/components/workbench-editor/workbench-editor";
 import {Subscription} from 'rxjs';
-import type {editor, IDisposable} from 'monaco-editor';
+import type {editor} from 'monaco-editor';
 import {WorkbenchView} from '@shared/models/workbench-view';
 import {Problems} from '@calculator/components/problems/problems';
 import {Disassembler} from '@calculator/components/disassembler/disassembler';
@@ -33,6 +33,8 @@ import {Callback} from '@shared/utils/types';
   styleUrl: './ide.scss',
 })
 export class Ide implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(Workbench)
+  private workbench!: Workbench;
   protected readonly context: FileService = inject(FileService);
   protected readonly workbenchService: WorkbenchService = inject(WorkbenchService);
   protected readonly runner: RunnerService = inject(RunnerService);
@@ -40,22 +42,10 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
   protected readonly memory: MemoryService = inject(MemoryService);
   protected readonly problems: ProblemService = inject(ProblemService);
   private readonly languageServer: LanguageServer = inject(LanguageServer);
+  private readonly subscriptions: Subscription[] = [];
 
   private readonly failedCallback: Callback<void> =
     (): void => this.workbench.setBottomView(this.bottomViews[2]);
-
-  private editor?: editor.IStandaloneCodeEditor;
-  private readonly subscriptions: Subscription[] = [];
-  private explorerSubscription?: IDisposable;
-  private grammarSubscription?: IDisposable;
-  private memorySubscription?: IDisposable;
-  private executeSubscription?: IDisposable;
-  private disassembleSubscription?: IDisposable;
-  private problemsSubscription?: IDisposable;
-  private saveSubscription?: IDisposable;
-
-  @ViewChild(Workbench)
-  private workbench!: Workbench;
 
   protected readonly leftViews: WorkbenchView[] = [
     {
@@ -104,98 +94,116 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   async init(editor: editor.IStandaloneCodeEditor): Promise<void> {
-    this.editor = editor;
 
-    this.updateModel();
+    this.workbenchService.setEditor(editor);
 
     await this.languageServer.connect(LanguageId.Calculator, '/lsp/clc');
-
-    this.explorerSubscription = this.editor.addAction({
-      id: 'open-explorer',
-      label: 'Open Explorer',
-      keybindings: [
-        window.monaco.KeyMod.CtrlCmd |
-        window.monaco.KeyMod.Alt |
-        window.monaco.KeyCode.KeyF
-      ],
-      run: () => this.workbench.setLeftView(this.leftViews[0])
-    });
-
-    this.grammarSubscription = this.editor.addAction({
-      id: 'open-grammar',
-      label: 'Open Grammar',
-      keybindings: [
-        window.monaco.KeyMod.CtrlCmd |
-        window.monaco.KeyMod.Alt |
-        window.monaco.KeyCode.KeyG
-      ],
-      run: () => this.workbench.setLeftView(this.leftViews[1])
-    });
-
-    this.memorySubscription = this.editor.addAction({
-      id: 'open-memory',
-      label: 'Open Memory',
-      keybindings: [
-        window.monaco.KeyMod.CtrlCmd |
-        window.monaco.KeyMod.Alt |
-        window.monaco.KeyCode.KeyM
-      ],
-      run: () => this.workbench.setRightView(this.rightViews[0])
-    });
-
-    this.executeSubscription = this.editor.addAction({
-      id: 'execute-file',
-      label: 'Execute File',
-      keybindings: [
-        window.monaco.KeyMod.CtrlCmd |
-        window.monaco.KeyMod.Shift |
-        window.monaco.KeyCode.KeyX
-      ],
-      run: () => this.runner.execute()
-    });
-
-    this.problemsSubscription = this.editor.addAction({
-      id: 'open-problems',
-      label: 'Open Problems',
-      keybindings: [
-        window.monaco.KeyMod.CtrlCmd |
-        window.monaco.KeyMod.Shift |
-        window.monaco.KeyCode.KeyQ
-      ],
-      run: () => this.workbench.setBottomView(this.bottomViews[2])
-    });
-
-    this.disassembleSubscription = this.editor.addAction({
-      id: 'disassemble-file',
-      label: 'Disassemble File',
-      keybindings: [
-        window.monaco.KeyMod.CtrlCmd |
-        window.monaco.KeyMod.Shift |
-        window.monaco.KeyCode.KeyD
-      ],
-      run: () => this.disassembler.execute()
-    });
-
-    this.saveSubscription = this.editor.addAction({
-      id: 'save-file',
-      label: 'Save File',
-      keybindings: [
-        window.monaco.KeyMod.CtrlCmd |
-        window.monaco.KeyCode.KeyS
-      ],
-      run: async () => await this.context.file.value?.save()
-    });
-
-    this.subscriptions.push(
-      this.workbenchService.setBottomView.subscribe(
-        value => this.workbench.setBottomView(this.bottomViews[value])
-      )
-    );
   }
 
   ngOnInit(): void {
     Calculator.onFailure.subscribe(this.failedCallback);
-    this.subscriptions.push(this.context.file.subscribe(() => this.updateModel()))
+
+    this.subscriptions.push(
+      this.workbenchService.editorInitialized.subscribe({
+        next: async () => await this.languageServer.connect(LanguageId.Calculator, '/lsp/clc')
+      })
+    );
+
+    this.subscriptions.push(
+      this.workbenchService.setLeftView.subscribe(value => this.workbench.setLeftView(this.leftViews[value])),
+      this.workbenchService.setRightView.subscribe(value => this.workbench.setRightView(this.rightViews[value])),
+      this.workbenchService.setBottomView.subscribe(value => this.workbench.setBottomView(this.bottomViews[value])),
+    );
+
+    this.workbenchService.registerAction(() => {
+      return {
+        id: 'open-explorer',
+        label: 'Open Explorer',
+        keybindings: [
+          window.monaco.KeyMod.CtrlCmd |
+          window.monaco.KeyMod.Alt |
+          window.monaco.KeyCode.KeyF
+        ],
+        run: () => this.workbench.setLeftView(this.leftViews[0], true)
+      };
+    });
+
+    this.workbenchService.registerAction(() => {
+      return {
+        id: 'open-grammar',
+        label: 'Open Grammar',
+        keybindings: [
+          window.monaco.KeyMod.CtrlCmd |
+          window.monaco.KeyMod.Alt |
+          window.monaco.KeyCode.KeyG
+        ],
+        run: () => this.workbench.setLeftView(this.leftViews[1], true)
+      };
+    });
+
+    this.workbenchService.registerAction(() => {
+      return {
+        id: 'open-memory',
+        label: 'Open Memory',
+        keybindings: [
+          window.monaco.KeyMod.CtrlCmd |
+          window.monaco.KeyMod.Alt |
+          window.monaco.KeyCode.KeyM
+        ],
+        run: () => this.workbench.setRightView(this.rightViews[0], true)
+      };
+    });
+
+    this.workbenchService.registerAction(() => {
+      return {
+        id: 'execute-file',
+        label: 'Execute File',
+        keybindings: [
+          window.monaco.KeyMod.CtrlCmd |
+          window.monaco.KeyMod.Shift |
+          window.monaco.KeyCode.KeyX
+        ],
+        run: () => this.runner.execute()
+      };
+    });
+
+    this.workbenchService.registerAction(() => {
+      return {
+        id: 'open-problems',
+        label: 'Open Problems',
+        keybindings: [
+          window.monaco.KeyMod.CtrlCmd |
+          window.monaco.KeyMod.Shift |
+          window.monaco.KeyCode.KeyQ
+        ],
+        run: () => this.workbench.setBottomView(this.bottomViews[2])
+      };
+    });
+
+    this.workbenchService.registerAction(() => {
+      return {
+        id: 'disassemble-file',
+        label: 'Disassemble File',
+        keybindings: [
+          window.monaco.KeyMod.CtrlCmd |
+          window.monaco.KeyMod.Shift |
+          window.monaco.KeyCode.KeyD
+        ],
+        run: () => this.disassembler.execute()
+      };
+    });
+
+    this.workbenchService.registerAction(() => {
+      return {
+        id: 'save-file',
+        label: 'Save File',
+        keybindings: [
+          window.monaco.KeyMod.CtrlCmd |
+          window.monaco.KeyCode.KeyS
+        ],
+        run: async () => await this.context.file.value?.save()
+      };
+    });
   }
 
   ngAfterViewInit(): void {
@@ -206,23 +214,6 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     Calculator.onFailure.unsubscribe(this.failedCallback);
-    this.editor?.dispose();
-    this.explorerSubscription?.dispose();
-    this.grammarSubscription?.dispose();
-    this.memorySubscription?.dispose();
-    this.executeSubscription?.dispose();
-    this.disassembleSubscription?.dispose();
-    this.problemsSubscription?.dispose();
-    this.saveSubscription?.dispose();
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-
-  private updateModel(): void {
-    const file = this.context.file.value;
-
-    if (!file || !this.editor)
-      return;
-
-    this.editor.setModel(file.getModel());
   }
 }
