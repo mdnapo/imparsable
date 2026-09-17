@@ -3,7 +3,7 @@ import {MatTree, MatTreeNode, MatTreeNodeDef, MatTreeNodePadding, MatTreeNodeTog
 import {MatIcon} from '@angular/material/icon';
 import {MatIconButton} from '@angular/material/button';
 import {ToolWindow} from '@shared/components/tool-window/tool-window';
-import {Context} from '@calculator/services/context';
+import {FileService} from '@calculator/services/file-service';
 import {IdeDirectory, IdeFile, IdeNode} from '@shared/models/filesystem';
 
 @Component({
@@ -22,7 +22,7 @@ import {IdeDirectory, IdeFile, IdeNode} from '@shared/models/filesystem';
   styleUrl: './explorer.scss',
 })
 export class Explorer  implements AfterViewInit {
-  protected readonly context: Context = inject(Context);
+  protected readonly context: FileService = inject(FileService);
 
   @ViewChild(MatTree)
   protected tree!: MatTree<IdeNode>;

@@ -2,8 +2,8 @@ import {Component, inject} from '@angular/core';
 import {AsyncPipe} from "@angular/common";
 import {MatIcon} from "@angular/material/icon";
 import {ToolWindow} from "@shared/components/tool-window/tool-window";
-import {Context} from '@calculator/services/context';
 import {Diagnostic, DiagnosticSeverity} from '@shared/models/language';
+import {ProblemService} from '@calculator/services/problem-service';
 
 @Component({
   selector: 'app-problems',
@@ -16,7 +16,7 @@ import {Diagnostic, DiagnosticSeverity} from '@shared/models/language';
   styleUrl: './problems.scss',
 })
 export class Problems {
-  protected readonly context: Context = inject(Context);
+  protected readonly service: ProblemService = inject(ProblemService);
 
   protected severityIcon(diagnostic: Diagnostic): string {
     switch (diagnostic.severity) {

@@ -5,12 +5,12 @@
           aria-label="Run"
           title="Run"
           [disabled]="!(context.file | async)"
-          (click)="context.execute()">
+          (click)="service.execute()">
     <mat-icon>play_arrow</mat-icon>
   </button>
 
   <div class="output">
-    @for (line of context.output | async; track line.id) {
+    @for (line of service.output | async; track line.id) {
       <div class="output-line">{{ line.text }}</div>
     } @empty {
       <div class="empty">

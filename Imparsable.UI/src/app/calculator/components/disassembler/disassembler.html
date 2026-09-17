@@ -5,11 +5,11 @@
           aria-label="Disassemble"
           title="Disassemble"
           [disabled]="!(context.file | async)"
-          (click)="context.disassemble()">
+          (click)="service.execute()">
     <mat-icon>play_arrow</mat-icon>
   </button>
 
-  @if (context.disassembly | async; as disassembly) {
+  @if (service.disassembly | async; as disassembly) {
     @if (disassembly) {
       <pre>{{ disassembly }}</pre>
     } @else {

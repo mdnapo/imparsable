@@ -3,7 +3,8 @@ import {AsyncPipe} from "@angular/common";
 import {MatIcon} from "@angular/material/icon";
 import {MatIconButton} from "@angular/material/button";
 import {ToolWindow} from "@shared/components/tool-window/tool-window";
-import {Context} from '@calculator/services/context';
+import {FileService} from '@calculator/services/file-service';
+import {DisassemblerService} from '@calculator/services/disassembler-service';
 
 @Component({
   selector: 'app-disassembler',
@@ -17,5 +18,6 @@ import {Context} from '@calculator/services/context';
   styleUrl: './disassembler.scss',
 })
 export class Disassembler {
-  protected readonly context: Context = inject(Context);
+  protected readonly context: FileService = inject(FileService);
+  protected readonly service: DisassemblerService = inject(DisassemblerService);
 }

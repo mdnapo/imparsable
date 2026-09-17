@@ -1,5 +1,5 @@
 <app-tool-window title="Problems">
-  @if (context.diagnostics | async; as diagnostics) {
+  @if (service.diagnostics | async; as diagnostics) {
     @if (diagnostics.length > 0) {
       <div class="problems">
         @for (diagnostic of diagnostics; track diagnostic.marker) {

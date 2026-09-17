@@ -11,9 +11,16 @@ import {Runner} from '@calculator/components/runner/runner';
 import {Memory} from '@calculator/components/memory/memory';
 import {Grammar} from '@calculator/components/grammar/grammar';
 import {Explorer} from '@calculator/components/explorer/explorer';
-import {Context} from '@calculator/services/context';
+import {FileService} from '@calculator/services/file-service';
 import {LanguageServer} from '@shared/services/language-server';
 import {LanguageId} from '@config/monaco';
+import {MemoryService} from '@calculator/services/memory-service';
+import {ProblemService} from '@calculator/services/problem-service';
+import {WorkbenchService} from '@calculator/services/workbench-service';
+import {RunnerService} from '@calculator/services/runner-service';
+import {DisassemblerService} from '@calculator/services/disassembler-service';
+import {Calculator} from 'imp-wasm';
+import {Callback} from '@shared/utils/types';
 
 @Component({
   selector: 'app-ide',
@@ -26,11 +33,19 @@ import {LanguageId} from '@config/monaco';
   styleUrl: './ide.scss',
 })
 export class Ide implements OnInit, AfterViewInit, OnDestroy {
-  protected readonly context: Context = inject(Context);
+  protected readonly context: FileService = inject(FileService);
+  protected readonly workbenchService: WorkbenchService = inject(WorkbenchService);
+  protected readonly runner: RunnerService = inject(RunnerService);
+  protected readonly disassembler: DisassemblerService = inject(DisassemblerService);
+  protected readonly memory: MemoryService = inject(MemoryService);
+  protected readonly problems: ProblemService = inject(ProblemService);
   private readonly languageServer: LanguageServer = inject(LanguageServer);
 
+  private readonly failedCallback: Callback<void> =
+    (): void => this.workbench.setBottomView(this.bottomViews[2]);
+
   private editor?: editor.IStandaloneCodeEditor;
-  private readonly subscriptions: Subscription = new Subscription();
+  private readonly subscriptions: Subscription[] = [];
   private explorerSubscription?: IDisposable;
   private grammarSubscription?: IDisposable;
   private memorySubscription?: IDisposable;
@@ -84,7 +99,7 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
       title: 'Problems (ctrl + shift + q)',
       icon: 'error',
       view: Problems,
-      badge: () => this.context.errors()
+      badge: () => this.problems.errors()
     }
   ];
 
@@ -136,7 +151,7 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
         window.monaco.KeyMod.Shift |
         window.monaco.KeyCode.KeyX
       ],
-      run: () => this.context.execute()
+      run: () => this.runner.execute()
     });
 
     this.problemsSubscription = this.editor.addAction({
@@ -158,7 +173,7 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
         window.monaco.KeyMod.Shift |
         window.monaco.KeyCode.KeyD
       ],
-      run: () => this.context.disassemble()
+      run: () => this.disassembler.execute()
     });
 
     this.saveSubscription = this.editor.addAction({
@@ -171,29 +186,16 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
       run: async () => await this.context.file.value?.save()
     });
 
-    this.subscriptions.add(
-      this.context.executed.subscribe(() =>
-        this.workbench.setBottomView(this.bottomViews[0])
-      )
-    );
-
-    this.subscriptions.add(
-      this.context.disassembled.subscribe(() =>
-        this.workbench.setBottomView(this.bottomViews[1])
-      )
-    );
-
-    this.subscriptions.add(
-      this.context.failure.subscribe(() =>
-        this.workbench.setBottomView(this.bottomViews[2])
+    this.subscriptions.push(
+      this.workbenchService.setBottomView.subscribe(
+        value => this.workbench.setBottomView(this.bottomViews[value])
       )
     );
   }
 
   ngOnInit(): void {
-    this.subscriptions.add(
-      this.context.file.subscribe(() => this.updateModel())
-    );
+    Calculator.onFailure.subscribe(this.failedCallback);
+    this.subscriptions.push(this.context.file.subscribe(() => this.updateModel()))
   }
 
   ngAfterViewInit(): void {
@@ -203,6 +205,7 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    Calculator.onFailure.unsubscribe(this.failedCallback);
     this.editor?.dispose();
     this.explorerSubscription?.dispose();
     this.grammarSubscription?.dispose();
@@ -211,7 +214,7 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
     this.disassembleSubscription?.dispose();
     this.problemsSubscription?.dispose();
     this.saveSubscription?.dispose();
-    this.subscriptions.unsubscribe();
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   private updateModel(): void {
@@ -223,4 +226,3 @@ export class Ide implements OnInit, AfterViewInit, OnDestroy {
     this.editor.setModel(file.getModel());
   }
 }
-

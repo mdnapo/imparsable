@@ -1,8 +1,8 @@
 <app-tool-window title="Memory">
   <div class="chart">
     <canvas baseChart
-            [data]="data"
-            [options]="options"
+            [data]="service.data"
+            [options]="service.options"
             type="line">
     </canvas>
   </div>

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Context } from './context';
+import { MemoryService } from './memory-service';
 
-describe('Context', () => {
-  let service: Context;
+describe('MemoryService', () => {
+  let service: MemoryService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Context);
+    service = TestBed.inject(MemoryService);
   });
 
   it('should be created', () => {

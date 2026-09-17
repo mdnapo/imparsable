@@ -3,7 +3,8 @@ import {AsyncPipe} from '@angular/common';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {ToolWindow} from '@shared/components/tool-window/tool-window';
-import {Context} from '@calculator/services/context';
+import {FileService} from '@calculator/services/file-service';
+import {RunnerService} from '@calculator/services/runner-service';
 
 @Component({
   selector: 'app-runner',
@@ -17,6 +18,6 @@ import {Context} from '@calculator/services/context';
   styleUrl: './runner.scss',
 })
 export class Runner {
-  protected readonly context: Context = inject(Context);
-
+  protected readonly context: FileService = inject(FileService);
+  protected readonly service: RunnerService = inject(RunnerService);
 }
