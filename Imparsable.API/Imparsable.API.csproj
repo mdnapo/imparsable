@@ -20,6 +20,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Imparsable.Lang.Calculator.LSP\Imparsable.Lang.Calculator.LSP.csproj" />
+      <ProjectReference Include="..\Imparsable.ServiceDefaults\Imparsable.ServiceDefaults.csproj" />
     </ItemGroup>
 
     <ItemGroup>

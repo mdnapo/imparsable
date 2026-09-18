@@ -50,9 +50,13 @@ public sealed class JsonRpcProvider(IHttpContextAccessor httpContextAccessor) : 
         static async ValueTask CastAndDispose(IDisposable disposable)
         {
             if (disposable is IAsyncDisposable asyncDisposable)
+            {
                 await asyncDisposable.DisposeAsync();
+            }
             else
+            {
                 disposable.Dispose();
+            }
         }
     }
 }

@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Imparsable.API\Imparsable.API.csproj"/>
+        <ProjectReference Include="..\Imparsable.ServiceDefaults\Imparsable.ServiceDefaults.csproj" />
     </ItemGroup>
 
     <ItemGroup>
