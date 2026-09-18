@@ -24,15 +24,18 @@ export class MemoryService implements OnDestroy {
     datasets: [
       {
         label: 'Allocated',
-        data: []
+        data: [],
+        spanGaps: true
       },
       {
         label: 'Reclaimed',
-        data: []
+        data: [],
+        spanGaps: true
       },
       {
         label: 'Compressed',
-        data: []
+        data: [],
+        spanGaps: true
       }
     ]
   };
