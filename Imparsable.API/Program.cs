@@ -1,7 +1,8 @@
 using Imparsable.Lang.Calculator.LSP.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.AddServiceDefaults();
+var builder = WebApplication
+    .CreateBuilder(args)
+    .AddServiceDefaults();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -19,12 +20,8 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection();
-var webSocketOptions = new WebSocketOptions
-{
-    KeepAliveInterval = TimeSpan.FromMinutes(2)
-};
-
-app.UseWebSockets(webSocketOptions);
+app.UseWebSockets(new() { KeepAliveInterval = TimeSpan.FromMinutes(2) });
 app.MapControllers();
+app.MapDefaultEndpoints();
 
 await app.RunAsync();

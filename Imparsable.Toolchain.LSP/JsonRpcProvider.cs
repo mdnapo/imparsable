@@ -13,6 +13,7 @@ public sealed class JsonRpcProvider(IHttpContextAccessor httpContextAccessor) : 
 
     private HttpContext HttpContext => httpContextAccessor.HttpContext;
     public JsonRpc Connection => _connection ?? throw new InvalidOperationException();
+    public string ConnectionId { get; } = Guid.NewGuid().ToString();
 
     public async Task ConnectAsync(object target)
     {
