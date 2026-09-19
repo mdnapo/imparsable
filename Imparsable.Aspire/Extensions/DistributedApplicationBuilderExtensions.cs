@@ -8,8 +8,38 @@ public static class DistributedApplicationBuilderExtensions
     {
         internal AppResources AddSharedResources()
         {
+            var prometheus = builder
+                .AddContainer("prometheus", "prom/prometheus")
+                .WithBindMount("./observability/prometheus.yml", "/etc/prometheus/prometheus.yml")
+                .WithHttpEndpoint(targetPort: 9090, name: "http");
+
+            var collector = builder
+                .AddOpenTelemetryCollector("otel-collector")
+                .WithConfig("./observability/otel-collector.yml")
+                .WithEnvironment("ASPIRE_OTLP_ENDPOINT", builder.Configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"])
+                .WithEnvironment("PROMETHEUS_ENDPOINT", $"{prometheus.GetEndpoint("http")}/api/v1/otlp")
+                .WaitFor(prometheus);
+
+            var grafana = builder
+                .AddContainer("grafana", "grafana/grafana")
+                .WithEnvironment("PROMETHEUS_ENDPOINT", prometheus.GetEndpoint("http"))
+                .WithBindMount("./observability/grafana/config", "/etc/grafana", isReadOnly: true)
+                .WithBindMount("./observability/grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
+                .WithHttpEndpoint(targetPort: 3000, name: "http")
+                .WaitFor(collector);
+
+            var jaeger = builder
+                .AddContainer("jaeger", "jaegertracing/jaeger")
+                .WithEnvironment("COLLECTOR_OTLP_ENABLED", "true")
+                .WithHttpEndpoint(targetPort: 16686, name: "http")
+                .WithEndpoint(targetPort: 4317, name: "otlp-grpc")
+                .WaitFor(collector);
+
             var api = builder
                 .AddProject<Imparsable_API>("imparsable-api")
+                .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", collector.GetEndpoint("grpc"))
+                .WithEnvironment("OTEL_EXPORTER_OTLP_PROTOCOL", "grpc")
+                .WaitFor(collector)
                 .WithUrlForEndpoint("https", url =>
                 {
                     url.DisplayText = "Swagger";
