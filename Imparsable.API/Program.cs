@@ -1,8 +1,11 @@
 using Imparsable.Lang.Calculator.LSP.Extensions;
+using Imparsable.Toolchain.LSP;
 
 var builder = WebApplication
     .CreateBuilder(args)
-    .AddServiceDefaults();
+    .AddServiceDefaults(
+        tracer: tracer => tracer.AddSource(typeof(LanguageServer).Assembly.GetName().Name!)
+    );
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
