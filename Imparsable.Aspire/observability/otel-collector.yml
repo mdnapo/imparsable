@@ -15,6 +15,11 @@ exporters:
       insecure: ${env:ASPIRE_INSECURE}
       insecure_skip_verify: true # Required in local development because cert is localhost and the endpoint is host.docker.internal
       
+  otlphttp/openobserve:
+    endpoint: ${env:OPENOBSERVE_ENDPOINT}
+    headers:
+      Authorization: ${env:OPENOBSERVE_AUTH}
+      
   prometheus:
     endpoint: 0.0.0.0:8889
 
@@ -36,6 +41,7 @@ service:
       exporters:
         - otlp/aspire
         - prometheus
+        - otlphttp/openobserve
 
     traces:
       receivers:
@@ -45,6 +51,7 @@ service:
       exporters:
         - otlp/aspire
         - otlp/jaeger
+        - otlphttp/openobserve
 
     logs:
       receivers: 
@@ -53,3 +60,4 @@ service:
         - batch
       exporters: 
         - otlp/aspire
+        - otlphttp/openobserve

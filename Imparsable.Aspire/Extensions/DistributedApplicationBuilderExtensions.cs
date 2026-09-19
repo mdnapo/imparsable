@@ -29,14 +29,25 @@ public static class DistributedApplicationBuilderExtensions
                 .WithHttpEndpoint(port: 16686, targetPort: 16686, name: "http")
                 .WithEndpoint(targetPort: 4317, name: "otlp-grpc")
                 .WithUrlForEndpoint("http", url => url.DisplayText = "Jaeger");
+            
+            var openObserve = builder
+                .AddContainer("openobserve", "o2cr.ai/openobserve/openobserve")
+                .WithEnvironment("ZO_ROOT_USER_EMAIL", "root@example.com")
+                .WithEnvironment("ZO_ROOT_USER_PASSWORD", "Complexpass#123")
+                .WithEnvironment("ZO_DATA_DIR", "/data")
+                .WithHttpEndpoint(port: 5080, targetPort: 5080, name: "http")
+                .WithUrlForEndpoint("http", url => url.DisplayText = "OpenObserve");
 
             var collector = builder
                 .AddOpenTelemetryCollector("otel-collector")
                 .WithConfig("./observability/otel-collector.yml")
                 .WithEnvironment("ASPIRE_OTLP_ENDPOINT", builder.Configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"])
                 .WithEnvironment("PROMETHEUS_ENDPOINT", $"{prometheus.GetEndpoint("http")}/api/v1/otlp")
+                .WithEnvironment("OPENOBSERVE_ENDPOINT", $"{openObserve.GetEndpoint("http")}/api/default")
+                .WithEnvironment("OPENOBSERVE_AUTH", "Basic cm9vdEBleGFtcGxlLmNvbTpDb21wbGV4cGFzcyMxMjM=")
                 .WaitFor(prometheus)
-                .WaitFor(jaeger);
+                .WaitFor(jaeger)
+                .WaitFor(openObserve);
 
             var api = builder
                 .AddProject<Imparsable_API>("imparsable-api")
