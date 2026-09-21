@@ -6,7 +6,7 @@ public static class DistributedApplicationBuilderExtensions
 {
     extension(IDistributedApplicationBuilder builder)
     {
-        internal AppResources AddSharedResources()
+        internal void AddRunResources()
         {
             var prometheus = builder
                 .AddContainer("prometheus", "prom/prometheus")
@@ -29,7 +29,7 @@ public static class DistributedApplicationBuilderExtensions
                 .WithHttpEndpoint(port: 16686, targetPort: 16686, name: "http")
                 .WithEndpoint(targetPort: 4317, name: "otlp-grpc")
                 .WithUrlForEndpoint("http", url => url.DisplayText = "Jaeger");
-            
+
             var openObserve = builder
                 .AddContainer("openobserve", "o2cr.ai/openobserve/openobserve")
                 .WithEnvironment("ZO_ROOT_USER_EMAIL", "root@example.com")
@@ -60,16 +60,21 @@ public static class DistributedApplicationBuilderExtensions
                     url.Url += "/swagger";
                 });
 
-            return new AppResources(api);
-        }
-
-        internal void AddRunResources(AppResources resources)
-        {
             builder
                 .AddJavaScriptApp("imparsable-ui", "../Imparsable.UI", "start")
                 .WithUrl("http://localhost:4200", "Imparsable UI")
-                .WaitFor(resources.Api)
+                .WaitFor(api)
                 ;
+        }
+
+        internal void AddPublishResources()
+        {
+            var env = builder
+                .AddKubernetesEnvironment("imparsable")
+                .WithHelm(helm =>
+                {
+                    
+                });
         }
     }
 }

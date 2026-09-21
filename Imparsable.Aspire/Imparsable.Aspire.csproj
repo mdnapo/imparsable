@@ -13,11 +13,8 @@
 
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.JavaScript"/>
-        <PackageReference Include="CommunityToolkit.Aspire.Hosting.OpenTelemetryCollector" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="config\grafana\provisioning\" />
+        <PackageReference Include="Aspire.Hosting.Kubernetes"/>
+        <PackageReference Include="CommunityToolkit.Aspire.Hosting.OpenTelemetryCollector"/>
     </ItemGroup>
 
 </Project>

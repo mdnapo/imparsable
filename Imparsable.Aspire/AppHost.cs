@@ -1,16 +1,20 @@
 using Imparsable.Aspire.Extensions;
 
 var builder = DistributedApplication.CreateBuilder(args);
-var resources = builder.AddSharedResources();
 
-// if (builder.ExecutionContext.IsPublishMode)
-// {
-//     builder.AddPublishResources(resources);
-// }
-// else
-// {
-    builder.AddRunResources(resources);
-// }
+switch (builder.ExecutionContext.Operation)
+{
+    case DistributedApplicationOperation.Run:
+        builder.AddRunResources();
+        break;
+
+    case DistributedApplicationOperation.Publish:
+        builder.AddRunResources();
+        break;
+
+    default:
+        throw new InvalidOperationException("Unknown operation: " + builder.ExecutionContext.Operation);
+}
 
 await builder
     .Build()
