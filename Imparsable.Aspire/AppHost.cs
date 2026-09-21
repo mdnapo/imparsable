@@ -9,7 +9,7 @@ switch (builder.ExecutionContext.Operation)
         break;
 
     case DistributedApplicationOperation.Publish:
-        builder.AddRunResources();
+        builder.AddPublishResources();
         break;
 
     default:
