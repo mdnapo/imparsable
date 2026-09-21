@@ -13,4 +13,21 @@ public static class ResourceBuilderExtensions
             var imagePullSecrets = deployment.Spec.Template.Spec.ImagePullSecrets;
             imagePullSecrets.Add(new LocalObjectReferenceV1 { Name = "image-pull-secret" });
         });
+
+    internal static IResourceBuilder<T> PublishWithMtls<T>(this IResourceBuilder<T> builder)
+        where T : IComputeResource =>
+        builder.PublishAsKubernetesService(resource =>
+        {
+            resource.AdditionalResources.Add(new Namespace
+            {
+                Metadata =
+                {
+                    Name = "imparsable-ns",
+                    Labels =
+                    {
+                        ["io.cilium/mtls-enabled"] = "true"
+                    }
+                }
+            });
+        });
 }
