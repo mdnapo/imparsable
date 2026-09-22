@@ -20,6 +20,8 @@ services:
       - "7281:8080"
     networks:
       - imparsable
+    environment:
+      - API_URL=http://api:8080
 
   cli:
     image: imp-cli

@@ -1,0 +1,53 @@
+# Logging
+access_log /dev/stdout;
+error_log /dev/stderr debug;
+
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  '' close;
+}
+
+server {
+    listen       8080;
+    server_name  localhost;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # WebSocket routing
+    location /lsp/clc {
+        access_log /dev/stdout;
+
+        proxy_pass ${API_URL};
+        proxy_http_version 1.1;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # Angular Routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Static Assets Caching
+    location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg|map)$ {
+        try_files $uri =404;
+        expires 1y;
+        access_log off;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Optional: Explicit asset route
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
