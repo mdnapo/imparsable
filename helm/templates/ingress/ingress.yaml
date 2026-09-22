@@ -1,0 +1,37 @@
+---
+apiVersion: "networking.k8s.io/v1"
+kind: "Ingress"
+metadata:
+  name: "ingress"
+spec:
+  defaultBackend:
+    service:
+      name: "imparsable-ui-service"
+      port:
+        name: "http"
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: "imparsable-ui-service"
+                port:
+                  name: "http"
+            pathType: "Prefix"
+            path: "/"
+      host: "{{ .Values.parameters.ingress.hostname }}"
+    - http:
+        paths:
+          - backend:
+              service:
+                name: "imparsable-ui-service"
+                port:
+                  name: "http"
+            pathType: "Prefix"
+            path: "/"
+      host: "{{ .Values.parameters.ingress.hostname_www }}"
+  tls:
+    - secretName: "ingress-tls"
+      hosts:
+        - "{{ .Values.parameters.ingress.hostname }}"
+        - "{{ .Values.parameters.ingress.hostname_www }}"

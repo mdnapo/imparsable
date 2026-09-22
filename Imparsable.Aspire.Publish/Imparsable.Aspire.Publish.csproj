@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="YamlDotNet.NetCore"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="resources\namespace.yaml"/>
+        <EmbeddedResource Include="resources\namespace.yaml"/>
+        <None Remove="templates\registry-secret.yaml"/>
+        <EmbeddedResource Include="resources\registry-secret.yaml"/>
+    </ItemGroup>
+
+</Project>

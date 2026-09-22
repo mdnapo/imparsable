@@ -30,13 +30,12 @@ public static class DistributedApplicationBuilderExtensions
         {
             var api = builder.AddApi()
                 .WithHttpEndpoint(port: 8080, targetPort: 8080, name: "http")
-                .PublishWithMtls()
-                .PublishWithImagePullSecret();
+                .PublishWithRegistrySecret();
 
             var app = builder.AddDockerfile("imparsable-ui", "../Imparsable.UI")
                 .WithHttpEndpoint(port: 8080, targetPort: 8080, name: "http")
                 .WithExternalHttpEndpoints()
-                .PublishWithImagePullSecret();
+                .PublishWithRegistrySecret();
 
             var env = builder
                 .AddKubernetesEnvironment("imparsable")

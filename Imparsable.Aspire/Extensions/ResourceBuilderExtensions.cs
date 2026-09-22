@@ -4,30 +4,13 @@ namespace Imparsable.Aspire.Extensions;
 
 public static class ResourceBuilderExtensions
 {
-    internal static IResourceBuilder<T> PublishWithImagePullSecret<T>(this IResourceBuilder<T> builder)
+    internal static IResourceBuilder<T> PublishWithRegistrySecret<T>(this IResourceBuilder<T> builder)
         where T : IComputeResource =>
         builder.PublishAsKubernetesService(resource =>
         {
             if (resource.Workload is not Deployment deployment) return;
 
             var imagePullSecrets = deployment.Spec.Template.Spec.ImagePullSecrets;
-            imagePullSecrets.Add(new LocalObjectReferenceV1 { Name = "image-pull-secret" });
-        });
-
-    internal static IResourceBuilder<T> PublishWithMtls<T>(this IResourceBuilder<T> builder)
-        where T : IComputeResource =>
-        builder.PublishAsKubernetesService(resource =>
-        {
-            resource.AdditionalResources.Add(new Namespace
-            {
-                Metadata =
-                {
-                    Name = "imparsable-ns",
-                    Labels =
-                    {
-                        ["io.cilium/mtls-enabled"] = "true"
-                    }
-                }
-            });
+            imagePullSecrets.Add(new LocalObjectReferenceV1 { Name = "registry-secret" });
         });
 }

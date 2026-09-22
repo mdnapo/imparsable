@@ -1,0 +1,21 @@
+parameters:
+  imparsable_api:
+    imparsable_api_image: "imparsable-api:latest"
+  imparsable_ui:
+    imparsable_ui_image: "imparsable-ui:latest"
+  infisical:
+    host: https://infisical.example.com
+    env: dev
+    auth_secret_name: infisical-universal-auth-credentials
+    auth_secret_namespace: infisical
+  registry:
+    project: image-pull-secret-project-slug
+  ingress:
+    hostname: example.com
+    hostname_www: www.example.com
+secrets: {}
+config:
+  imparsable_api:
+    OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+    ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+    HTTP_PORTS: "8080"
