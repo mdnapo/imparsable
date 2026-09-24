@@ -1,0 +1,30 @@
+name: build-helm-chart
+run-name: ${{ gitea.actor }} triggered a build of Imparsable Helm Chart
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: The build tag
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Helm
+        uses: azure/setup-helm@v5.0.0
+      - name: Push Imparsable Helm Chart
+        run: |
+          #!/usr/bin/env bash
+          
+          USER_PASS="${{ secrets.REGISTRY_USER }}:${{ secrets.REGISTRY_PASS }}"
+          FILE="./imparsable-${{ inputs.tag }}.tgz"
+          REGISTRY="https://${{ secrets.REGISTRY_HOST }}/api/packages/${{ secrets.REGISTRY_USER }}/helm/api/charts"
+          
+          # Package Helm chart
+          helm package manifests/helm/imparsable --version ${{ inputs.tag }}
+          
+          # Upload Helm chart
+          curl -X POST --user $USER_PASS --upload-file $FILE $REGISTRY

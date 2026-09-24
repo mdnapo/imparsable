@@ -1,0 +1,22 @@
+name: run-tag
+run-name: ${{ gitea.actor }} triggered a tag
+on:
+  workflow_call:
+    outputs:
+      tag:
+        description: The build tag
+        value: ${{ jobs.tag.outputs.tag }}
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - id: generate
+        run: |
+          SHA="${{ gitea.sha }}"
+          TAG="${SHA::10}"
+          echo "tag=$(cat version.txt)-build-$TAG" >> $GITEA_OUTPUT
+    outputs:
+      tag: ${{ steps.generate.outputs.tag }}

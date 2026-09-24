@@ -9,8 +9,7 @@ public static class ResourceBuilderExtensions
         builder.PublishAsKubernetesService(resource =>
         {
             if (resource.Workload is not Deployment deployment) return;
-
-            var imagePullSecrets = deployment.Spec.Template.Spec.ImagePullSecrets;
-            imagePullSecrets.Add(new LocalObjectReferenceV1 { Name = "registry-secret" });
+            var reference = new LocalObjectReferenceV1 { Name = "registry-secret" };
+            deployment.Spec.Template.Spec.ImagePullSecrets.Add(reference);
         });
 }

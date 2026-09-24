@@ -1,0 +1,35 @@
+name: build
+run-name: ${{ gitea.actor }} triggered a build
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  test:
+    uses: ./.gitea/workflows/run.test.yml
+  
+  tag:
+    uses: ./.gitea/workflows/run.tag.yml
+    needs: [ test ]
+  
+  build-api:
+    uses: ./.gitea/workflows/build.api.yml
+    needs: [ tag ]
+    secrets: inherit
+    with:
+      tag: ${{ needs.tag.outputs.tag }}
+  
+  build-ui:
+    uses: ./.gitea/workflows/build.ui.yml
+    needs: [ tag ]
+    secrets: inherit
+    with:
+      tag: ${{ needs.tag.outputs.tag }}
+  
+  build-helm:
+    uses: ./.gitea/workflows/build.helm.yml
+    needs: [ tag ]
+    secrets: inherit
+    with:
+      tag: ${{ needs.tag.outputs.tag }}
+  

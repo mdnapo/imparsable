@@ -1,0 +1,22 @@
+name: run-tests
+run-name: ${{ gitea.actor }} triggered a test run
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run Imparsable.Toolchain.UnitTests
+        run: dotnet test Imparsable.Toolchain.UnitTests
+
+      - name: Run Imparsable.Toolchain.SourceGenerators.UnitTests
+        run: dotnet test Imparsable.Toolchain.SourceGenerators.UnitTests
