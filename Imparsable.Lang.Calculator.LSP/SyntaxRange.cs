@@ -14,7 +14,7 @@ public readonly record struct SyntaxRange(int StartLine, int StartColumn, int En
 
         return
             (line > StartLine || line == StartLine && character >= StartColumn) &&
-            (line < EndLine || line == EndLine && character <= EndColumn);
+            (line < EndLine || line == EndLine && character < EndColumn);
     }
 
     public bool Precedes(Position position)
